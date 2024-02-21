@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.activityLike.mapper.ActivityLikeMapper">
+
+	<resultMap id="activityLikeMapper" type="com.example.activityLike.enity.ActivityLike">
+		<result property="ids" column="ID" />
+		<result property="mineActivityId" column="MINE_ACTIVITY_ID" />
+		<result property="psnId" column="PSN_ID" />
+		<result property="likeMainId" column="LIKE_MAIN_ID" />
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="createId" column="CREATE_ID" />
+		<result property="updateDate" column="UPDATE_DATE" />
+		<result property="delFlag" column="DEL_FLAG" />
+	</resultMap>
+
+	<select id="selectPageLike" resultMap="activityLikeMapper">
+		SELECT
+			*
+		FROM SYS_ACTIVITY_LIKE
+		WHERE
+		del_flag = '0'
+		<if test="activityLike.ids != null and activityLike.ids != ''">
+			and ID = #{activityLike.ids}
+		</if>
+		<if test="activityLike.mineActivityId != null and activityLike.mineActivityId != null">
+			and MINE_ACTIVITY_ID = #{activityLike.mineActivityId}
+		</if>
+		<if test="activityLike.psnId != null and activityLike.psnId != null">
+			and PSN_ID = #{activityLike.psnId}
+		</if>
+		<if test="activityLike.likeMainId != null and activityLike.likeMainId != ''">
+			and LIKE_MAIN_ID = #{activityLike.likeMainId}
+		</if>
+	</select>
+
+
+	<select id="getActivityLike" resultMap="activityLikeMapper">
+		SELECT
+		*
+		FROM SYS_ACTIVITY_LIKE
+		WHERE
+		del_flag = '0'
+		and id = #{ids}
+	</select>
+
+	<insert id="insertLike">
+		INSERT INTO SYS_ACTIVITY_LIKE(ID,MINE_ACTIVITY_ID,PSN_ID,LIKE_MAIN_ID,CREATE_DATE,CREATE_ID,UPDATE_ID,DEL_FLAG)
+		VALUES(#{activityLike.ids},#{activityLike.mineActivityId},#{activityLike.psnId},#{activityLike.likeMainId},
+		       #{activityLike.createDate},#{activityLike.createId},#{activityLike.updateDate},'0')
+	</insert>
+
+	<!--<update id="updateEmil">
+		update SYS_EMIL set
+		<if test="mineEmil.fromPersonId!=null and mineEmil.fromPersonId!=''">FROM_PERSON_ID = #{mineEmil.fromPersonId},</if>
+		<if test="mineEmil.intoPersonId!=null and mineEmil.intoPersonId!=''">INTO_PERSON_ID = #{mineEmil.intoPersonId},</if>
+		<if test="mineEmil.title!=null and mineEmil.title!=''">TITLE = #{mineEmil.title},</if>
+		<if test="mineEmil.content!=null and mineEmil.content!=''">CONTENT = #{mineEmil.content},</if>
+		<if test="mineEmil.isLike!=null and mineEmil.isLike!=''">IS_LIKE = #{mineEmil.isLike},</if>
+		<if test="mineEmil.isLook!=null and mineEmil.isLook!=''">IS_LOOK = #{mineEmil.isLook},</if>
+		<if test="mineEmil.createDate!=null and mineEmil.createDate!=''">CREATE_DATE = #{mineEmil.createDate},</if>
+		<if test="mineEmil.createId!=null and mineEmil.createId!=''">CREATE_ID = #{mineEmil.createId},</if>
+		<if test="mineEmil.updateDate!=null and mineEmil.updateDate!=''">UPDATE_DATE = #{mineEmil.updateDate},</if>
+		<if test="mineEmil.fromPersonEmil!=null and mineEmil.fromPersonEmil!=''">FROM_PERSON_EMIL = #{mineEmil.fromPersonEmil},</if>
+		<if test="mineEmil.intoPersonEmil!=null and mineEmil.intoPersonEmil!=''">INTO_PERSON_EMIL = #{mineEmil.intoPersonEmil},</if>
+		del_flag = '0'
+		where id = #{mineEmil.ids}
+	</update>-->
+	
+</mapper>

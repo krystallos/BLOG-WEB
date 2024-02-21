@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mineBlos.myBlosTab.mapper.mineBlosTopMapper">
+
+	<resultMap id="mineBlosTopTabs" type="com.example.mineBlos.myBlosTab.enity.MineBlosTop">
+		<result property="ids" column="ID" />
+		<result property="actTitle" column="ACT_TITLE" />
+		<result property="actImg" column="ACT_IMG" />
+		<result property="actType" column="ACT_TYPE" />
+		<result property="actLike" column="ACT_LIKE" />
+		<result property="state" column="STATE" />
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="createId" column="CREATE_ID" />
+		<result property="updateDate" column="UPDATE_DATE" />
+		<result property="delFlag" column="DEL_FLAG" />
+	</resultMap>
+
+	<insert id="writeMineBlos">
+		INSERT INTO SYS_ACTIVITY(ID,ACT_TITLE,ACT_IMG,ACT_TYPE,ACT_LIKE,CREATE_ID,CREATE_DATE,UPDATE_DATE,STATE,DEL_FLAG)
+		VALUES(#{mineBlosTop.ids},#{mineBlosTop.actTitle},#{mineBlosTop.actImg},#{mineBlosTop.actType},#{mineBlosTop.actLike},#{mineBlosTop.createId},#{mineBlosTop.createDate}
+		,#{mineBlosTop.updateDate},#{mineBlosTop.state},#{mineBlosTop.delFlag})
+	</insert>
+
+</mapper>

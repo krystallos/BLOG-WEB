@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.likeMenu.mapper.LikeMenuMapper">
+
+	<resultMap id="likemenumapper" type="com.example.likeMenu.enity.LikeMenu">
+		<result property="ids" column="ID" />
+		<result property="likeName" column="LIKE_NAME" />
+		<result property="likeSort" column="LIKE_SORT" />
+		<result property="likePid" column="LIKE_PID" />
+		<result property="likeRemaker" column="LIKE_REMAKER" />
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="createId" column="CREATE_ID" />
+		<result property="updateDate" column="UPDATE_DATE" />
+		<result property="delFlag" column="DEL_FLAG" />
+		<result property="isDefault" column="IS_DEFAULT" />
+	</resultMap>
+
+	<select id="selectLikeMenu" resultMap="likemenumapper">
+		select *
+		from sys_like
+		where 1=1
+		and del_flag = '0' and state = '1'
+		<if test="likeMenu.likeName!= null and likeMenu.likeName != ''">
+			AND LIKE_NAME = #{likeMenu.likeName}
+		</if>
+		order by like_sort DESC
+	</select>
+
+	<update id="updateLikeMenuTab">
+		UPDATE sys_like SET
+				LIKE_NAME = #{likeMenu.likeName},
+				LIKE_SORT = #{likeMenu.likeSort},
+				LIKE_REMAKER = #{likeMenu.likeRemaker}
+		WHERE 1=1
+		and ID = #{likeMenu.ids}
+	</update>
+
+	<update id="delLikeMenuTab">
+		UPDATE sys_like SET
+			DEL_FLAG = #{likeMenu.delFlag}
+		WHERE 1=1
+		  and ID = #{likeMenu.ids}
+	</update>
+
+	<select id="getLikeMenu" resultMap="likemenumapper">
+		SELECT
+			*
+		FROM
+			sys_like
+		WHERE
+			ID = #{ids}
+	</select>
+
+	<insert id="insertLikeMenuTab" parameterType="com.example.likeMenu.enity.LikeMenu">
+		INSERT INTO sys_like(ID, LIKE_NAME, LIKE_PID, LIKE_SORT, LIKE_REMAKER, CREATE_DATE, CREATE_ID, UPDATE_DATE, DEL_FLAG, STATE, IS_DEFAULT) VALUES
+		(#{likeMenu.ids}, #{likeMenu.likeName}, '' ,#{likeMenu.likeSort}, #{likeMenu.likeRemaker},
+		#{likeMenu.createDate}, #{likeMenu.createId}, #{likeMenu.updateDate}, '0', #{likeMenu.state}, '1')
+	</insert>
+
+	<select id="selectDefLikeMenu" resultMap="likemenumapper">
+		select *
+		from sys_like sys
+		where 1=1
+		  and del_flag = '0' and state = '1'
+		and is_default = '0'
+	</select>
+
+</mapper>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.login.mapper.RegistMapper">
+
+	<resultMap id="loginmapper" type="com.example.login.enity.Login">
+		<result property="ids" column="id" />
+		<result property="userName" column="USER_NAME" />
+		<result property="areaId" column="AREA_ID" />
+		<result property="orgSessionId" column="ORG_SESSION_ID" />
+		<result property="userPassWord" column="USER_PASSWORD" />
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="createId" column="CREATE_ID" />
+		<result property="updateDate" column="UPDATE_DATE" />
+		<result property="state" column="USER_STATE" />
+		<result property="delFlag" column="DEL_FLAG" />
+		<result property="email" column="EMAIL" />
+		<result property="phone" column="PHONE" />
+	</resultMap>
+
+	<insert id="createNewUser" parameterType="com.example.login.enity.Login">
+		INSERT INTO
+		    SYS_USER (ID,USER_NAME,AREA_ID,ORG_SESSION_ID,USER_PASSWORD,CREATE_DATE,CREATE_ID,UPDATE_DATE,USER_STATE,DEL_FLAG,Email,PHONE)
+		    VALUES (#{login.ids}, #{login.userName},'','',#{login.userPassWord},#{login.createDate},'',#{login.updateDate},'1','0',#{login.email},#{login.phone})
+	</insert>
+
+	<select id="selectProUser" resultMap="loginmapper">
+		SELECT
+			*
+		FROM
+			sys_user
+		WHERE
+			(
+			    EMAIL = #{login.email}
+				<if test="login.phone != null and login.phone != ''">OR PHONE = #{login.phone}</if>
+			)
+			<if test="login.ids != null and login.ids != ''">
+				AND ID = #{login.ids}
+			</if>
+	</select>
+
+	<update id="changePassWord">
+		UPDATE SYS_USER SET USER_PASSWORD = #{getBackPassWord.passWord} WHERE ID = #{getBackPassWord.uid} AND EMAIL = #{getBackPassWord.email}
+	</update>
+
+</mapper>

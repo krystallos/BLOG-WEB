@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.fileConfig.mapper.FileUtilMapper">
+
+	<resultMap id="fileUtilMapper" type="com.example.fileConfig.enity.FileUtil">
+		<result property="ids" column="ID" />
+		<result property="isValid" column="IS_VALID" />
+		<result property="psnId" column="PSN_ID" />
+		<result property="filePath" column="FILE_PATH" />
+		<result property="isHas" column="IS_HAS" />
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="createId" column="CREATE_ID" />
+		<result property="updateDate" column="UPDATE_DATE" />
+		<result property="delFlag" column="DEL_FLAG" />
+	</resultMap>
+
+	<select id="get" resultMap="fileUtilMapper">
+		select *
+		from sys_person_file
+		where 1=1
+		and del_flag = '0' and id = #{fileUtil.ids}
+	</select>
+
+	<select id="selectFileUtilTab" resultMap="fileUtilMapper">
+		select *
+		from sys_person_file
+		where 1=1
+		and del_flag = '0'
+		<if test="fileUtil.psnId != '' and fileUtil.psnId != null">
+			and psn_Id = #{fileUtil.psnId}
+		</if>
+		<if test="fileUtil.filePath != '' and fileUtil.filePath != null">
+			and file_Path LIKE '%' || #{fileUtil.filePath} || '%'
+		</if>
+		<if test="fileUtil.isHas != '' and fileUtil.isHas != null">
+			and is_has = #{fileUtil.isHas}
+		</if>
+		<if test="fileUtil.ids != '' and fileUtil.ids != null">
+			and id = #{fileUtil.ids}
+		</if>
+		<if test="fileUtil.isValid != '' and fileUtil.isValid != null">
+			and is_Valid = #{fileUtil.isValid}
+		</if>
+	</select>
+
+	<insert id="insertFileUtil">
+		INSERT INTO sys_person_file(ID,IS_VALID,PSN_ID,FILE_PATH,IS_HAS,CREATE_ID,CREATE_DATE,UPDATE_DATE,DEL_FLAG)
+		VALUES(#{fileUtil.ids},#{fileUtil.isValid},#{fileUtil.psnId},#{fileUtil.filePath},#{fileUtil.isHas},#{fileUtil.createId},#{fileUtil.createDate},#{fileUtil.updateDate},'0')
+	</insert>
+
+	<update id="updateLog">
+		UPDATE sys_person_file set
+		<if test="fileUtil.psnId != '' and fileUtil.psnId != null">
+			psn_id = #{fileUtil.psnId},
+		</if>
+		<if test="fileUtil.filePath != '' and fileUtil.filePath != null">
+			file_path = #{fileUtil.filePath},
+		</if>
+		<if test="fileUtil.isHas != '' and fileUtil.isHas != null">
+			is_has = #{fileUtil.isHas},
+		</if>
+		<if test="fileUtil.delFlag != '' and fileUtil.delFlag != null">
+			del_flag = #{fileUtil.delFlag},
+		</if>
+		<if test="fileUtil.isValid != '' and fileUtil.isValid != null">
+			is_valid = #{fileUtil.isValid},
+		</if>
+		update_date = #{fileUtil.updateDate}
+		where ID = #{fileUtil.ids}
+	</update>
+
+</mapper>

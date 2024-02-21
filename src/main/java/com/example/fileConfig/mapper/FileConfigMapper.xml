@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.fileConfig.mapper.FileConfigMapper">
+
+	<resultMap id="fileConfigMapper" type="com.example.fileConfig.enity.FileConfig">
+		<result property="ids" column="ID" />
+		<result property="pathName" column="PATH" />
+		<result property="psnId" column="PSN_ID" />
+		<result property="fileName" column="FILE_NAME" />
+		<result property="fileType" column="FILE_TYPE" />
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="createId" column="CREATE_ID" />
+		<result property="updateDate" column="UPDATE_DATE" />
+		<result property="delFlag" column="DEL_FLAG" />
+		<result property="likeSize" column="LIKE_SIZE"/>
+		<result property="likeFloat" column="LIKE_FLOAT"/>
+		<result property="isHas" column="IS_HAS"/>
+		<result property="thumbnail" column="THUMBNAIL"/>
+		<result property="tagName" column="TAG_NAME"/>
+		<result property="authorName" column="PIXIV_NAME"/>
+		<result property="authorId" column="AID"/>
+	</resultMap>
+
+	<resultMap id="fileRandomMapper" type="com.example.api.randomImg.enity.FileRandom">
+		<result property="ids" column="ID" />
+		<result property="pathName" column="PATH" />
+		<result property="fileName" column="FILE_NAME" />
+		<result property="thumbnail" column="THUMBNAIL"/>
+		<result property="countImg" column="COUNT_IMAGE"/>
+		<result property="avgScore" column="AVG_SCORE"/>
+		<result property="tempPath" column="TEMP_PATH"/>
+		<result property="tagName" column="TAG_NAME"/>
+		<result property="authorId" column="AUTHOR_ID"/>
+		<result property="authorName" column="AUTHOR_NAME"/>
+	</resultMap>
+
+	<resultMap id="fileDetial" type="com.example.fileConfig.enity.FileDetial">
+		<result property="pathName" column="PATH" />
+		<result property="psnName" column="PSN_NAME" />
+		<result property="fileName" column="FILE_NAME" />
+		<result property="fileType" column="FILE_TYPE"/>
+		<result property="createDate" column="CREATE_DATE"/>
+		<result property="isHas" column="IS_HAS"/>
+		<result property="isSync" column="IS_SYNC"/>
+		<result property="authorName" column="PIXIV_NAME"/>
+		<result property="pixivId" column="PIXIV_ID"/>
+		<result property="headImage" column="HEAD_IMAGE"/>
+		<result property="region" column="REGION"/>
+		<collection property="tagNameList" ofType="java.lang.String">
+			<result column="TAG_TRANSLATORS" />
+		</collection>
+	</resultMap>
+
+	<select id="selectDetialImage" resultMap="fileDetial">
+		SELECT
+			sf.PATH,
+			ps.PSN_NAME,
+			sf.FILE_NAME,
+			sf.FILE_TYPE,
+			sf.CREATE_DATE,
+			sf.IS_HAS,
+			sf.IS_SYNC,
+			sttf.TAG_TRANSLATORS,
+			sfa.PIXIV_NAME,
+			sfa.PIXIV_ID,
+			sfa.HEAD_IMAGE,
+			sfa.REGION
+		FROM
+			SYS_FILE sf
+			LEFT JOIN SYS_TAG_TRANSLATORS_FILE sttf ON sttf.FROM_FILE_ID = sf.ID
+			LEFT JOIN SYS_FILE_AUTHOR sfa ON sfa.ID = sf.AUTHOR_ID
+			LEFT JOIN SYS_PERSON ps ON ps.ID = sf.PSN_ID
+		WHERE
+			sf.ID = #{fileUnit.ids}
+	</select>
+
+	<sql id="fileAllTab">
+		ID AS ids,
+		PATH AS pathName,
+		PSN_ID AS psnId,
+		FILE_TYPE AS fileType,
+		CREATE_DATE AS createDate,
+		CREATE_ID AS createId,
+		UPDATE_DATE AS updateDate,
+		DEL_FLAG AS delFlag,
+		IS_HAS AS isHas
+	</sql>
+
+	<select id="selectFileConfigCount" resultType="java.lang.Integer">
+		select
+			COUNT(a.ID)
+		FROM
+		SYS_FILE a
+		LEFT JOIN SYS_FILE_AUTHOR b ON b.ID = a.AUTHOR_ID
+		LEFT JOIN (
+		    SELECT FROM_FILE_ID,listagg(TO_CHAR(TAG_TRANSLATORS),',') within group (order by FROM_FILE_ID) as TAG_TRANSLATORS
+		    FROM SYS_TAG_TRANSLATORS_FILE
+		    GROUP BY FROM_FILE_ID
+		) c ON c.from_file_id = a.id
+		where
+		a.del_flag = '0'
+		<if test="fileConfig.tagName != '' and fileConfig.tagName != null">
+			and c.TAG_TRANSLATORS LIKE '%' || #{fileConfig.tagName} || '%'
+		</if>
+		<if test="fileConfig.psnId != '' and fileConfig.psnId != null">
+			and a.psn_Id = #{fileConfig.psnId}
+		</if>
+		<if test="fileConfig.fileName != '' and fileConfig.fileName != null">
+			and TO_NCHAR(a.FILE_NAME) LIKE '%' || #{fileConfig.fileName,jdbcType=NVARCHAR} || '%'
+		</if>
+		<if test="fileConfig.pathName != '' and fileConfig.pathName != null">
+			and a.PATH LIKE '%' || #{fileConfig.pathName} || '%'
+		</if>
+		<if test="fileConfig.isHas != '' and fileConfig.isHas != null">
+			and a.IS_HAS = #{fileConfig.isHas}
+		</if>
+		<if test="fileConfig.authorName != '' and fileConfig.authorName != null">
+			and b.PIXIV_NAME LIKE '%' || #{fileConfig.authorName} || '%'
+		</if>
+	</select>
+
+	<select id="selectLikeConfig" resultMap="fileConfigMapper">
+		SELECT
+			tab.*
+		FROM
+		(
+			select
+				#{fileConfig.lonPathNameType} || '/' || a.PATH || '/' AS lonPathNameType,
+				#{fileConfig.thumbnail} || '/' || a.THUMBNAIL || '/' AS THUMBNAIL,
+				a.FILE_NAME,
+				a.ID,
+				a.PATH,
+				b.PSN_NAME as psnName,
+				a.FILE_TYPE,
+				a.CREATE_DATE,
+				a.CREATE_ID,
+				a.UPDATE_DATE,
+				a.DEL_FLAG,
+				CASE WHEN a.IS_HAS = '1' THEN '公开' ELSE '非公开' END AS IS_HAS,
+				c.TAG_TRANSLATORS as tag_Name,
+				d.PIXIV_NAME as PIXIV_NAME,
+			    d.ID as AID,
+				ROW_NUMBER ( ) OVER ( ORDER BY a.CREATE_DATE DESC ) r
+			from
+				SYS_FILE a
+				Left join sys_person b on b.id = a.psn_id
+				LEFT JOIN SYS_FILE_AUTHOR d on d.ID = a.AUTHOR_ID
+				LEFT join (SELECT FROM_FILE_ID,listagg(TO_CHAR(TAG_TRANSLATORS),',') within group (order by FROM_FILE_ID) as TAG_TRANSLATORS FROM SYS_TAG_TRANSLATORS_FILE GROUP BY FROM_FILE_ID) c ON c.from_file_id = a.id
+			where
+				a.del_flag = '0'
+				and b.del_flag = '0'
+				<if test="fileConfig.tagName != '' and fileConfig.tagName != null">
+					and c.TAG_TRANSLATORS LIKE '%' || #{fileConfig.tagName} || '%'
+				</if>
+				<if test="fileConfig.psnId != '' and fileConfig.psnId != null">
+					and a.psn_Id = #{fileConfig.psnId}
+				</if>
+				<if test="fileConfig.fileName != '' and fileConfig.fileName != null">
+					and TO_NCHAR(a.FILE_NAME) LIKE '%' || #{fileConfig.fileName,jdbcType=NVARCHAR} || '%'
+				</if>
+				<if test="fileConfig.pathName != '' and fileConfig.pathName != null">
+					and a.PATH LIKE '%' || #{fileConfig.pathName} || '%'
+				</if>
+				<if test="fileConfig.isHas != '' and fileConfig.isHas != null">
+					and a.IS_HAS = #{fileConfig.isHas}
+				</if>
+				<if test="fileConfig.authorName != '' and fileConfig.authorName != null">
+					and d.PIXIV_NAME LIKE '%' || #{fileConfig.authorName} || '%'
+				</if>
+			ORDER BY
+				a.CREATE_DATE DESC
+		)tab
+		WHERE
+		tab.r BETWEEN (#{fileConfig.nowTab} - 1) * #{fileConfig.hasTab} + 1 AND #{fileConfig.nowTab} * #{fileConfig.hasTab}
+	</select>
+
+	<resultMap id="groupImg" type="com.example.fileConfig.enity.FileGroupFa">
+		<id property="filePathName" column="PATH" />
+		<id property="isHas" column="IS_HAS" />
+		<collection property="fileGroupChilList" ofType="com.example.fileConfig.enity.FileGroupChil">
+			<result property="imgName" column="FILE_NAME" />
+			<result property="imgPath" column="THUMBNAIL" />
+			<result property="imgLookPath" column="MAXIMG" />
+		</collection>
+	</resultMap>
+
+	<select id="selectFileConfigGroup" resultMap="groupImg">
+		SELECT
+			'/imgItem/' || REPLACE(sf.PATH, '\', '/') || '/' || sf.FILE_NAME AS THUMBNAIL,
+			'/img/' || REPLACE(sf.PATH, '\', '/') || '/' || sf.FILE_NAME AS MAXIMG,
+			sf.FILE_NAME,
+			sf.PATH,
+			sf.IS_HAS
+		FROM
+			sys_file sf
+		WHERE
+			sf.PATH IN (
+			    SELECT PATH FROM(
+			        SELECT ROWNUM r,r.* FROM (
+			            SELECT * FROM (
+			                SELECT PATH FROM sys_file WHERE PSN_ID = 1
+								<if test="fileConfig.isHas != null and fileConfig.isHas != ''">
+									AND IS_HAS = #{fileConfig.isHas}
+								</if>
+			                	<if test="fileConfig.pathName != null and fileConfig.pathName != ''">
+									AND PATH LIKE '%' || #{fileConfig.pathName} || '%'
+								</if>
+								<if test="fileConfig.fileName != '' and fileConfig.fileName != null">
+									and TO_NCHAR(FILE_NAME) LIKE '%' || #{fileConfig.fileName,jdbcType=NVARCHAR} || '%'
+								</if>
+			                ORDER BY CREATE_DATE DESC
+			            ) GROUP BY PATH
+			        )r
+			    ) WHERE r BETWEEN ((#{fileConfig.nowTab} - 1) * #{fileConfig.hasTab} + 1) AND ( #{fileConfig.nowTab} * #{fileConfig.hasTab} )
+			)
+			<if test="fileConfig.isHas != null and fileConfig.isHas != ''">
+				AND sf.IS_HAS = #{fileConfig.isHas}
+			</if>
+			<if test="fileConfig.pathName != null and fileConfig.pathName != ''">
+				AND PATH LIKE '%' || #{fileConfig.pathName} || '%'
+			</if>
+			<if test="fileConfig.fileName != '' and fileConfig.fileName != null">
+				and FILE_NAME LIKE '%' || TO_NCHAR(#{fileConfig.fileName}) || '%'
+			</if>
+	</select>
+
+	<select id="countSelectFileConfigGroup" resultType="int">
+		SELECT
+		    COUNT(cot.ID)
+		FROM(
+			select
+			count(PATH) AS ID
+			from sys_file a
+			Left join sys_person b on b.id = a.psn_id
+			where
+			a.del_flag = '0'
+			and b.del_flag = '0'
+			<if test="fileConfig.psnId != '' and fileConfig.psnId != null">
+				and a.psn_Id = #{fileConfig.psnId}
+			</if>
+			<if test="fileConfig.fileName != '' and fileConfig.fileName != null">
+				and TO_NCHAR(a.FILE_NAME) LIKE '%' || #{fileConfig.fileName,jdbcType=NVARCHAR} || '%'
+			</if>
+			<if test="fileConfig.pathName != '' and fileConfig.pathName != null">
+				and a.PATH LIKE '%' || #{fileConfig.pathName} || '%'
+			</if>
+			<if test="fileConfig.isHas != '' and fileConfig.isHas != null">
+				and a.IS_HAS = #{fileConfig.isHas}
+			</if>
+			group by PATH
+		)cot
+	</select>
+
+	<select id="selectLikeConfigInt" resultType="int">
+		select
+		count(a.id)
+		from sys_file a
+		Left join sys_person b on b.id = a.psn_id
+		where 1=1
+		and a.del_flag = '0'
+		and b.del_flag = '0'
+		<if test="fileConfig.psnId != '' and fileConfig.psnId != null">
+			and a.psn_Id = #{fileConfig.psnId}
+		</if>
+		<if test="fileConfig.fileName != '' and fileConfig.fileName != null">
+			and TO_NCHAR(a.FILE_NAME) LIKE '%' || #{fileConfig.fileName,jdbcType=NVARCHAR} || '%'
+		</if>
+		<if test="fileConfig.pathName != '' and fileConfig.pathName != null">
+			and a.PATH LIKE '%' || #{fileConfig.pathName} || '%'
+		</if>
+		<if test="fileConfig.isHas != '' and fileConfig.isHas != null">
+			and a.IS_HAS = #{fileConfig.isHas}
+		</if>
+	</select>
+
+	<select id="selectIdListImg" resultType="com.example.fileConfig.enity.FileUtil">
+		SELECT
+		    a.PATH || '\' || a.FILE_NAME AS filePath,
+		    a.FILE_NAME AS fileName,
+			a.UPDATE_DATE AS updateDate,
+		    b.PIXIV_NAME as authorName
+		FROM
+		    SYS_FILE a
+			LEFT JOIN SYS_FILE_AUTHOR b ON a.AUTHOR_ID = b.ID
+		WHERE
+		    a.DEL_FLAG = '0'
+			AND a.ID IN
+		<foreach item="idsLet" collection="ids.split(',')" open="(" separator="," close=")" index="index">
+			#{idsLet}
+		</foreach>
+	</select>
+
+	<select id="selectListPathImg" resultType="java.lang.String">
+		SELECT
+			PATH || '\' || FILE_NAME
+		FROM
+			SYS_FILE
+		WHERE
+		ID IN (
+		<foreach collection="ids" index="index" item="item" separator=",">
+			#{item}
+		</foreach>
+		)
+	</select>
+
+	<select id="selectRandomImg" resultMap="fileRandomMapper">
+		SELECT
+			*
+		FROM(
+			SELECT
+				vf.PATH,
+				vf.FILE_NAME,
+				vf.THUMBNAIL,
+				vf.ID,
+				vf.TEMP_PATH,
+				vf.TAG_TRANSLATORS AS TAG_NAME
+				,vf.AUTHOR_ID AS AUTHOR_ID
+-- 				,vf.AUTHOR_NAME AS AUTHOR_NAME
+			FROM
+				VIEW_FILE vf
+			<where>
+				<if test="getFileRandom.tagName != null and getFileRandom.tagName != ''">
+					AND vf.TAG_TRANSLATORS LIKE '%' || #{getFileRandom.tagName} || '%'
+				</if>
+				<if test="getFileRandom.authorId != null and getFileRandom.authorId != ''">
+					AND vf.AUTHOR_ID = #{getFileRandom.authorId}
+				</if>
+				<if test="getFileRandom.isHas != null">
+					AND vf.IS_HAS = #{getFileRandom.isHas}
+				</if>
+			</where>
+			ORDER BY
+			dbms_random.value
+		)
+		WHERE ROWNUM &lt; 4
+	</select>
+
+	<select id="selectRandomScore" resultType="java.util.HashMap">
+		SELECT
+			COUNT(ID) as countId,
+			TRUNC(AVG(SCORE), 0) as avgScore
+		FROM
+			OPEN_FILE_IMAGE_SCORE
+		WHERE
+			IMG_ID = #{imageId}
+		GROUP BY
+			IMG_ID
+	</select>
+
+	<select id="selectErrImg" resultMap="fileConfigMapper">
+		SELECT
+		PATH
+		FROM
+		(SELECT 'img\' || PATH || '\' || FILE_NAME AS PATH FROM SYS_FILE WHERE DEL_FLAG = '0'
+		AND IS_HAS = '1'
+		ORDER BY dbms_random.value())
+		WHERE rownum &lt; 3
+	</select>
+
+	<insert id="insertFileConfig">
+		INSERT INTO SYS_FILE(ID,PATH,PSN_ID,FILE_NAME,FILE_TYPE,CREATE_DATE,CREATE_ID,UPDATE_DATE,DEL_FLAG,IS_HAS,THUMBNAIL,PATH_ID)
+		VALUES(#{fileConfig.ids},#{fileConfig.pathName},#{fileConfig.psnId},#{fileConfig.fileName},
+		       #{fileConfig.fileType},#{fileConfig.createDate},#{fileConfig.createId},#{fileConfig.updateDate},
+			   '0',#{fileConfig.isHas},#{fileConfig.thumbnail},#{fileConfig.pathId})
+	</insert>
+	
+	<delete id="delPsnImg">
+		DELETE FROM SYS_FILE WHERE psn_id = #{fileConfig.psnId}
+		<if test="fileConfig.readyType != '' and fileConfig.readyType != null">
+			<if test="fileConfig.readyType == '1'.toString()">
+				and PATH_ID IN (SELECT ID FROM SYS_PERSON_FILE WHERE IS_VALID = '1')
+			</if>
+		</if>
+	</delete>
+
+	<select id="selectLikeDouble" resultMap="fileConfigMapper">
+		select
+			a.FILE_NAME,
+			a.FILE_TYPE,
+			b.psn_name as psnName,
+			count(FILE_NAME) as LIKE_SIZE
+		from sys_file a
+				 Left join sys_person b on b.id = a.psn_id
+		where 1=1
+		  and a.del_flag = '0'
+		  and b.del_flag = '0'
+		<if test="fileConfig.psnId != '' and fileConfig.psnId != null">
+			and a.psn_Id = #{fileConfig.psnId}
+		</if>
+		<if test="fileConfig.fileName != '' and fileConfig.fileName != null">
+			and TO_NCHAR(a.FILE_NAME) LIKE '%' || #{fileConfig.fileName,jdbcType=NVARCHAR} || '%'
+		</if>
+		GROUP BY a.FILE_NAME,FILE_TYPE,B.PSN_NAME
+		HAVING count(FILE_NAME) >1
+	</select>
+
+	<insert id="insertFileAllConfig">
+		INSERT ALL INTO SYS_FILE(ID,PATH,PSN_ID,FILE_NAME,FILE_TYPE,CREATE_DATE,CREATE_ID,UPDATE_DATE,DEL_FLAG,IS_HAS,THUMBNAIL,PATH_ID,IS_SYNC)(
+		<foreach collection="msg" index="" item="fileConfig" separator="union all">
+			SELECT #{fileConfig.ids},#{fileConfig.pathName},#{fileConfig.psnId},#{fileConfig.fileName,jdbcType=NVARCHAR},
+			#{fileConfig.fileType},TO_CHAR(sysdate,'yyyy-mm-dd HH24:MI:SS') AS "createDate",#{fileConfig.createId},TO_CHAR(sysdate,'yyyy-mm-dd HH24:MI:SS') AS "updateDate",
+			#{fileConfig.delFlag},#{fileConfig.isHas},#{fileConfig.thumbnail},#{fileConfig.pathId},'1' FROM DUAL
+		</foreach>
+		)
+	</insert>
+	
+	<delete id="delFlagFileAllConfig">
+		DELETE FROM SYS_FILE WHERE ID IN(
+		<foreach collection="msg" index="index" item="item" separator=",">
+			#{item}
+		</foreach>
+		)
+		AND PSN_ID = #{psnId}
+	</delete>
+
+	<insert id="insertFileScore">
+		INSERT INTO OPEN_FILE_IMAGE_SCORE (ID, IMG_ID, SCORE, CREATE_DATE, SESSION_ID)
+		VALUES (#{fileScore.ids}, #{fileScore.imgId}, #{fileScore.score}, #{fileScore.createDate}, #{fileScore.sessionId})
+	</insert>
+
+	<update id="updateImageTag">
+		UPDATE SYS_FILE SET TAG_NAME = TAG_NAME || CASE WHEN TAG_NAME IS NULL THEN '' ELSE ',' END || #{fileRandom.tagName} WHERE ID = #{fileRandom.ids}
+	</update>
+
+	<insert id="insertTag">
+		INSERT ALL INTO SYS_TAG_TRANSLATORS_FILE(TAG_TRANSLATORS, FROM_FILE_ID, IS_DEL)(
+		<foreach collection="fileConfig.tagNameList" item="list" separator="union all">
+			SELECT #{list,jdbcType=NVARCHAR}, #{fileConfig.ids}, '0' FROM DUAL
+		</foreach>
+		)
+	</insert>
+
+	<select id="selectGroupAuthPid" resultType="com.example.fileConfig.enity.pixivEnity.PixivHasUrl">
+		SELECT
+			a.PATH as path,
+			a.IS_HAS as isHas
+		FROM
+			SYS_FILE a
+		WHERE
+			a.IS_SYNC = 1
+			<if test="voReturn.pathName != null and voReturn.pathName != ''">
+				AND a.PATH LIKE '%' || #{voReturn.pathName} || '%'
+			</if>
+		GROUP BY
+			a.PATH,a.IS_HAS
+	</select>
+
+	<select id="selectGroupAuthUid" resultType="java.lang.String">
+		SELECT
+			PATH
+		FROM(
+			SELECT
+				REPLACE( REPLACE(a.PATH, '\', '/'), #{pixivHasUrl.path}, '') PATH
+			FROM
+				SYS_FILE a
+			WHERE
+				a.IS_HAS = #{pixivHasUrl.isHas}
+			  	AND a.IS_SYNC = '1'
+			  	AND a.PATH NOT LIKE '%' || #{pixivHasUrl.notPath} || '%'
+			  	<if test="pixivHasUrl.selectPath != null and pixivHasUrl.selectPath != ''">
+					AND a.PATH = #{pixivHasUrl.selectPath}
+				</if>
+		)
+		WHERE
+		    PATH NOT LIKE '%/%'
+		GROUP BY
+			PATH
+	</select>
+
+	<select id="selectHasAuthor" resultType="java.lang.String">
+		SELECT
+			ID
+		FROM
+			SYS_FILE_AUTHOR
+		WHERE
+			PIXIV_ID = #{authorId}
+			AND DEL_FLAG = 0
+	</select>
+
+	<insert id="insertAuthor">
+		INSERT INTO SYS_FILE_AUTHOR (ID, PIXIV_NAME, PIXIV_ID, REGION, HEAD_IMAGE, DEL_FLAG)
+		VALUES (#{pixivAuthor.ids}, #{pixivAuthor.body.name,jdbcType=NVARCHAR}, #{pixivAuthor.body.userId},
+		        <choose>
+		        	<when test="pixivAuthor.body.region.name != null and pixivAuthor.body.region.name != ''">
+						#{pixivAuthor.body.region.name},
+					</when>
+					<otherwise>
+						#{pixivAuthor.body.region.regionName},
+					</otherwise>
+				</choose>
+		        #{pixivAuthor.body.image}, '0')
+	</insert>
+
+	<update id="updateAuthor">
+		UPDATE SYS_FILE_AUTHOR
+		SET PIXIV_NAME = #{pixivAuthor.body.name},
+		    REGION = #{pixivAuthor.body.region.name},
+		    HEAD_IMAGE = #{pixivAuthor.body.image}
+		WHERE ID = #{pixivAuthor.ids}
+	</update>
+
+	<select id="selectGroupLissImagePid" resultType="com.example.fileConfig.enity.FileUnit">
+		SELECT
+			FILE_NAME as fileName,
+			ID as ids
+		FROM
+		    SYS_FILE
+		WHERE
+		    PATH LIKE '%'|| #{pid} ||'%'
+			AND IS_SYNC = 1
+	</select>
+
+	<update id="updateSync">
+		UPDATE SYS_FILE SET IS_SYNC = 0, AUTHOR_ID = #{authorIds} WHERE ID = #{ids}
+	</update>
+
+</mapper>

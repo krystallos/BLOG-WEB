@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.emil.mapper.MineEmilMapper">
+
+	<resultMap id="mineEmilMapper" type="com.example.emil.enity.MineEmil">
+		<result property="ids" column="ID" />
+		<result property="fromPersonId" column="FROM_PERSON_ID" />
+		<result property="fromPersonName" column="FROM_PERSON_NAME" />
+		<result property="intoPersonId" column="INTO_PERSON_ID" />
+		<result property="intoPersonName" column="INTO_PERSON_NAME" />
+		<result property="title" column="TITLE"/>
+		<result property="content" column="CONTENT"/>
+		<result property="isLike" column="IS_LIKE"/>
+		<result property="isLook" column="IS_LOOK"/>
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="createId" column="CREATE_ID" />
+		<result property="updateDate" column="UPDATE_DATE" />
+		<result property="delFlag" column="DEL_FLAG" />
+		<result property="fromPersonEmil" column="FROM_PERSON_EMIL" />
+		<result property="intoPersonEmil" column="INTO_PERSON_EMIL" />
+	</resultMap>
+
+	<select id="selectPageEmil" resultMap="mineEmilMapper">
+		SELECT ord.*
+		FROM(
+		SELECT
+			emil.ID,emil.FROM_PERSON_ID,emil.INTO_PERSON_ID,emil.TITLE,
+			CASE WHEN emil.IS_LIKE = '1' THEN '重要邮件' ELSE '常规邮件' END AS IS_LIKE,
+			CASE WHEN emil.IS_LOOK = '1' THEN '已读' WHEN emil.IS_LOOK = '2' THEN '草稿箱' ELSE '未读' END AS IS_LOOK,emil.CREATE_DATE,emil.CREATE_ID,
+			emil.UPDATE_DATE,emil.DEL_FLAG,
+			person1.psn_name AS FROM_PERSON_NAME,person2.psn_name AS INTO_PERSON_NAME,
+			emil.FROM_PERSON_EMIL,emil.INTO_PERSON_EMIL
+		FROM
+		     SYS_EMIL emil
+			LEFT JOIN SYS_PERSON person1 ON person1.id = emil.FROM_PERSON_ID AND person1.del_flag = '0'
+			LEFT JOIN SYS_PERSON person2 ON person2.id = emil.INTO_PERSON_ID AND person2.del_flag = '0'
+		WHERE
+			emil.del_flag = '0'
+			<if test="mineEmil.ids != null and mineEmil.ids != ''">
+				and emil.id = #{mineEmil.ids}
+			</if>
+			<if test="mineEmil.fromPersonName != null and mineEmil.fromPersonName != null">
+				and person1.psn_name like '%'|| #{mineEmil.fromPersonName} ||'%'
+			</if>
+			<if test="mineEmil.intoPersonName != null and mineEmil.intoPersonName != null">
+				and person2.psn_name like '%'|| #{mineEmil.intoPersonName} ||'%'
+			</if>
+			<if test="mineEmil.title != null and mineEmil.title != ''">
+				and emil.title like '%'|| #{mineEmil.title} ||'%'
+			</if>
+			<if test="mineEmil.isLike != '' and mineEmil.isLike != null">
+				and emil.is_Like = #{mineEmil.isLike}
+			</if>
+			<if test="mineEmil.isLook != '' and mineEmil.isLook != null">
+				and emil.is_look = #{mineEmil.isLook}
+			</if>
+			<if test="mineEmil.isAll != null and mineEmil.isAll != '' and mineEmil.isAll== '1'.toString() ">
+				<if test="mineEmil.intoPersonId != null and mineEmil.intoPersonId != ''">
+					and (emil.INTO_PERSON_ID = #{mineEmil.intoPersonId}
+				</if>
+				<if test="mineEmil.fromPersonId != null and mineEmil.fromPersonId != ''">
+					or emil.FROM_PERSON_ID = #{mineEmil.fromPersonId})
+				</if>
+			</if>
+			<if test="mineEmil.isAll == null and mineEmil.isAll == '' or mineEmil.isAll == '0'.toString() ">
+				<if test="mineEmil.intoPersonId != null and mineEmil.intoPersonId != ''">
+					and emil.INTO_PERSON_ID = #{mineEmil.intoPersonId}
+				</if>
+				<if test="mineEmil.fromPersonId != null and mineEmil.fromPersonId != ''">
+					and emil.FROM_PERSON_ID = #{mineEmil.fromPersonId}
+				</if>
+			</if>
+		)ord
+		ORDER BY ord.CREATE_DATE DESC
+	</select>
+
+	<select id="selectPageNoEmilInt" resultType="int">
+		SELECT
+		count (emil.id)
+		FROM SYS_EMIL emil
+		LEFT JOIN SYS_PERSON person1 ON person1.id = emil.FROM_PERSON_ID AND person1.del_flag = '0'
+		LEFT JOIN SYS_PERSON person2 ON person2.id = emil.INTO_PERSON_ID AND person2.del_flag = '0'
+		WHERE
+		emil.del_flag = '0'
+		<if test="mineEmil.ids != null and mineEmil.ids != ''">
+			and emil.id = #{mineEmil.ids}
+		</if>
+		<if test="mineEmil.fromPersonName != null and mineEmil.fromPersonName != null">
+			and person1.psn_name like '%'|| #{mineEmil.fromPersonName} ||'%'
+		</if>
+		<if test="mineEmil.intoPersonName != null and mineEmil.intoPersonName != null">
+			and person2.psn_name like '%'|| #{mineEmil.intoPersonName} ||'%'
+		</if>
+		<if test="mineEmil.title != null and mineEmil.title != ''">
+			and emil.title like '%'|| #{mineEmil.title} ||'%'
+		</if>
+		<if test="mineEmil.isLike != '' and mineEmil.isLike != null">
+			and emil.is_Like = #{mineEmil.isLike}
+		</if>
+		<if test="mineEmil.isLook != '' and mineEmil.isLook != null">
+			and emil.is_look = #{mineEmil.isLook}
+		</if>
+		<if test="mineEmil.isAll != null and mineEmil.isAll != '' and mineEmil.isAll== '1'.toString() ">
+			<if test="mineEmil.intoPersonId != null and mineEmil.intoPersonId != ''">
+				and (emil.INTO_PERSON_ID = #{mineEmil.intoPersonId}
+			</if>
+			<if test="mineEmil.fromPersonId != null and mineEmil.fromPersonId != ''">
+				or emil.FROM_PERSON_ID = #{mineEmil.fromPersonId})
+			</if>
+		</if>
+		<if test="mineEmil.isAll == null and mineEmil.isAll == '' or mineEmil.isAll == '0'.toString() ">
+			<if test="mineEmil.intoPersonId != null and mineEmil.intoPersonId != ''">
+				and emil.INTO_PERSON_ID = #{mineEmil.intoPersonId}
+			</if>
+			<if test="mineEmil.fromPersonId != null and mineEmil.fromPersonId != ''">
+				and emil.FROM_PERSON_ID = #{mineEmil.fromPersonId}
+			</if>
+		</if>
+	</select>
+
+	<select id="getMineEmil" resultMap="mineEmilMapper">
+		SELECT
+			emil.*,person1.psn_name AS FROM_PERSON_NAME,person2.psn_name AS INTO_PERSON_NAME
+		FROM SYS_EMIL emil
+				 LEFT JOIN SYS_PERSON person1 ON person1.id = emil.FROM_PERSON_ID AND person1.del_flag = '0'
+				 LEFT JOIN SYS_PERSON person2 ON person2.id = emil.INTO_PERSON_ID AND person2.del_flag = '0'
+		WHERE
+			emil.del_flag = '0'
+			and emil.id = #{mineEmil.ids}
+	</select>
+
+	<update id="delEmail">
+		update SYS_EMIL set del_flag = '1' where id IN (#{mineEmil.ids})
+	</update>
+	
+	<update id="arrTypeEmail">
+		update SYS_EMIL SET
+		<if test="type != null and type != '' and type == 1">
+			DEL_FLAG = '1'
+		</if>
+		<if test="type != null and type != '' and type == 2">
+			IS_LOOK = '1'
+		</if>
+		<if test="type != null and type != '' and type == 3">
+			IS_LIKE = '1'
+		</if>
+		WHERE ID IN
+		<foreach collection="mineEmil" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+		AND IS_LOOK != '2'
+	</update>
+	
+	<insert id="insertEmil">
+		INSERT INTO SYS_EMIL(ID,FROM_PERSON_ID,INTO_PERSON_ID,TITLE,CONTENT,IS_LIKE,IS_LOOK,CREATE_DATE,CREATE_ID,UPDATE_DATE,DEL_FLAG,FROM_PERSON_EMIL,INTO_PERSON_EMIL)
+		VALUES(#{mineEmil.ids},#{mineEmil.fromPersonId},#{mineEmil.intoPersonId},#{mineEmil.title},#{mineEmil.content},#{mineEmil.isLike},
+		       #{mineEmil.isLook},#{mineEmil.createDate},#{mineEmil.createId},#{mineEmil.updateDate},'0',#{mineEmil.fromPersonEmil},#{mineEmil.intoPersonEmil})
+	</insert>
+	
+	<update id="updateEmil">
+		update SYS_EMIL set
+		<if test="mineEmil.fromPersonId!=null and mineEmil.fromPersonId!=''">FROM_PERSON_ID = #{mineEmil.fromPersonId},</if>
+		<if test="mineEmil.intoPersonId!=null and mineEmil.intoPersonId!=''">INTO_PERSON_ID = #{mineEmil.intoPersonId},</if>
+		<if test="mineEmil.title!=null and mineEmil.title!=''">TITLE = #{mineEmil.title},</if>
+		<if test="mineEmil.content!=null and mineEmil.content!=''">CONTENT = #{mineEmil.content},</if>
+		<if test="mineEmil.isLike!=null and mineEmil.isLike!=''">IS_LIKE = #{mineEmil.isLike},</if>
+		<if test="mineEmil.isLook!=null and mineEmil.isLook!=''">IS_LOOK = #{mineEmil.isLook},</if>
+		<if test="mineEmil.createDate!=null and mineEmil.createDate!=''">CREATE_DATE = #{mineEmil.createDate},</if>
+		<if test="mineEmil.createId!=null and mineEmil.createId!=''">CREATE_ID = #{mineEmil.createId},</if>
+		<if test="mineEmil.updateDate!=null and mineEmil.updateDate!=''">UPDATE_DATE = #{mineEmil.updateDate},</if>
+		<if test="mineEmil.fromPersonEmil!=null and mineEmil.fromPersonEmil!=''">FROM_PERSON_EMIL = #{mineEmil.fromPersonEmil},</if>
+		<if test="mineEmil.intoPersonEmil!=null and mineEmil.intoPersonEmil!=''">INTO_PERSON_EMIL = #{mineEmil.intoPersonEmil},</if>
+		del_flag = '0'
+		where id = #{mineEmil.ids}
+	</update>
+	
+</mapper>

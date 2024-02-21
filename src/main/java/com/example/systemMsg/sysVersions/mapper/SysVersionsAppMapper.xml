@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.systemMsg.sysVersions.mapper.SysVersionsAppMapper">
+
+	<resultMap id="sysVersionsAppMapper" type="com.example.systemMsg.sysVersions.enity.SysVersionsApp">
+		<result property="ids" column="ID" />
+		<result property="versionsCode" column="VERSIONS_CODE" />
+		<result property="versionsId" column="VERSIONS_ID" />
+		<result property="isMustUpdate" column="IS_MUST_UPDATE" />
+		<result property="appUrl" column="APP_URL" />
+		<result property="versionsType" column="VERSION_TYPE" />
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="createId" column="CREATE_ID" />
+		<result property="updateDate" column="UPDATE_DATE" />
+		<result property="delFlag" column="DEL_FLAG" />
+	</resultMap>
+
+	<select id="selectSysVersions" resultMap="sysVersionsAppMapper">
+		SELECT * FROM
+		SYS_VERSIONS WHERE
+		DEL_FLAG = '0'
+		AND TO_DATE(UPDATE_DATE,'yyyy-mm-dd hh24:mi:ss') >= SYSDATE-20
+		ORDER BY VER_CREATE DESC
+	</select>
+
+	<select id="getNewUpdateAppVersion" resultMap="sysVersionsAppMapper">
+		SELECT * FROM(
+			SELECT * FROM
+				SYS_VERSIONS_APP
+			ORDER BY CREATE_DATE DESC
+			)
+		WHERE rownum = 1
+	</select>
+
+	<insert id="insertSysVersions">
+		INSERT INTO SYS_VERSIONS(ID,VER_NAME,VER_TYPE,VER_CREATE,CREATE_ID,CREATE_DATE,UPDATE_DATE,DEL_FLAG,VER_VERSION)
+		VALUES(#{sysVersions.ids},#{sysVersions.verName},#{sysVersions.verType},#{sysVersions.verCreate},#{sysVersions.createId},
+		  #{sysVersions.createDate},#{sysVersions.updateDate},#{sysVersions.delFlag},#{sysVersions.verVersion})
+	</insert>
+
+	<select id="get" resultMap="sysVersionsAppMapper">
+		SELECT * FROM
+		SYS_VERSIONS WHERE
+		DEL_FLAG = '0'
+		AND ID = #{sysVersions.ids}
+	</select>
+
+</mapper>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mineBlos.myBlosType.mapper.MineBlosTypeMapper">
+
+	<resultMap id="mineBlosTypes" type="com.example.mineBlos.myBlosType.enity.MineBlosType">
+		<result property="ids" column="ID" />
+		<result property="psnId" column="PSN_ID" />
+		<result property="blosTypeName" column="BLOS_TYPE_NAME" />
+		<result property="blosTypeImg" column="BLOS_TYPE_IMG" />
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="createId" column="CREATE_ID" />
+		<result property="updateDate" column="UPDATE_DATE" />
+		<result property="delFlag" column="DEL_FLAG" />
+		<result property="isValid" column="IS_VALID" />
+	</resultMap>
+
+	<select id="mineBlosType" resultMap="mineBlosTypes">
+		SELECT
+			A.ID,
+			A.PSN_ID,
+			A.BLOS_TYPE_NAME,
+			A.BLOS_TYPE_IMG,
+			A.CREATE_ID,
+			A.CREATE_DATE,
+			A.UPDATE_DATE,
+			A.DEL_FLAG,
+		    CASE WHEN A.IS_VALID = '1' THEN '有效' ELSE '无效' END AS "IS_VALID"
+		FROM SYS_BLOS_TYPE A
+		WHERE A.DEL_FLAG = '0'
+		<if test="mineBlosType.ids != null and mineBlosType.ids != ''">
+			AND A.ID = #{mineBlosType.ids}
+		</if>
+		<if test="mineBlosType.psnId != null and mineBlosType.psnId != ''">
+			AND A.PSN_ID = #{mineBlosType.psnId}
+		</if>
+		<if test="mineBlosType.blosTypeName != null and mineBlosType.blosTypeName != ''">
+			AND A.BLOS_TYPE_NAME LIKE '%'|| #{mineBlosType.blosTypeName} || '%'
+		</if>
+		<if test="mineBlosType.blosTypeImg != null and mineBlosType.blosTypeImg != ''">
+			AND A.BLOS_TYPE_IMG = #{mineBlos.blosTypeImg}
+		</if>
+		<if test="mineBlosType.isValid != null and mineBlosType.isValid != ''">
+			AND A.IS_VALID = #{mineBlosType.isValid}
+		</if>
+	</select>
+
+	<update id="updateMineBlosType">
+		UPDATE SYS_BLOS_TYPE SET
+		<if test="mineBlosType.blosTypeName != null and mineBlosType.blosTypeName != ''">
+			BLOS_TYPE_NAME = #{mineBlosType.blosTypeName},
+		</if>
+		<if test="mineBlosType.blosTypeImg != null and mineBlosType.blosTypeImg != ''">
+			BLOS_TYPE_IMG = #{mineBlosType.blosTypeImg},
+		</if>
+		<if test="mineBlosType.isValid != null and mineBlosType.isValid != ''">
+			IS_VALID = #{mineBlosType.isValid},
+		</if>
+		<if test="mineBlosType.delFlag != null and mineBlosType.delFlag != ''">
+			DEL_FLAG = #{mineBlosType.delFlag},
+		</if>
+		UPDATE_DATE = #{mineBlosType.updateDate}
+		WHERE ID = #{mineBlosType.ids}
+	</update>
+
+	<insert id="insertMineBlosType">
+		INSERT INTO SYS_BLOS_TYPE(ID,PSN_ID,BLOS_TYPE_NAME,BLOS_TYPE_IMG,CREATE_ID,CREATE_DATE,UPDATE_DATE,DEL_FLAG,IS_VALID)
+		VALUES(#{mineBlosType.ids},#{mineBlosType.psnId},#{mineBlosType.blosTypeName},#{mineBlosType.blosTypeImg},#{mineBlosType.createId},#{mineBlosType.createDate},
+			   #{mineBlosType.updateDate},'0','1')
+
+	</insert>
+
+	<select id="mineBlosTypeGet" resultMap="mineBlosTypes">
+		SELECT * FROM SYS_BLOS_TYPE WHERE DEL_FLAG = '0' AND IS_VALID = '1' AND ID = #{uuid}
+	</select>
+
+</mapper>

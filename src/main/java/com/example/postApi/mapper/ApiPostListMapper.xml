@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.postApi.mapper.ApiPostListMapper">
+
+	<resultMap id="apiPostMapper" type="com.example.postApi.enity.PostApiEnity">
+		<result property="ids" column="ID" />
+		<result property="postName" column="POST_NAME" />
+	</resultMap>
+
+	<select id="apiPostListPage" resultMap="apiPostMapper">
+		SELECT
+			*
+		FROM
+			SYS_POST
+		<where>
+			<if test="postApiEnity.postName != null and postApiEnity.postName != ''">
+				POST_NAME LIKE '%'|| #{postApiEnity.postName} ||'%'
+			</if>
+		</where>
+	</select>
+
+	<select id="countApiPostListPage" resultType="java.lang.Integer">
+		SELECT
+			count(id)
+		FROM
+			SYS_POST
+			<where>
+				<if test="postApiEnity.postName != null and postApiEnity.postName != ''">
+					POST_NAME LIKE '%'|| #{postApiEnity.postName} ||'%'
+				</if>
+			</where>
+	</select>
+
+	<insert id="insertApiPost">
+		INSERT INTO SYS_POST(ID,POST_NAME,REMARK)
+		VALUES(#{postApiEnity.ids},#{postApiEnity.postName},#{postApiEnity.remark})
+	</insert>
+
+	<delete id="deleteApiPost">
+		DELETE FROM SYS_POST WHERE ID = #{postApiEnity.ids}
+	</delete>
+
+</mapper>

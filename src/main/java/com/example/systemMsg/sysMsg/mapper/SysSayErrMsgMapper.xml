@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.systemMsg.sysMsg.mapper.SysSayErrMsgMapper">
+
+	<resultMap id="sysSayErrMsgMapper" type="com.example.systemMsg.sysMsg.enity.SysSayErrMsg">
+		<result property="ids" column="ID" />
+		<result property="errId" column="ERR_ID" />
+		<result property="sayPsnId" column="SAY_PSN_ID" />
+		<result property="sayPsnName" column="SAY_PSN_NAME" />
+		<result property="sayCenter" column="SAY_CENTER" />
+		<result property="createId" column="CREATE_ID" />
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="updateDate" column="UPDATE_DATE" />
+		<result property="delFlag" column="DEL_FLAG" />
+	</resultMap>
+
+	<select id="selectSysSayErrMsg" resultMap="sysSayErrMsgMapper">
+		SELECT
+			*
+		FROM
+		SYS_ERR_MSG_SAY
+		WHERE
+		DEL_FLAG = '0'
+		<if test="sysSayErrMsg.errId != null and sysSayErrMsg.errId != ''">
+			AND ERR_ID = #{sysSayErrMsg.errId}
+		</if>
+		ORDER BY
+		CREATE_DATE DESC
+	</select>
+
+	<insert id="insertSysSayErrMsg">
+		INSERT INTO SYS_ERR_MSG_SAY(ID,ERR_ID,SAY_PSN_ID,SAY_CENTER,CREATE_DATE,CREATE_ID,UPDATE_DATE,DEL_FLAG,SAY_PSN_NAME)
+		VALUES(#{sysSayErrMsg.ids},#{sysSayErrMsg.errId},#{sysSayErrMsg.sayPsnId},#{sysSayErrMsg.sayCenter}
+		,#{sysSayErrMsg.createDate},#{sysSayErrMsg.createId},#{sysSayErrMsg.updateDate},#{sysSayErrMsg.delFlag},#{sysSayErrMsg.sayPsnName})
+	</insert>
+
+</mapper>

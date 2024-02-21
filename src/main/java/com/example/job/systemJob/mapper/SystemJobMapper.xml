@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.job.systemJob.mapper.SystemJobMapper">
+
+	<resultMap id="systemJobMapper" type="com.example.job.systemJob.entry.SystemEntry">
+		<result property="timeMillis" column="TIME_MILLIS" />
+		<result property="systemNum" column="SYSTEM_NUM" />
+		<result property="cpuCode" column="CPU_CODE" />
+		<result property="cpuSystemUse" column="CPU_SYSTEM_USE" />
+		<result property="cpuUserUse" column="CPU_USER_USE" />
+		<result property="cpuLeisure" column="CPU_LEISURE" />
+		<result property="cpuUtilization" column="CPU_UTILIZATION" />
+		<result property="allMemory" column="ALL_MEMORY" />
+		<result property="utilizationMemory" column="UTILIZATION_MEMORY" />
+		<result property="useMemory" column="USE_MEMORY" />
+		<result property="createDate" column="CREATE_DATE" />
+	</resultMap>
+
+	<select id="selectFindList" resultMap="systemJobMapper">
+		SELECT
+			*
+		FROM
+			SYS_SYSTEM_INFO
+		WHERE
+			TO_CHAR( TO_DATE( CREATE_DATE, 'YYYY-MM-DD hh24:mi:ss' ), 'YYYY-MM-DD' ) = #{systemEntry.createDate}
+		ORDER BY
+			CREATE_DATE DESC
+	</select>
+
+	<select id="selectGroupList" resultMap="systemJobMapper">
+		SELECT
+			tab.*
+		FROM(
+			SELECT
+				ROUND( AVG( CPU_SYSTEM_USE ), 2 ) as CPU_SYSTEM_USE,
+				ROUND( AVG( CPU_USER_USE ), 2 ) as CPU_USER_USE,
+				ROUND( AVG( CPU_LEISURE ), 2 ) as CPU_LEISURE,
+				ROUND( AVG( CPU_UTILIZATION ), 2 ) as CPU_UTILIZATION,
+				ROUND( AVG( UTILIZATION_MEMORY ), 2 ) as UTILIZATION_MEMORY,
+				ROUND( AVG( USE_MEMORY ), 2 ) as USE_MEMORY,
+				TO_CHAR( TO_DATE( CREATE_DATE, 'YYYY-MM-DD hh24:mi:ss' ), 'YYYY-MM-DD hh24' ) as CREATE_DATE
+			FROM
+				SYS_SYSTEM_INFO
+			WHERE
+				TO_CHAR( TO_DATE( CREATE_DATE, 'YYYY-MM-DD hh24:mi:ss' ), 'YYYY-MM-DD hh24' ) &gt;= #{beginTime}
+				AND TO_CHAR( TO_DATE( CREATE_DATE, 'YYYY-MM-DD hh24:mi:ss' ), 'YYYY-MM-DD hh24' ) &lt;= #{endTime}
+			GROUP BY
+				TO_CHAR( TO_DATE( CREATE_DATE, 'YYYY-MM-DD hh24:mi:ss' ), 'YYYY-MM-DD hh24' )
+		) tab
+		ORDER BY tab.CREATE_DATE ASC
+	</select>
+
+	<insert id="insertSystemJob">
+		INSERT INTO SYS_SYSTEM_INFO (TIME_MILLIS, SYSTEM_NUM, CPU_CODE, CPU_SYSTEM_USE, CPU_USER_USE, CPU_LEISURE, CPU_UTILIZATION, ALL_MEMORY, UTILIZATION_MEMORY, USE_MEMORY, CREATE_DATE)
+		VALUES (#{systemEntry.timeMillis}, #{systemEntry.systemNum}, #{systemEntry.cpuCode}, #{systemEntry.cpuSystemUse},
+		        #{systemEntry.cpuUserUse}, #{systemEntry.cpuLeisure}, #{systemEntry.cpuUtilization}, #{systemEntry.allMemory},
+		        #{systemEntry.utilizationMemory}, #{systemEntry.useMemory}, #{systemEntry.createDate})
+	</insert>
+
+</mapper>

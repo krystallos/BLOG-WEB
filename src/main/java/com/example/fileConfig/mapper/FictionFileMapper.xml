@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.fileConfig.mapper.FictionFileMapper">
+
+	<resultMap id="fictionFilelMapper" type="com.example.fileConfig.enity.fiction.FictionFile">
+		<result property="ids" column="ID" />
+		<result property="originName" column="ORIGIN_NAME" />
+		<result property="englishName" column="ENGLISH_NAME" />
+		<result property="chineseName" column="CHINESE_NAME" />
+		<result property="pressName" column="PRESS_NAME" />
+		<result property="authorName" column="AUTHOR_NAME" />
+		<result property="illustrationAuth" column="ILLUSTRATION_AUTH" />
+		<result property="illustrationUrl" column="ILLUSTRATION_URL" />
+		<result property="libilName" column="LIBIL_NAME" />
+		<result property="chainBegin" column="CHAIN_BEGIN" />
+		<result property="chainEnd" column="CHAIN_END" />
+		<result property="tagId" column="TAG_ID" />
+		<result property="tagName" column="TAG_NAME" />
+		<result property="storyMsg" column="STORY_MSG" />
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="createId" column="CREATE_ID" />
+		<result property="updateDate" column="UPDATE_DATE" />
+		<result property="delFlag" column="DEL_FLAG" />
+	</resultMap>
+
+	<resultMap id="fictionMainlMapper" type="com.example.fileConfig.enity.fiction.FictionBook">
+		<result property="ids" column="ID" />
+		<result property="fictionId" column="FICTION_ID" />
+		<result property="fictionOriginName" column="FICTION_ORIGIN_NAME" />
+		<result property="fictionBookName" column="FICTION_BOOK_NAME" />
+		<result property="bookSort" column="BOOK_SORT" />
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="createId" column="CREATE_ID" />
+		<result property="updateDate" column="UPDATE_DATE" />
+		<result property="delFlag" column="DEL_FLAG" />
+	</resultMap>
+
+	<select id="get" resultMap="fictionFilelMapper">
+		select *
+		from SYS_FICTION
+		where 1=1
+		and del_flag = '0' and id = #{fictionFile.ids}
+	</select>
+
+	<select id="selectFictionCount" resultType="java.lang.Integer">
+		select
+			count(id)
+		from
+			SYS_FICTION
+		where
+			<if test="fictionName != '' and fictionName != null">
+				<choose>
+					<when test="fictionNameFt != '' and fictionNameFt != null">
+						(CHINESE_NAME LIKE '%' || #{fictionName} || '%' or CHINESE_NAME LIKE '%' || #{fictionNameFt} || '%')
+					</when>
+					<otherwise>
+						CHINESE_NAME LIKE '%' || #{fictionName} || '%'
+					</otherwise>
+				</choose>
+			</if>
+			<if test="ids != null and ids != ''">
+				AND ID != #{ids}
+			</if>
+	</select>
+
+	<select id="selectFictionFileTab" resultMap="fictionFilelMapper">
+		select
+			*
+		from SYS_FICTION
+		where 1=1
+		and del_flag = '0'
+		<if test="fictionFile.originName != '' and fictionFile.originName != null">
+			and ORIGIN_NAME LIKE '%' || #{fictionFile.originName} || '%'
+		</if>
+		<if test="fictionFile.englishName != '' and fictionFile.englishName != null">
+			and ENGLISH_NAME LIKE '%' || #{fictionFile.englishName} || '%'
+		</if>
+		<if test="fictionFile.chineseName != '' and fictionFile.chineseName != null">
+			<choose>
+				<when test="fictionFile.chineseNameFt != '' and fictionFile.chineseNameFt != null">
+					and (CHINESE_NAME LIKE '%' || #{fictionFile.chineseName} || '%' or CHINESE_NAME LIKE '%' || #{fictionFile.chineseNameFt} || '%')
+				</when>
+				<otherwise>
+					and CHINESE_NAME LIKE '%' || #{fictionFile.chineseName} || '%'
+				</otherwise>
+			</choose>
+		</if>
+		<if test="fictionFile.pressName != '' and fictionFile.pressName != null">
+			and PRESS_NAME LIKE '%' || #{fictionFile.pressName} || '%'
+		</if>
+		<if test="fictionFile.authorName != '' and fictionFile.authorName != null">
+			and AUTHOR_NAME LIKE '%' || #{fictionFile.authorName} || '%'
+		</if>
+		<if test="fictionFile.libilName != '' and fictionFile.libilName != null">
+			and LIBIL_NAME LIKE '%' || #{fictionFile.libilName} || '%'
+		</if>
+		<if test="fictionFile.tagId != '' and fictionFile.tagId != null">
+			and TAG_ID LIKE '%' || #{fictionFile.tagId} || '%'
+		</if>
+		<if test="fictionFile.tagName != '' and fictionFile.tagName != null">
+			and TAG_NAME LIKE '%' || #{fictionFile.tagName} || '%'
+		</if>
+		<if test="fictionFile.isEnd != null and fictionFile.isEnd != ''">
+			<if test="fictionFile.isEnd == '1'.toString()">
+				and CHAIN_END != '未完结'
+			</if>
+			<if test="fictionFile.isEnd == '2'.toString()">
+				and CHAIN_END = '未完结'
+			</if>
+		</if>
+		ORDER BY CREATE_DATE DESC
+	</select>
+
+	<select id="selectRecommend" resultMap="fictionFilelMapper">
+		SELECT * from (
+			select
+			    id,
+				'/fictionImg/' || ILLUSTRATION_URL as ILLUSTRATION_URL,
+				CHINESE_NAME
+			from
+				SYS_FICTION
+			where
+				del_flag = '0'
+				<if test="tagId != '' and tagId != null">
+					and TAG_ID LIKE '%' || #{tagId} || '%'
+				</if>
+		) where rownum &lt; #{num}
+	</select>
+
+	<select id="selectRecommendForDate" resultMap="fictionFilelMapper">
+		SELECT * from (
+			select
+				id,
+				'/fictionImg/' || ILLUSTRATION_URL as ILLUSTRATION_URL,
+				CHINESE_NAME
+			from
+				SYS_FICTION
+			where
+				del_flag = '0'
+			order by
+				CREATE_DATE DESC
+		) where rownum &lt; #{num}
+	</select>
+
+	<select id="selectAllCountFiction" resultType="java.lang.Integer">
+		SELECT
+			COUNT(ID)
+		FROM
+			SYS_FICTION
+		WHERE
+			DEL_FLAG = '0'
+			<if test="fictionFile.originName != '' and fictionFile.originName != null">
+				and ORIGIN_NAME LIKE '%' || #{fictionFile.originName} || '%'
+			</if>
+			<if test="fictionFile.englishName != '' and fictionFile.englishName != null">
+				and ENGLISH_NAME LIKE '%' || #{fictionFile.englishName} || '%'
+			</if>
+			<if test="fictionFile.chineseName != '' and fictionFile.chineseName != null">
+				<choose>
+					<when test="fictionFile.chineseNameFt != '' and fictionFile.chineseNameFt != null">
+						and (CHINESE_NAME LIKE '%' || #{fictionFile.chineseName} || '%' or CHINESE_NAME LIKE '%' || #{fictionFile.chineseNameFt} || '%')
+					</when>
+					<otherwise>
+						and CHINESE_NAME LIKE '%' || #{fictionFile.chineseName} || '%'
+					</otherwise>
+				</choose>
+			</if>
+			<if test="fictionFile.pressName != '' and fictionFile.pressName != null">
+				and PRESS_NAME LIKE '%' || #{fictionFile.pressName} || '%'
+			</if>
+			<if test="fictionFile.authorName != '' and fictionFile.authorName != null">
+				and AUTHOR_NAME LIKE '%' || #{fictionFile.authorName} || '%'
+			</if>
+			<if test="fictionFile.libilName != '' and fictionFile.libilName != null">
+				and LIBIL_NAME LIKE '%' || #{fictionFile.libilName} || '%'
+			</if>
+			<if test="fictionFile.tagId != '' and fictionFile.tagId != null">
+				and TAG_ID LIKE '%' || #{fictionFile.tagId} || '%'
+			</if>
+			<if test="fictionFile.tagName != '' and fictionFile.tagName != null">
+				and TAG_NAME LIKE '%' || #{fictionFile.tagName} || '%'
+			</if>
+	</select>
+
+	<select id="selectAllCountBook" resultType="java.lang.Integer">
+		SELECT
+			COUNT(ID)
+		FROM
+			SYS_FICTION_BOOK
+		WHERE
+			DEL_FLAG = '0'
+			AND CREATE_ID = #{fictionFile.createId}
+	</select>
+
+	<insert id="insertFictionFile">
+		INSERT INTO SYS_FICTION(ID,
+		<if test="fictionFile.originName != null and fictionFile.originName != ''">ORIGIN_NAME,</if>
+		<if test="fictionFile.englishName != null and fictionFile.englishName != ''">ENGLISH_NAME,</if>
+		<if test="fictionFile.chineseName != null and fictionFile.chineseName != ''">CHINESE_NAME,</if>
+		<if test="fictionFile.pressName != null and fictionFile.pressName != ''">PRESS_NAME,</if>
+		<if test="fictionFile.authorName != null and fictionFile.authorName != ''">AUTHOR_NAME,</if>
+		<if test="fictionFile.illustrationAuth != null and fictionFile.illustrationAuth != ''">ILLUSTRATION_AUTH,</if>
+		<if test="fictionFile.illustrationUrl != null and fictionFile.illustrationUrl != ''">ILLUSTRATION_URL,</if>
+		<if test="fictionFile.libilName != null and fictionFile.libilName != ''">LIBIL_NAME,</if>
+		<if test="fictionFile.chainBegin!= null and fictionFile.chainBegin != ''">CHAIN_BEGIN,</if>
+		<if test="fictionFile.chainEnd!= null and fictionFile.chainEnd != ''">CHAIN_END,</if>
+		<if test="fictionFile.tagId != null and fictionFile.tagId != ''">TAG_ID,</if>
+		<if test="fictionFile.tagName != null and fictionFile.tagName != ''">TAG_NAME,</if>
+		<if test="fictionFile.storyMsg != null and fictionFile.storyMsg != ''">STORY_MSG,</if>
+		CREATE_ID,CREATE_DATE,UPDATE_DATE,DEL_FLAG)
+		VALUES(#{fictionFile.ids},
+		<if test="fictionFile.originName != null and fictionFile.originName != ''">#{fictionFile.originName,jdbcType=NVARCHAR},</if>
+		<if test="fictionFile.englishName != null and fictionFile.englishName != ''">#{fictionFile.englishName},</if>
+		<if test="fictionFile.chineseName != null and fictionFile.chineseName != ''">#{fictionFile.chineseName,jdbcType=NVARCHAR},</if>
+		<if test="fictionFile.pressName != null and fictionFile.pressName != ''">#{fictionFile.pressName},</if>
+		<if test="fictionFile.authorName != null and fictionFile.authorName != ''">#{fictionFile.authorName},</if>
+		<if test="fictionFile.illustrationAuth != null and fictionFile.illustrationAuth != ''">#{fictionFile.illustrationAuth},</if>
+		<if test="fictionFile.illustrationUrl != null and fictionFile.illustrationUrl != ''">#{fictionFile.illustrationUrl},</if>
+		<if test="fictionFile.libilName != null and fictionFile.libilName != ''">#{fictionFile.libilName},</if>
+		<if test="fictionFile.chainBegin!= null and fictionFile.chainBegin != ''">#{fictionFile.chainBegin},</if>
+		<if test="fictionFile.chainEnd!= null and fictionFile.chainEnd != ''">#{fictionFile.chainEnd},</if>
+		<if test="fictionFile.tagId != null and fictionFile.tagId != ''">#{fictionFile.tagId},</if>
+		<if test="fictionFile.tagName != null and fictionFile.tagName != ''">#{fictionFile.tagName},</if>
+		<if test="fictionFile.storyMsg != null and fictionFile.storyMsg != ''">#{fictionFile.storyMsg},</if>
+		#{fictionFile.createId},#{fictionFile.createDate},#{fictionFile.updateDate},'0')
+	</insert>
+
+	<update id="updateFictionFile">
+		UPDATE SYS_FICTION set
+		<if test="fictionFile.originName != null and fictionFile.originName != ''">ORIGIN_NAME = #{fictionFile.originName,jdbcType=NVARCHAR},</if>
+		<if test="fictionFile.englishName != null and fictionFile.englishName != ''">ENGLISH_NAME = #{fictionFile.englishName},</if>
+		<if test="fictionFile.chineseName != null and fictionFile.chineseName != ''">CHINESE_NAME = #{fictionFile.chineseName,jdbcType=NVARCHAR},</if>
+		<if test="fictionFile.pressName != null and fictionFile.pressName != ''">PRESS_NAME = #{fictionFile.pressName},</if>
+		<if test="fictionFile.authorName != null and fictionFile.authorName != ''">AUTHOR_NAME = #{fictionFile.authorName},</if>
+		<if test="fictionFile.illustrationAuth != null and fictionFile.illustrationAuth != ''">ILLUSTRATION_AUTH = #{fictionFile.illustrationAuth},</if>
+		<if test="fictionFile.illustrationUrl != null and fictionFile.illustrationUrl != ''">ILLUSTRATION_URL = #{fictionFile.illustrationUrl},</if>
+		<if test="fictionFile.libilName != null and fictionFile.libilName != ''">LIBIL_NAME = #{fictionFile.libilName},</if>
+		<if test="fictionFile.chainBegin!= null and fictionFile.chainBegin != ''">CHAIN_BEGIN = #{fictionFile.chainBegin},</if>
+		<if test="fictionFile.chainEnd!= null and fictionFile.chainEnd != ''">CHAIN_END = #{fictionFile.chainEnd},</if>
+		<if test="fictionFile.tagId != null and fictionFile.tagId != ''">TAG_ID = #{fictionFile.tagId},</if>
+		<if test="fictionFile.tagName != null and fictionFile.tagName != ''">TAG_NAME = #{fictionFile.tagName},</if>
+		<if test="fictionFile.storyMsg != null and fictionFile.storyMsg != ''">STORY_MSG = #{fictionFile.storyMsg},</if>
+		UPDATE_DATE = #{fictionFile.updateDate}
+		where ID = #{fictionFile.ids}
+	</update>
+
+	<update id="delFictionFile">
+		UPDATE SYS_FICTION set DEL_FLAG = '1' where ID = #{fictionFile.ids}
+	</update>
+
+	<select id="getFictionBook" resultMap="fictionMainlMapper">
+		SELECT
+			*
+		FROM
+			SYS_FICTION_BOOK
+		WHERE
+			DEL_FLAG = '0'
+			AND ID = #{fictionBook.ids}
+	</select>
+
+	<select id="selectFictionMainTab" resultMap="fictionMainlMapper">
+		SELECT
+			*
+		FROM
+			SYS_FICTION_BOOK
+		WHERE
+			DEL_FLAG = '0'
+			<if test="fictionBook.fictionId != null and fictionBook.fictionId != ''">
+				AND FICTION_ID = #{fictionBook.fictionId}
+			</if>
+			<if test="fictionBook.fictionBookName != null and fictionBook.fictionBookName != ''">
+				AND FICTION_BOOK_NAME LIKE '%' || #{fictionBook.fictionBookName} || '%'
+			</if>
+			<if test="fictionBook.fictionOriginName != null and fictionBook.fictionOriginName != ''">
+				AND FICTION_ORIGIN_NAME LIKE '%' || #{fictionBook.fictionOriginName} || '%'
+			</if>
+			<if test="fictionBook.createId != null and fictionBook.createId != ''">
+				AND CREATE_ID = #{fictionBook.createId}
+			</if>
+		ORDER BY TO_NUMBER(BOOK_SORT) ASC
+	</select>
+
+	<insert id="insertFictionMain">
+		INSERT INTO SYS_FICTION_BOOK(ID,FICTION_ID,FICTION_ORIGIN_NAME,FICTION_BOOK_NAME,BOOK_SORT,
+					CREATE_ID,CREATE_DATE,UPDATE_DATE,DEL_FLAG)
+		VALUES(#{fictionBook.ids},#{fictionBook.fictionId},#{fictionBook.fictionOriginName,jdbcType=NVARCHAR},#{fictionBook.fictionBookName,jdbcType=NVARCHAR},
+		(SELECT CASE WHEN MAX(BOOK_SORT) IS NULL THEN 1 ELSE MAX(TO_NUMBER(BOOK_SORT))+1 END FROM SYS_FICTION_BOOK WHERE FICTION_ID = #{fictionBook.fictionId}),
+		#{fictionBook.createId},#{fictionBook.createDate},#{fictionBook.updateDate},'0')
+	</insert>
+
+	<update id="delFictionMain">
+		UPDATE SYS_FICTION_BOOK set DEL_FLAG = '1' where ID = #{fictionBook.ids}
+	</update>
+
+	<select id="lookBookMainCover" resultType="java.lang.String">
+		SELECT
+			ILLUSTRATION_URL
+		FROM
+			SYS_FICTION
+		WHERE
+			DEL_FLAG = '0'
+			AND ID = #{fictionFile.ids}
+	</select>
+	
+</mapper>

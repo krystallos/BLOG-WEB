@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.fileConfig.mapper.FictionUtilMapper">
+
+	<resultMap id="fictionUtilMapper" type="com.example.fileConfig.enity.fiction.FictionTag">
+		<result property="ids" column="ID" />
+		<result property="tagName" column="TAG_NAME" />
+		<result property="tagRemark" column="TAG_REMARK" />
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="createId" column="CREATE_ID" />
+		<result property="updateDate" column="UPDATE_DATE" />
+		<result property="delFlag" column="DEL_FLAG" />
+	</resultMap>
+
+	<resultMap id="dicMapperVo" type="com.example.util.dic.FictionDicVo">
+		<result property="dicValue" column="ID" />
+		<result property="dicName" column="TAG_NAME" />
+	</resultMap>
+
+	<select id="get" resultMap="fictionUtilMapper">
+		select *
+		from SYS_FICTION_TAG
+		where 1=1
+		and del_flag = '0' and id = #{fictionTag.ids}
+	</select>
+
+	<select id="selectCountHaving" resultType="java.lang.Integer">
+		SELECT
+			COUNT(ID)
+		FROM
+			SYS_FICTION_TAG
+		WHERE
+			DEL_FLAG = '0'
+		  	AND TAG_NAME LIKE '%' || #{tagName} || '%'
+			<if test="ids != null and ids != ''">
+				AND ID != #{ids}
+			</if>
+	</select>
+
+	<select id="selectFictionUtilTab" resultMap="fictionUtilMapper">
+		select *
+		from SYS_FICTION_TAG
+		where 1=1
+		and del_flag = '0'
+		<if test="fictionTag.tagName != '' and fictionTag.tagName != null">
+			and TAG_NAME LIKE '%' || #{fictionTag.tagName} || '%'
+		</if>
+		<if test="fictionTag.tagRemark != '' and fictionTag.tagRemark != null">
+			and TAG_REMARK LIKE '%' || #{fictionTag.tagRemark} || '%'
+		</if>
+	</select>
+
+	<select id="selectFileUtilDicNoTab" resultMap="dicMapperVo">
+		SELECT
+			ID,
+			TAG_NAME
+		FROM
+			SYS_FICTION_TAG
+		WHERE del_flag = '0'
+	</select>
+
+	<select id="selectFileUtilToNum" resultMap="fictionUtilMapper">
+		SELECT * from (
+			SELECT
+			ID,TAG_NAME
+			FROM
+			SYS_FICTION_TAG
+		    ORDER BY dbms_random.value()
+		) where rownum &lt; #{num}
+	</select>
+
+	<insert id="insertFictionUtil">
+		INSERT INTO SYS_FICTION_TAG(ID,
+				<if test="fictionTag.tagName != null">TAG_NAME,</if>
+		        TAG_REMARK,DEL_FLAG,CREATE_ID,CREATE_DATE,UPDATE_DATE)
+		VALUES(#{fictionTag.ids},
+		       <if test="fictionTag.tagName != null">#{fictionTag.tagName},</if>
+		       #{fictionTag.tagRemark},'0',#{fictionTag.createId},#{fictionTag.createDate},#{fictionTag.updateDate})
+	</insert>
+
+	<update id="updateFictionUtil">
+		UPDATE SYS_FICTION_TAG set
+		<if test="fictionTag.tagName != '' and fictionTag.tagName != null">
+			TAG_NAME = #{fictionTag.tagName},
+		</if>
+		<if test="fictionTag.tagRemark != '' and fictionTag.tagRemark != null">
+			TAG_REMARK = #{fictionTag.tagRemark},
+		</if>
+		UPDATE_DATE = #{fictionTag.updateDate}
+		where ID = #{fictionTag.ids}
+	</update>
+
+	<update id="delFictionUtil">
+		UPDATE SYS_FICTION_TAG set DEL_FLAG = '1' where ID = #{fictionTag.ids}
+	</update>
+
+</mapper>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.menu.mapper.MenuMapper">
+
+	<resultMap id="menumapper" type="com.example.menu.enity.menu">
+		<result property="ids" column="ID" />
+		<result property="tabName" column="TAB_NAME" />
+		<result property="sort" column="SORT" />
+		<result property="pramId" column="PRAM_ID" />
+		<result property="proType" column="PRO_TYPE" />
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="createId" column="CREATE_ID" />
+		<result property="updateDate" column="UPDATE_DATE" />
+		<result property="delFlag" column="DEL_FLAG" />
+		<result property="menuUrl" column="MENU_URL" />
+		<result property="menuName" column="MENU_NAME" />
+		<result property="icon" column="ICON" />
+		<result property="setApp" column="SET_APP" />
+	</resultMap>
+
+	<select id="selectTypeMenu" resultMap="menumapper">
+		select * from sys_menu where 1=1
+		<if test="menu.proType != null and menu.proType != '' and menu.proType != '管理员'.toString()">
+			AND pro_type = #{menu.proType}
+		</if>
+		AND DEL_FLAG = '0'
+		AND MENU_TYPE = '0'
+		order by to_number(sort) asc
+	</select>
+
+	<select id="selectTypePageMenu" resultMap="menumapper">
+		select
+			a.*,
+		    b.TAB_NAME as pramName
+		from
+			sys_menu a
+			LEFT JOIN sys_menu b on a.PRAM_ID = b.ID
+		where
+			a.DEL_FLAG = '0'
+			AND a.MENU_TYPE = '0'
+		order by to_number(a.sort) asc
+	</select>
+
+	<select id="selectNoneUrlMenu" resultMap="menumapper">
+		select
+		    id,
+			tab_name
+		from
+			sys_menu
+		where
+			DEL_FLAG = '0'
+		  	AND MENU_TYPE = '0'
+			AND PRAM_ID IS NULL
+		order by to_number(sort) asc
+	</select>
+
+	<select id="selectAllMenu" resultMap="menumapper">
+		select
+			MENU_URL,
+			TAB_NAME
+		from sys_menu where 1=1
+		AND DEL_FLAG = '0'
+		AND MENU_TYPE IN ('0','1')
+		AND MENU_URL IS NOT NULL
+	</select>
+
+	<select id="selectTypeMenuForRole" resultMap="menumapper">
+		SELECT
+		    sm.*
+		FROM
+			SYS_ROLE_PERSON srp
+			INNER JOIN SYS_ROLE sr ON sr.id = srp.role_id and srp.PERSON_ID = #{personId} and srp.DEL_FLAG = '0'
+			LEFT JOIN SYS_ROLE_MENU srm ON srm.role_id = sr.id and srm.DEL_FLAG = '0'
+			LEFT JOIN SYS_MENU sm ON sm.id = srm.menu_id and sm.DEL_FLAG = '0'
+		WHERE
+			sm.MENU_TYPE = '0'
+		order by to_number(sm.sort) asc
+	</select>
+
+	<select id="selectTypeMenuForRoleApp" resultMap="menumapper">
+		SELECT
+			sm.*
+		FROM
+			SYS_ROLE_PERSON srp
+				INNER JOIN SYS_ROLE sr ON sr.id = srp.role_id and srp.PERSON_ID = #{personId} and srp.DEL_FLAG = '0'
+				LEFT JOIN SYS_ROLE_MENU srm ON srm.role_id = sr.id and srm.DEL_FLAG = '0'
+				LEFT JOIN SYS_MENU sm ON sm.id = srm.menu_id and sm.DEL_FLAG = '0'
+		WHERE
+			sm.MENU_TYPE = '0'
+			AND sm.PRAM_ID IS NULL
+			AND sm.SET_APP = '1'
+		order by to_number(sm.sort) asc
+	</select>
+
+	<select id="selectTypeMenuForRoleSmileApp" resultMap="menumapper">
+		SELECT
+			sm.*,
+			smu.UNI_URL as uniAppUrl
+		FROM
+			SYS_ROLE_PERSON srp
+				INNER JOIN SYS_ROLE sr ON sr.id = srp.role_id and srp.PERSON_ID = #{personId} and srp.DEL_FLAG = '0'
+				LEFT JOIN SYS_ROLE_MENU srm ON srm.role_id = sr.id and srm.DEL_FLAG = '0'
+				LEFT JOIN SYS_MENU sm ON sm.id = srm.menu_id and sm.DEL_FLAG = '0'
+				LEFT JOIN SYS_MENU_UNIAPP smu ON smu.URL_ID = sm.ID
+		WHERE
+			sm.MENU_TYPE = '0'
+			AND sm.PRAM_ID = #{ids}
+		  	AND sm.SET_APP = '1'
+		order by to_number(sm.sort) asc
+	</select>
+
+	<insert id="insertMenuAdd">
+		INSERT INTO SYS_MENU(ID,TAB_NAME,SORT<if test="menu.pramId != '' and menu.pramId != null">,PRAM_ID</if>,
+		                     PRO_TYPE,CREATE_ID,CREATE_DATE,UPDATE_DATE,DEL_FLAG,MENU_URL,MENU_TYPE
+							<if test="menu.icon != '' and menu.icon != null">,ICON</if>
+							<if test="menu.setApp != '' and menu.setApp != null">,SET_APP</if>
+							,MENU_NAME
+		)VALUES(#{menu.ids},#{menu.tabName},#{menu.sort}<if test="menu.pramId != '' and menu.pramId != null">,#{menu.pramId}</if>
+				,#{menu.proType},#{menu.createId},#{menu.createDate},#{menu.updateDate},#{menu.delFlag},#{menu.menuUrl},'0'
+				<if test="menu.icon != '' and menu.icon != null">,#{menu.icon}</if>
+				<if test="menu.setApp != '' and menu.setApp != null">,#{menu.setApp}</if>
+				,#{menu.menuName}
+				)
+	</insert>
+
+	<select id="maxMenuSortOrId" resultType="java.lang.String">
+		SELECT
+			MAX(to_number(ID))
+		FROM
+			SYS_MENU
+		WHERE
+			DEL_FLAG = '0'
+	</select>
+
+</mapper>

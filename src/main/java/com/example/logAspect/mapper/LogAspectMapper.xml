@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.logAspect.mapper.LogAspectMapper">
+
+	<resultMap id="logAspectMapper" type="com.example.logAspect.enity.LogAspectList">
+		<result property="ids" column="ID" />
+		<result property="urlIze" column="URL_IZE" />
+		<result property="httpMethod" column="HTTP_METHOD" />
+		<result property="classMethod" column="CLASS_METHOD" />
+		<result property="ip" column="IP" />
+		<result property="title" column="TITLE" />
+		<result property="type" column="API_TYPE" />
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="createId" column="CREATE_ID" />
+		<result property="updateDate" column="UPDATE_DATE" />
+		<result property="delFlag" column="DEL_FLAG" />
+	</resultMap>
+
+	<select id="findListLog" resultType="com.example.logAspect.enity.LogAspectList">
+		select
+			*
+		from(
+			select
+				URL_IZE as urlIze,
+			    API_NAME as apiName,
+				HTTP_METHOD as httpMethod,
+				IP as ip,
+			    TITLE as title,
+				API_TYPE as type,
+				RESULT_BODY as result,
+				CREATE_DATE as createDate
+			from
+				SYS_LOGS
+			<where>
+				<if test="logAspect.urlIze != null and logAspect.urlIze != ''">
+					AND URL_IZE LIKE '%' || #{logAspect.urlIze} || '%'
+				</if>
+				<if test="logAspect.ip != null and logAspect.ip != ''">
+					AND IP LIKE '%' || #{logAspect.ip} || '%'
+				</if>
+				<if test="logAspect.apiName != null and logAspect.apiName != ''">
+					AND API_NAME LIKE '%' || #{logAspect.apiName} || '%'
+				</if>
+			</where>
+			ORDER BY
+				CREATE_DATE DESC
+			)
+		where
+			rownum &lt;= 300
+	</select>
+
+	<select id="findListImg" resultType="com.example.fileConfig.enity.FileSelectPixiv">
+		select
+		*
+		from(
+			select
+				AUTHOR as author,
+				AUTHORURL as authorUrl,
+				PIC as pic,
+				PICURL as picUrl,
+				ORDERTIME as orderTime,
+				LIKE_IMG as likeImg,
+				CREATE_DATE as createDate
+			from
+				SYS_SELECT_IMG
+				<where>
+					<if test="fileSelectPixiv.author != null and fileSelectPixiv.author != ''">
+						AND AUTHOR LIKE '%' || #{fileSelectPixiv.author} || '%'
+					</if>
+					<if test="fileSelectPixiv.pic != null and fileSelectPixiv.pic != ''">
+						AND PIC LIKE '%' || #{fileSelectPixiv.pic} || '%'
+					</if>
+				</where>
+			ORDER BY
+			CREATE_DATE DESC
+		)
+		where
+			rownum &lt;= 300
+	</select>
+
+	<select id="findListToken" resultType="com.example.token.enity.token">
+		select
+		*
+		from(
+			select
+				TOKEN_ID as tokenId,
+				AREA_ID as areaId,
+				CREATE_DATE as createDate
+			from
+				SYS_TOKEN
+				<where>
+					DEL_FLAG = 0
+					<if test="token.areaId != null and token.areaId != ''">
+						AND AREA_ID LIKE '%' || #{token.areaId} || '%'
+					</if>
+				</where>
+			ORDER BY
+				CREATE_DATE DESC
+		)
+		where
+			rownum &lt;= 300
+	</select>
+
+	<insert id="insertLog">
+		INSERT INTO sys_logs(URL_IZE,HTTP_METHOD,CLASS_METHOD,IP,CREATE_DATE,UPDATE_DATE,DEL_FLAG,API_NAME,RESULT_BODY,TITLE,API_TYPE)
+		VALUES(#{logAspect.urlIze},#{logAspect.httpMethod},#{logAspect.classMethod},#{logAspect.ip},#{logAspect.createDate},
+		       #{logAspect.createDate},'0', #{logAspect.apiName},#{logAspect.result},#{logAspect.title},#{logAspect.type})
+	</insert>
+
+</mapper>

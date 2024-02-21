@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mineBlos.myBlosTab.mapper.MineBlosMapper">
+
+	<resultMap id="mineBlosTabs" type="com.example.mineBlos.myBlosTab.enity.MineBlos">
+		<result property="ids" column="ID" />
+		<result property="actId" column="ACT_ID" />
+		<result property="clobTitle" column="CLOB_TITLE" />
+		<result property="content" column="CONTENT" />
+		<result property="onState" column="ON_STATE" />
+		<result property="psnId" column="PSN_ID" />
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="createId" column="CREATE_ID" />
+		<result property="updateDate" column="UPDATE_DATE" />
+		<result property="delFlag" column="DEL_FLAG" />
+		<result property="actType" column="ACT_TYPE" />
+		<result property="liteCont" column="SIML_CONTENT" />
+		<result property="centImg" column="CENT_IMG" />
+
+	</resultMap>
+
+	<select id="selectNvBook" resultMap="mineBlosTabs">
+		SELECT
+			A.ID,
+			A.ACT_ID,
+			A.CLOB_TITLE,
+			A.CREATE_ID,
+			A.CREATE_DATE,
+			A.UPDATE_DATE,
+			A.DEL_FLAG,
+			A.ON_STATE,
+			B.ID AS "psnId",
+		    B.PSN_NAME AS "psnName",
+			D.BLOS_TYPE_NAME AS actName
+		FROM SYS_MINE_ACTIVITY A
+		LEFT JOIN SYS_PERSON B ON B.ID = A.PSN_ID
+		LEFT JOIN SYS_ACTIVITY C ON C.ID = A.ACT_ID
+		LEFT JOIN SYS_BLOS_TYPE D ON D.ID = C.ACT_TYPE
+		WHERE A.DEL_FLAG = '0'
+		<if test="mineBlos.ids != null and mineBlos.ids != ''">
+			AND A.ID = #{mineBlos.ids}
+		</if>
+		<if test="mineBlos.actId != null and mineBlos.actId != ''">
+			AND A.ACT_ID = #{mineBlos.actId}
+		</if>
+		<if test="mineBlos.clobTitle != null and mineBlos.clobTitle != ''">
+			AND A.CLOB_TITLE LIKE '%'|| #{mineBlos.clobTitle} || '%'
+		</if>
+		<if test="mineBlos.createId != null and mineBlos.createId != ''">
+			AND A.CREAYE_ID = #{mineBlos.createId}
+		</if>
+		<if test="mineBlos.psnId != null and mineBlos.psnId != ''">
+			AND A.PSN_ID = #{mineBlos.psnId}
+		</if>
+		<if test="mineBlos.actType != null and mineBlos.actType != ''">
+			AND C.ACT_TYPE = #{mineBlos.actType}
+		</if>
+		ORDER BY A.CREATE_DATE DESC
+	</select>
+
+	<select id="selectRightBlos" resultMap="mineBlosTabs">
+		SELECT
+		    A.ID,
+			A.BLOS_TYPE_NAME || ' [' || COUNT(B.ID) || '篇]' AS ACTNAME
+		FROM
+			SYS_BLOS_TYPE A
+			LEFT OUTER JOIN SYS_ACTIVITY B ON A.ID = B.ACT_TYPE AND B.DEL_FLAG = '0'
+		WHERE
+			A.DEL_FLAG = '0'
+			AND A.PSN_ID = #{mineBlos.psnId}
+		GROUP BY
+			A.BLOS_TYPE_NAME,A.ID
+		ORDER BY
+			COUNT(B.ID) DESC
+	</select>
+
+	<select id="selectNvFile" resultMap="mineBlosTabs">
+		SELECT * FROM(
+		SELECT
+			A.ID,
+			A.FILE_NAME AS "CLOB_TITLE",
+			A.CREATE_DATE,
+			A.CREATE_ID,
+			A.UPDATE_DATE,
+			A.DEL_FLAG,
+			B.ID AS "psnId",
+			B.PSN_NAME AS "psnName"
+		FROM
+		SYS_FILE A
+		LEFT JOIN SYS_PERSON B ON B.ID = A.PSN_ID
+		WHERE A.DEL_FLAG = '0'
+		<if test="mineBlos.ids != null and mineBlos.ids != ''">
+			AND A.ID = #{mineBlos.ids}
+		</if>
+		<if test="mineBlos.clobTitle != null and mineBlos.clobTitle != ''">
+			AND A.FILE_NAME LIKE '%'|| #{mineBlos.clobTitle} || '%'
+		</if>
+		<if test="mineBlos.createId != null and mineBlos.createId != ''">
+			AND A.CREAYE_ID = #{mineBlos.createId}
+		</if>
+		<if test="mineBlos.psnId != null and mineBlos.psnId != ''">
+			AND A.PSN_ID = #{mineBlos.psnId}
+		</if>
+		ORDER BY CREATE_DATE DESC
+		)
+		WHERE
+		ROWNUM &lt;= 100
+	</select>
+
+	<select id="selectNvLike" resultMap="mineBlosTabs">
+		SELECT
+			A.ID,
+			C.CLOB_TITLE AS "CLOB_TITLE",
+			A.CREATE_DATE,
+			A.CREATE_ID,
+			A.DEL_FLAG,
+			B.ID AS "psnId",
+			B.PSN_NAME AS "psnName"
+		FROM
+			SYS_ACTIVITY_LIKE A
+				LEFT JOIN SYS_PERSON B ON B.ID = A.PSN_ID
+				LEFT JOIN SYS_MINE_ACTIVITY C ON C.ID = A.MINE_ACTIVITY_ID
+		WHERE A.DEL_FLAG = '0'
+		<if test="mineBlos.ids != null and mineBlos.ids != ''">
+			AND A.ID = #{mineBlos.ids}
+		</if>
+		<if test="mineBlos.clobTitle != null and mineBlos.clobTitle != ''">
+			AND C.CLOB_TITLE LIKE '%'|| #{mineBlos.clobTitle} || '%'
+		</if>
+		<if test="mineBlos.createId != null and mineBlos.createId != ''">
+			AND A.CREAYE_ID = #{mineBlos.createId}
+		</if>
+		<if test="mineBlos.psnId != null and mineBlos.psnId != ''">
+			AND A.PSN_ID = #{mineBlos.psnId}
+		</if>
+		ORDER BY A.CREATE_DATE DESC
+	</select>
+
+	<select id="countMineBlosSysLook" resultType="java.lang.Integer">
+		SELECT
+		COUNT(A.ID)
+		FROM SYS_MINE_ACTIVITY A
+		WHERE A.DEL_FLAG = '0'
+		<if test="mineBlos.ids != null and mineBlos.ids != ''">
+			AND A.ID = #{mineBlos.ids}
+		</if>
+		<if test="mineBlos.actId != null and mineBlos.actId != ''">
+			AND A.ACT_ID = #{mineBlos.actId}
+		</if>
+		<if test="mineBlos.clobTitle != null and mineBlos.clobTitle != ''">
+			AND A.CLOB_TITLE LIKE '%'|| #{mineBlos.clobTitle} || '%'
+		</if>
+		<if test="mineBlos.createId != null and mineBlos.createId != ''">
+			AND A.CREAYE_ID = #{mineBlos.createId}
+		</if>
+		<if test="mineBlos.psnId != null and mineBlos.psnId != ''">
+			AND A.PSN_ID = #{mineBlos.psnId}
+		</if>
+	</select>
+
+	<select id="selectNvClass" resultMap="mineBlosTabs">
+	SELECT * FROM(
+		SELECT
+			A.ID,
+			A.ACT_ID,
+			A.CLOB_TITLE,
+			A.CREATE_ID,
+			A.CREATE_DATE,
+			A.UPDATE_DATE,
+			A.DEL_FLAG,
+			A.ON_STATE,
+			B.ID AS "psnId",
+			B.PSN_NAME AS "psnName"
+		FROM
+		SYS_MINE_ACTIVITY A
+		LEFT JOIN SYS_PERSON B ON B.ID = A.PSN_ID
+		WHERE A.DEL_FLAG = '0'
+		<if test="mineBlos.psnId != null and mineBlos.psnId != ''">
+			AND A.PSN_ID = #{mineBlos.psnId}
+		</if>
+		AND TO_DATE(A.UPDATE_DATE,'yyyy-mm-dd hh24:mi:ss') >= SYSDATE-2
+	UNION ALL<!--截断，上半部分-->
+		SELECT
+			A.ID,
+			NULL,
+			A.FILE_NAME AS "CLOB_TITLE",
+			A.CREATE_ID,
+			A.CREATE_DATE,
+			A.UPDATE_DATE,
+			A.DEL_FLAG,
+			NULL,
+			B.ID AS "psnId",
+			B.PSN_NAME AS "psnName"
+		FROM
+		SYS_FILE A
+		LEFT JOIN SYS_PERSON B ON B.ID = A.PSN_ID
+		WHERE A.DEL_FLAG = '0'
+		<if test="mineBlos.psnId != null and mineBlos.psnId != ''">
+			AND A.PSN_ID = #{mineBlos.psnId}
+		</if>
+		AND TO_DATE(A.UPDATE_DATE,'yyyy-mm-dd hh24:mi:ss') >= SYSDATE-2
+	)ORDER BY CREATE_DATE DESC
+	</select>
+
+	<insert id="insertMineBlos">
+		declare
+		v_clob clob := #{mineBlos.content};
+		begin
+		INSERT INTO SYS_MINE_ACTIVITY(ID,ACT_ID,CONTENT,SIML_CONTENT,CLOB_TITLE,CREATE_ID,CREATE_DATE,UPDATE_DATE,DEL_FLAG,ON_STATE,PSN_ID,CENT_IMG)
+		VALUES(#{mineBlos.ids},#{mineBlos.actId},v_clob,#{mineBlos.liteCont},#{mineBlos.clobTitle},#{mineBlos.createId},#{mineBlos.createDate},#{mineBlos.updateDate}
+			  ,'0',#{mineBlos.onState},#{mineBlos.psnId},#{mineBlos.centImg});
+		end;
+	</insert>
+
+	<select id="selectMineBlosSemmIn" resultMap="mineBlosTabs">
+		SELECT
+			A.ID,
+			A.ACT_ID,
+			A.CLOB_TITLE,
+			A.CREATE_ID,
+			A.CREATE_DATE,
+			A.UPDATE_DATE,
+			A.DEL_FLAG,
+			A.ON_STATE,
+		    A.CONTENT,
+			D.ID AS "psnId",
+			D.PSN_NAME AS "psnName",
+			C.LIKE_NAME AS "type",
+		    E.BLOS_TYPE_NAME AS "ACT_TYPE",
+			'blosBoot' || A.CENT_IMG as "CENT_IMG"
+		FROM
+		SYS_MINE_ACTIVITY A
+		LEFT JOIN SYS_ACTIVITY B ON B.ID = A.ACT_ID
+		LEFT JOIN SYS_LIKE C ON C.ID = B.ACT_LIKE
+		LEFT JOIN SYS_PERSON D ON D.ID = A.CREATE_ID
+		LEFT JOIN SYS_BLOS_TYPE E ON B.ACT_TYPE = E.ID
+		WHERE
+		A.DEL_FLAG = '0'
+		AND B.DEL_FLAG = '0'
+		<if test="mineBlos.ids != null and mineBlos.ids != ''">
+			AND A.ID = #{mineBlos.ids}
+		</if>
+		<if test="mineBlos.actId != null and mineBlos.actId != ''">
+			AND A.ACT_ID = #{mineBlos.actId}
+		</if>
+	</select>
+
+	<select id="mineBlosRightDivLook" resultMap="mineBlosTabs">
+		SELECT
+		A.ID,
+		A.ACT_ID,
+		A.SIML_CONTENT,
+		A.CLOB_TITLE,
+		A.CREATE_ID,
+		A.CREATE_DATE,
+		A.UPDATE_DATE,
+		A.DEL_FLAG,
+		A.ON_STATE,
+		B.ID AS "psnId",
+		B.PSN_NAME AS "psnName",
+		D.BLOS_TYPE_NAME AS "ACT_TYPE",
+		A.CENT_IMG
+		FROM SYS_MINE_ACTIVITY A
+		LEFT JOIN SYS_PERSON B ON B.ID = A.PSN_ID
+		LEFT JOIN SYS_ACTIVITY C ON C.ID = A.ACT_ID
+		LEFT JOIN SYS_BLOS_TYPE D ON D.ID = C.ACT_TYPE
+		WHERE A.DEL_FLAG = '0'
+		<if test="mineBlos.ids != null and mineBlos.ids != ''">
+			AND A.ID = #{mineBlos.ids}
+		</if>
+		<if test="mineBlos.clobTitle != null and mineBlos.clobTitle != ''">
+			AND A.CLOB_TITLE LIKE '%'|| #{mineBlos.clobTitle} || '%'
+		</if>
+		<if test="mineBlos.psnId != null and mineBlos.psnId != ''">
+			AND A.PSN_ID = #{mineBlos.psnId}
+		</if>
+		<if test="mineBlos.actType != null and mineBlos.actType != ''">
+			AND C.ACT_TYPE = #{mineBlos.actType}
+		</if>
+	</select>
+
+	<select id="mineBlosApiDivLook" resultMap="mineBlosTabs">
+		SELECT
+		A.ID,
+		A.ACT_ID,
+		A.SIML_CONTENT,
+		A.CLOB_TITLE,
+		A.CREATE_ID,
+		A.CREATE_DATE,
+		A.UPDATE_DATE,
+		B.ID AS "psnId",
+		B.PSN_NAME AS "psnName",
+		D.BLOS_TYPE_NAME AS "ACT_TYPE",
+		'blosBoot' || A.CENT_IMG as "CENT_IMG"
+		FROM SYS_MINE_ACTIVITY A
+		LEFT JOIN SYS_PERSON B ON B.ID = A.PSN_ID
+		LEFT JOIN SYS_ACTIVITY C ON C.ID = A.ACT_ID
+		LEFT JOIN SYS_BLOS_TYPE D ON D.ID = C.ACT_TYPE
+		WHERE A.DEL_FLAG = '0'
+		<if test="mineBlos.ids != null and mineBlos.ids != ''">
+			AND A.ID = #{mineBlos.ids}
+		</if>
+		<if test="mineBlos.clobTitle != null and mineBlos.clobTitle != ''">
+			AND A.CLOB_TITLE LIKE '%'|| #{mineBlos.clobTitle} || '%'
+		</if>
+		<if test="mineBlos.psnId != null and mineBlos.psnId != ''">
+			AND A.PSN_ID = #{mineBlos.psnId}
+		</if>
+		<if test="mineBlos.actType != null and mineBlos.actType != ''">
+			AND C.ACT_TYPE = #{mineBlos.actType}
+		</if>
+		<if test="mineBlos.createDate != null and mineBlos.createDate != 'All'">
+			AND C.CREATE_DATE LIKE #{mineBlos.createDate} || '%'
+		</if>
+		ORDER BY
+		CREATE_DATE DESC
+	</select>
+	
+	<select id="allBlosRightDivTab" resultType="int">
+		SELECT
+		COUNT(A.ID)
+		FROM SYS_MINE_ACTIVITY A
+		LEFT JOIN SYS_ACTIVITY C ON C.ID = A.ACT_ID
+		WHERE A.DEL_FLAG = '0'
+		<if test="mineBlos.ids != null and mineBlos.ids != ''">
+			AND A.ID = #{mineBlos.ids}
+		</if>
+		<if test="mineBlos.clobTitle != null and mineBlos.clobTitle != ''">
+			AND A.CLOB_TITLE LIKE '%'|| #{mineBlos.clobTitle} || '%'
+		</if>
+		<if test="mineBlos.psnId != null and mineBlos.psnId != ''">
+			AND A.PSN_ID = #{mineBlos.psnId}
+		</if>
+		<if test="mineBlos.actType != null and mineBlos.actType != ''">
+			AND C.ACT_TYPE = #{mineBlos.actType}
+		</if>
+	</select>
+
+	<select id="mineBlosCount" resultType="java.lang.String">
+		SELECT
+			SUM(D.cou) || '篇文章' || ';' || COUNT(D.gro) || '篇分组'
+		FROM(
+			SELECT
+			COUNT(A.ID) as cou,
+			COUNT(B.ID) as gro
+			FROM SYS_MINE_ACTIVITY A
+			LEFT JOIN SYS_ACTIVITY C ON C.ID = A.ACT_ID
+			LEFT JOIN SYS_BLOS_TYPE B ON B.ID = C.ACT_TYPE
+			WHERE A.DEL_FLAG = '0'
+			<if test="mineBlos.ids != null and mineBlos.ids != ''">
+				AND A.ID = #{mineBlos.ids}
+			</if>
+			<if test="mineBlos.clobTitle != null and mineBlos.clobTitle != ''">
+				AND A.CLOB_TITLE LIKE '%'|| #{mineBlos.clobTitle} || '%'
+			</if>
+			<if test="mineBlos.psnId != null and mineBlos.psnId != ''">
+				AND A.PSN_ID = #{mineBlos.psnId}
+			</if>
+			<if test="mineBlos.actType != null and mineBlos.actType != ''">
+				AND C.ACT_TYPE = #{mineBlos.actType}
+			</if>
+			GROUP BY B.ID
+		) D
+	</select>
+
+	<select id="mineBlosGroupDate" resultType="com.example.util.dic.DicListVo">
+		SELECT
+			SUBSTR(a.CREATE_DATE, 1, 10) AS dicName,
+			a.ACT_TITLE as dicValue,
+			b.BLOS_TYPE_NAME as value,
+			c.ID as key
+		FROM
+			SYS_ACTIVITY a
+			LEFT JOIN SYS_BLOS_TYPE b ON b.ID = a.ACT_TYPE
+			LEFT JOIN SYS_MINE_ACTIVITY c ON c.ACT_ID = a.ID
+		WHERE
+			a.CREATE_ID = '1'
+		  AND a.DEL_FLAG = '0'
+		ORDER BY
+			a.CREATE_DATE DESC
+	</select>
+	
+	<select id="hisBlosType" resultMap="mineBlosTabs">
+		SELECT * FROM(
+		SELECT
+		#{type} || ID AS ID,
+		CLOB_TITLE
+		FROM
+		SYS_MINE_ACTIVITY
+		WHERE
+		DEL_FLAG = '0'
+		<if test="ids != null and ids != ''">
+			AND ID != #{ids}
+		</if>
+		ORDER BY CREATE_DATE DESC)
+		WHERE rownum &lt; 5
+	</select>
+
+</mapper>

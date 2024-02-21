@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.person.mapper.PersonMapper">
+	
+	<sql id="selectPersonCount">
+		a.ID AS ids,
+		a.USER_ID AS userId,
+		a.PSN_STATE AS psnState,
+		a.CREATE_DATE AS createDate,
+		a.CREATE_ID AS createId,
+		a.UPDATE_DATE AS updateDate,
+		a.DEL_FLAG AS delFlag,
+		a.PSN_LIKE_ID AS psnLikeId,
+		a.PSN_NAME AS psnName,
+		b.EMAIL AS email
+	</sql>
+
+	<sql id="selectPersonCountLike">
+		a.ID AS ids,
+		a.USER_ID AS userId,
+		a.PSN_STATE AS psnState,
+		a.CREATE_DATE AS createDate,
+		a.CREATE_ID AS createId,
+		a.UPDATE_DATE AS updateDate,
+		a.DEL_FLAG AS delFlag,
+		c.LIKE_NAME AS psnLikeId,
+		c.LIKE_NAME AS psnLikeName,
+		a.PSN_NAME AS psnName,
+		b.EMAIL AS email,
+		b.PHONE as phone
+	</sql>
+
+	<update id="createNewPerson">
+		INSERT INTO
+		    SYS_PERSON (ID,USER_ID,PSN_STATE,CREATE_DATE,CREATE_ID,UPDATE_DATE,DEL_FLAG,PSN_LIKE_ID,PSN_NAME)
+		    VALUES (#{person.ids}, #{person.userId},'1',#{person.createDate},'',#{person.updateDate},'0',#{person.psnLikeId},#{person.psnName})
+	</update>
+
+	<select id="selectPersonList" resultType="com.example.person.enity.Person" >
+		SELECT
+			<include refid="selectPersonCountLike"/>
+		FROM sys_person a
+		LEFT JOIN sys_user b on a.user_id = b.id
+		LEFT JOIN sys_like c on c.id = a.psn_like_id
+		WHERE a.user_id = #{uuid}
+			AND a.psn_state = '1'
+			AND a.del_flag = '0'
+			AND b.del_flag = '0'
+			AND c.del_flag = '0'
+			AND c.state = '1'
+	</select>
+	
+	<update id="updatePerson">
+		UPDATE sys_person SET
+		    <if test="person.userId != null and person.userId != ''">
+			USER_ID = #{person.userId},
+			</if>
+			<if test="person.psnState != null and person.psnState != ''">
+			PSN_STATE = #{person.psnState},
+			</if>
+		    <if test="person.createId != null and person.createId != ''">
+			CREATE_ID = #{person.createId},
+			</if>
+			<if test="person.delFlag != null and person.delFlag != ''">
+			DEL_FLAG #{person.delFlag},
+			</if>
+			<if test="person.psnLikeId != null and person.psnLikeId != ''">
+			PSN_LIKE_ID = #{person.psnLikeId},
+			</if>
+			<if test="person.psnName != null and person.psnName != ''">
+			PSN_NAME = #{person.psnName},
+			</if>
+			UPDATE_DATE = #{person.updateDate},
+			CREATE_DATE = #{person.createDate}
+		WHERE ID = #{person.ids}
+	</update>
+
+	<select id="selectAllListPerson" resultType="com.example.person.enity.Person">
+		SELECT
+			<include refid="selectPersonCount"/>
+		FROM sys_person a
+		LEFT JOIN sys_user b on a.user_id = b.id
+		WHERE 1=1
+		<if test="person.ids != null and person.ids != ''">
+		  	and a.id = #{ids}
+		</if>
+		<if test="person.userId != null and person.userId != ''">
+			and a.user_id = #{userId}
+		</if>
+		<if test="person.email != null and person.email != ''">
+			and b.email = #{person.email}
+		</if>
+			AND a.psn_state = '1'
+			AND a.del_flag = '0'
+			AND b.del_flag = '0'
+	</select>
+
+	<select id="get" resultType="com.example.person.enity.Person">
+		SELECT
+		<include refid="selectPersonCount"/>
+		FROM sys_person a
+		LEFT JOIN sys_user b on a.user_id = b.id
+		WHERE 1=1
+		<if test="ids != null and ids != ''">
+			and a.id = #{ids}
+		</if>
+		AND a.psn_state = '1'
+		AND a.del_flag = '0'
+		AND b.del_flag = '0'
+	</select>
+
+</mapper>

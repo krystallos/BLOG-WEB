@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.codeFile.mapper.CodeFileMapper">
+
+	<resultMap id="codeFileMapper" type="com.example.codeFile.enity.CodeFileEnity">
+		<result property="ids" column="ID" />
+		<result property="codeMind" column="CODE_MIND" />
+		<result property="codeType" column="CODE_TYPE" />
+		<result property="codeMd5" column="CODE_MD5" />
+		<result property="path" column="PATH" />
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="createId" column="CREATE_ID" />
+		<result property="delFlag" column="DEL_FLAG" />
+		<result property="passWord" column="PASSWORD" />
+	</resultMap>
+
+	<select id="selectPageCodeFile" resultMap="codeFileMapper">
+		SELECT
+			*
+		FROM
+			SYS_CODE
+		WHERE
+		    DEL_FLAG = '0'
+			<if test="codeFileEnity.codeType != null and codeFileEnity.codeType != ''">
+				AND CODE_TYPE = #{codeFileEnity.codeType}
+			</if>
+			<if test="codeFileEnity.codeMd5 != null and codeFileEnity.codeMd5 != ''">
+				AND CODE_MD5 = #{codeFileEnity.codeMd5}
+			</if>
+	</select>
+	
+	<select id="getCodeFile" resultMap="codeFileMapper">
+		SELECT
+			code.*
+		FROM
+		     SYS_CODE code
+		WHERE
+			code.del_flag = '0'
+	  		<if test="codeFileEnity.ids != null and codeFileEnity.ids != ''">
+				and code.id = #{codeFileEnity.ids}
+			</if>
+			<if test="codeFileEnity.codeMd5 != null and codeFileEnity.codeMd5 != ''">
+				AND CODE_MD5 = #{codeFileEnity.codeMd5}
+			</if>
+			<if test="codeFileEnity.path != null and codeFileEnity.path">
+				AND PATH = #{codeFileEnity.path}
+			</if>
+	</select>
+
+	<update id="delCodeFile">
+		update SYS_CODE set del_flag = '1' where id IN (#{codeFileEnity.ids})
+	</update>
+	
+	<insert id="insertCodeFile" useGeneratedKeys="true" keyProperty="ids">
+		INSERT INTO SYS_CODE(ID,CODE_MIND,CODE_TYPE,
+				<if test="codeFileEnity.codeMd5 != null and codeFileEnity.codeMd5 != ''">CODE_MD5,</if>
+		    	CREATE_DATE,CREATE_ID,DEL_FLAG,PATH
+		    	<if test="codeFileEnity.passWord != null and codeFileEnity.passWord != ''">,PASSWORD</if>
+		    	)
+		VALUES(#{codeFileEnity.ids},#{codeFileEnity.codeMind},#{codeFileEnity.codeType},
+		       	<if test="codeFileEnity.codeMd5 != null and codeFileEnity.codeMd5 != ''">#{codeFileEnity.codeMd5},</if>
+		       	#{codeFileEnity.createDate},#{codeFileEnity.createId},'0',#{codeFileEnity.path}
+				<if test="codeFileEnity.passWord != null and codeFileEnity.passWord != ''">,#{codeFileEnity.passWord}</if>
+		       )
+	</insert>
+	
+	<update id="updateCodeFile">
+		update SYS_CODE set
+		<if test="codeFileEnity.codeMind!=null and codeFileEnity.codeMind!=''">CODE_MIND = #{codeFileEnity.codeMind},</if>
+		<if test="codeFileEnity.codeType!=null and codeFileEnity.codeType!=''">CODE_TYPE = #{codeFileEnity.codeType},</if>
+		<if test="codeFileEnity.codeMd5!=null and codeFileEnity.codeMd5!=''">CODE_MD5 = #{codeFileEnity.codeMd5},</if>
+		del_flag = '0'
+		where id = #{codeFileEnity.ids}
+	</update>
+	
+	<update id="updatePassWord">
+		update SYS_CODE set PASSWORD = #{passWord} where CODE_MD5 = #{md5}
+	</update>
+	
+</mapper>

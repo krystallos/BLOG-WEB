@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.systemMsg.sysMsg.mapper.SysErrMsgMapper">
+
+	<resultMap id="sysErrMsgMapper" type="com.example.systemMsg.sysMsg.enity.SysErrMsg">
+		<result property="ids" column="ID" />
+		<result property="errTitle" column="ERR_TITLE" />
+		<result property="errCenter" column="ERR_CENTER" />
+		<result property="errPsnId" column="ERR_PSN_ID" />
+		<result property="errPsnName" column="ERR_PSN_NAME" />
+		<result property="adminBack" column="ADMIN_BACK" />
+		<result property="adminCenter" column="ADMIN_CENTER" />
+		<result property="isOk" column="IS_OK" />
+		<result property="isType" column="IS_TYPE" />
+		<result property="createId" column="CREATE_ID" />
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="updateDate" column="UPDATE_DATE" />
+		<result property="delFlag" column="DEL_FLAG" />
+	</resultMap>
+
+	<select id="selectSysErrMsgTab" resultMap="sysErrMsgMapper">
+		SELECT
+			*
+		FROM
+		SYS_ERR_MSG
+		WHERE
+		DEL_FLAG = '0'
+		<if test="sysErrMsg.ids != null and sysErrMsg.ids != ''">
+			AND ID = #{sysErrMsg.ids}
+		</if>
+		<if test="sysErrMsg.errTitle != null and sysErrMsg.errTitle != ''">
+			AND ERR_TITLE LIKE '%' || #{sysErrMsg.errTitle} || '%'
+		</if>
+		<if test="sysErrMsg.errPsnId != null and sysErrMsg.errPsnId != ''">
+			AND ERR_PSN_ID = #{sysErrMsg.errPsnId}
+		</if>
+		<if test="sysErrMsg.adminBack != null and sysErrMsg.adminBack != ''">
+			AND ADMIN_BACK = #{sysErrMsg.adminBack}
+		</if>
+		<if test="sysErrMsg.isOk != null and sysErrMsg.isOk != ''">
+			AND IS_OK = #{sysErrMsg.isOk}
+		</if>
+		<if test="sysErrMsg.isType != null and sysErrMsg.isType != ''">
+			AND IS_TYPE = #{sysErrMsg.isType}
+		</if>
+		ORDER BY
+		CREATE_DATE DESC
+	</select>
+
+	<select id="get" resultMap="sysErrMsgMapper">
+		SELECT * FROM SYS_ERR_MSG
+		WHERE
+		DEL_FLAG = '0'
+		<if test="sysErrMsg.ids != null and sysErrMsg.ids != ''">
+			AND ID = #{sysErrMsg.ids}
+		</if>
+	</select>
+
+	<insert id="insetSysErrMsg">
+		INSERT INTO SYS_ERR_MSG(ID,ERR_TITLE,ERR_CENTER,ERR_PSN_ID,ERR_PSN_NAME,ADMIN_BACK,ADMIN_CENTER,IS_OK,CREATE_ID,CREATE_DATE,UPDATE_DATE,DEL_FLAG,IS_TYPE)
+		VALUES(#{sysErrMsg.ids},#{sysErrMsg.errTitle},#{sysErrMsg.errCenter},#{sysErrMsg.errPsnId},#{sysErrMsg.errPsnName},#{sysErrMsg.adminBack},#{sysErrMsg.adminCenter}
+		       ,#{sysErrMsg.isOk},#{sysErrMsg.createId},#{sysErrMsg.createDate},#{sysErrMsg.updateDate},#{sysErrMsg.delFlag},#{sysErrMsg.isType})
+	</insert>
+
+	<update id="updateSyeErrMsg">
+		UPDATE SYS_ERR_MSG SET IS_OK = #{sysErrMsg.isOk} WHERE
+		ID = #{sysErrMsg.ids}
+<!--		<foreach item="item" collection="sysErrMsg.errId" separator="," open="(" close=")" index="">-->
+<!--			#{item}-->
+<!--		</foreach>-->
+		AND DEL_FLAG = '0' AND (IS_OK != '已解决' OR IS_OK != '已关闭') AND ERR_PSN_ID = #{sysErrMsg.errPsnId}
+	</update>
+
+	<update id="updateOkSysErrMsg">
+		UPDATE SYS_ERR_MSG SET IS_OK = '已解决' WHERE ID = #{ids} AND DEL_FLAG = '0' AND (IS_OK != '已解决' OR IS_OK != '已关闭')
+	</update>
+	
+</mapper>

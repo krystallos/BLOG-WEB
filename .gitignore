@@ -1,0 +1,12 @@
+.idea/*
+!.idea/EasyCodeConfig
+logs/
+*/logs/
+*/target/
+*/*.iml
+out/
+*.iml
+target/
+.DS_Store
+.mvn/*
+rebel.xml

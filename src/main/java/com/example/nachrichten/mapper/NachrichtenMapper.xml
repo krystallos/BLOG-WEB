@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.nachrichten.mapper.NachrichtenMapper">
+
+	<resultMap id="nachrichtenTab" type="com.example.nachrichten.enity.Nachrichten">
+		<result property="ids" column="ID" />
+		<result property="imageUrl" column="IMAGE_URL" />
+		<result property="message" column="MESSAGE" />
+		<result property="gotoUrl" column="GOTO_URL" />
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="delFlag" column="DEL_FLAG" />
+		<result property="sysType" column="SYS_TYPE" />
+	</resultMap>
+
+	<select id="nachrichtenMineTab" resultMap="nachrichtenTab">
+		SELECT
+			id,
+		    '/tempFile/' || IMAGE_URL as IMAGE_URL,
+			MESSAGE,
+			GOTO_URL,
+			CREATE_DATE,
+			SYS_TYPE
+		FROM
+			SYS_NACHRICHTEN
+		WHERE
+			DEL_FLAG = '0'
+			<if test="nachrichten.sysType != null and nachrichten.sysType != ''">
+				AND SYS_TYPE = #{nachrichten.sysType}
+			</if>
+		ORDER BY
+			CREATE_DATE DESC
+	</select>
+
+	<select id="get" resultMap="nachrichtenTab">
+		SELECT
+			*
+		FROM
+			SYS_NACHRICHTEN
+		WHERE
+			DEL_FLAG = '0'
+			AND ID = #{nachrichten.ids}
+	</select>
+
+	<update id="delNachrichten">
+		update SYS_NACHRICHTEN set DEL_FLAG = '1' where id = #{nachrichten.ids}
+	</update>
+
+	<insert id="insertNachrichten">
+		INSERT INTO SYS_NACHRICHTEN (
+		    ID,
+		    <if test="nachrichten.imageUrl != null">
+				IMAGE_URL,
+			</if>
+		    <if test="nachrichten.message != null">
+				MESSAGE,
+			</if>
+		    <if test="nachrichten.gotoUrl != null">
+				GOTO_URL,
+			</if>
+		    <if test="nachrichten.sysType != null">
+				SYS_TYPE,
+			</if>
+			DEL_FLAG,
+			CREATE_DATE
+		) VALUES (
+			#{nachrichten.ids},
+			<if test="nachrichten.imageUrl != null">
+				#{nachrichten.imageUrl},
+			</if>
+			<if test="nachrichten.message != null">
+				#{nachrichten.message},
+			</if>
+			<if test="nachrichten.gotoUrl != null">
+				#{nachrichten.gotoUrl},
+			</if>
+			<if test="nachrichten.sysType != null">
+				#{nachrichten.sysType},
+			</if>
+			#{nachrichten.delFlag},
+			#{nachrichten.createDate}
+		)
+	</insert>
+
+	<update id="updateNachrichten">
+		update SYS_NACHRICHTEN
+		<set>
+		    <if test="nachrichten.imageUrl != null and nachrichten.imageUrl != ''">
+				IMAGE_URL = #{nachrichten.imageUrl},
+			</if>
+			<if test="nachrichten.message != null and nachrichten.message != ''">
+				MESSAGE = #{nachrichten.message},
+			</if>
+			<if test="nachrichten.gotoUrl != null and nachrichten.gotoUrl != ''">
+				GOTO_URL = #{nachrichten.gotoUrl},
+			</if>
+		    <if test="nachrichten.sysType != null and nachrichten.sysType != ''">
+				SYS_TYPE = #{nachrichten.sysType},
+			</if>
+		</set>
+		where id = #{nachrichten.ids}
+	</update>
+
+</mapper>

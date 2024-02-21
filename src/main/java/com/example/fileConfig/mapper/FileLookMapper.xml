@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.fileConfig.mapper.FileLookMapper">
+
+	<resultMap id="fileLookMapper" type="com.example.codeFile.enity.CodeFileEnity">
+		<result property="ids" column="ID" />
+		<result property="codeMind" column="CODE_MIND" />
+		<result property="codeType" column="CODE_TYPE" />
+		<result property="codeMd5" column="CODE_MD5" />
+		<result property="path" column="PATH" />
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="createId" column="CREATE_ID" />
+		<result property="updateDate" column="UPDATE_DATE" />
+		<result property="delFlag" column="DEL_FLAG" />
+		<result property="passWord" column="PASSWORD" />
+	</resultMap>
+
+	<select id="get" resultMap="fileLookMapper">
+		select *
+		from sys_person_file
+		where 1=1
+		and del_flag = '0' and id = #{fileUtil.ids}
+	</select>
+
+	<select id="selectFileLookTab" resultMap="fileLookMapper">
+		select
+			ID,
+			CODE_MIND,
+			CODE_TYPE,
+			CODE_MD5,
+			CREATE_DATE,
+			CREATE_ID,
+			DEL_FLAG,
+		    PASSWORD,
+			PATH,
+			CASE WHEN CODE_TYPE = 0 THEN '/assFileCode/' || PATH ELSE '/tempFile/' || PATH END as itemPath
+		from
+		     sys_code
+		where
+		    del_flag = '0'
+			<if test="codeFileEnity.codeMind != '' and codeFileEnity.codeMind != null">
+				and CODE_MIND LIKE '%'|| #{codeFileEnity.codeMind} ||'%'
+			</if>
+			<if test="codeFileEnity.codeMd5 != '' and codeFileEnity.codeMd5 != null">
+				and CODE_MD5 LIKE '%'|| #{codeFileEnity.codeMd5} ||'%'
+			</if>
+			<if test="codeFileEnity.path != '' and codeFileEnity.path != null">
+				and PATH LIKE '%'|| #{codeFileEnity.path} ||'%'
+			</if>
+			<if test="codeFileEnity.codeType != '' and codeFileEnity.codeType != null">
+				and CODE_TYPE = #{codeFileEnity.codeType}
+			</if>
+		ORDER BY CREATE_DATE DESC
+	</select>
+
+</mapper>

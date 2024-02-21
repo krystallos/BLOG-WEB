@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.menu.mapper.RoleMapper">
+
+	<resultMap id="rolemapper" type="com.example.menu.enity.RoleEnity">
+		<result property="ids" column="ID" />
+		<result property="roleName" column="ROLE_NAME" />
+		<result property="isFlag" column="IS_FLAG" />
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="createId" column="CREATE_ID" />
+		<result property="delFlag" column="DEL_FLAG" />
+		<result property="isDefule" column="IS_DEFULE" />
+	</resultMap>
+
+	<select id="getRole" resultMap="rolemapper">
+		select * from SYS_ROLE where DEL_FLAG = '0' and id = #{roleEnity.ids}
+	</select>
+
+	<select id="selectTypeRole" resultMap="rolemapper">
+		select * from SYS_ROLE where DEL_FLAG = '0'
+		<if test="roleEnity.roleName != null and roleEnity.roleName != ''">
+			AND ROLE_NAME LIKE '%' || #{roleEnity.roleName} || '%'
+		</if>
+	</select>
+	
+	<insert id="insertRole">
+		INSERT INTO SYS_ROLE(ID,ROLE_NAME,IS_FLAG,CREATE_ID,CREATE_DATE,DEL_FLAG,IS_DEFULE)
+		VALUES(#{roleEnity.ids},#{roleEnity.roleName},#{roleEnity.isFlag},#{roleEnity.createId},#{roleEnity.createDate},#{roleEnity.delFlag},#{roleEnity.isDefule})
+	</insert>
+
+	<update id="delRole">
+		UPDATE SYS_ROLE SET DEL_FLAG = '1'
+		WHERE ID IN
+		<foreach collection='idList' item='arr' index='no' open='(' separator=',' close=')'>
+			#{arr}
+		</foreach>
+	</update>
+
+	<update id="updateRole">
+		UPDATE SYS_ROLE SET ROLE_NAME = #{roleEnity.roleName}
+		WHERE ID = #{roleEnity.ids}
+	</update>
+
+	
+	<select id="selectRoleMenu" resultType="com.example.menu.enity.RoleMenuEnity">
+		SELECT
+			srm.ID AS ids,
+		    srm.ROLE_ID AS roleId,
+		    sr.ROLE_NAME AS roleName,
+		    srm.MENU_ID AS menuId,
+			sm.TAB_NAME AS menuName
+		FROM
+			SYS_ROLE_MENU srm
+			LEFT JOIN SYS_MENU sm ON sm.ID = srm.MENU_ID AND sm.MENU_TYPE = '0'
+			LEFT JOIN SYS_ROLE sr ON sr.ID = srm.ROLE_ID
+		WHERE
+			srm.ROLE_ID = #{roleMenuEnity.roleId}
+			AND srm.DEL_FLAG = '0'
+			<if test="roleMenuEnity.menuName != null and roleMenuEnity.menuName != ''">
+				AND sm.TAB_NAME LIKE '%' || #{roleMenuEnity.menuName} || '%'
+			</if>
+	</select>
+
+	<select id="selectTransferMenu" resultType="java.lang.String">
+		SELECT
+		srm.MENU_ID AS menuId
+		FROM
+		SYS_ROLE_MENU srm
+		WHERE
+		srm.ROLE_ID = #{roleMenuEnity.roleId}
+		AND srm.DEL_FLAG = '0'
+	</select>
+
+	<select id="selectRolePersonNoPag" resultType="java.lang.String">
+		SELECT
+			srp.PERSON_ID AS personId
+		FROM
+			SYS_ROLE_PERSON srp
+		WHERE
+			srp.ROLE_ID = #{roleMenuEnity.roleId}
+		  AND srp.DEL_FLAG = '0'
+	</select>
+
+	<update id="delMenu">
+		UPDATE SYS_ROLE_MENU SET DEL_FLAG = '1'
+		WHERE MENU_ID IN
+		<foreach collection='idList' item='arr' index='no' open='(' separator=',' close=')'>
+			#{arr}
+		</foreach>
+		AND ROLE_ID = #{roleId}
+	</update>
+
+	<update id="delPerson">
+		UPDATE SYS_ROLE_PERSON SET DEL_FLAG = '1'
+		WHERE PERSON_ID IN
+		<foreach collection='idList' item='arr' index='no' open='(' separator=',' close=')'>
+			#{arr}
+		</foreach>
+		AND ROLE_ID = #{roleId}
+	</update>
+
+	<select id="selectPersonForRole" resultType="java.lang.String">
+		SELECT
+			PERSON_ID
+		FROM
+			SYS_ROLE_PERSON
+		WHERE
+			PERSON_ID = #{personId}
+			AND DEL_FLAG = '0'
+	</select>
+
+	<update id="delAllRoleForPerson">
+		UPDATE SYS_ROLE_PERSON SET DEL_FLAG = '1' WHERE	PERSON_ID = #{personId}
+	</update>
+	
+	<insert id="insertMenu">
+		INSERT INTO SYS_ROLE_MENU(ID,ROLE_ID,MENU_ID,CREATE_ID,CREATE_DATE,DEL_FLAG)
+		VALUES(#{roleMenuEnity.ids},#{roleMenuEnity.roleId},#{roleMenuEnity.menuId},#{roleMenuEnity.createId},#{roleMenuEnity.createDate},'0')
+	</insert>
+
+	<insert id="insertPerson">
+		INSERT INTO SYS_ROLE_PERSON(ID,ROLE_ID,PERSON_ID,CREATE_ID,CREATE_DATE,DEL_FLAG)
+		VALUES(#{rolePersonEnity.ids},#{rolePersonEnity.roleId},#{rolePersonEnity.personId},#{rolePersonEnity.createId},#{rolePersonEnity.createDate},'0')
+	</insert>
+
+	<select id="hisPersonForMain" resultType="java.lang.Integer">
+		SELECT
+			COUNT( 1 )
+		FROM
+			SYS_ROLE_PERSON srp
+				LEFT JOIN SYS_ROLE sr ON sr.ID = srp.ROLE_ID AND sr.DEL_FLAG = '0'
+				LEFT JOIN SYS_ROLE_MENU srm ON srm.ROLE_ID = sr.ID AND srm.DEL_FLAG = '0'
+				LEFT JOIN SYS_MENU sm ON sm.ID = srm.MENU_ID AND sm.DEL_FLAG = '0'
+		WHERE
+			srp.PERSON_ID = #{personId}
+		  	AND sm.MENU_URL = #{page}
+			AND srp.DEL_FLAG = '0'
+			AND srm.DEL_FLAG = '0'
+			AND sr.DEL_FLAG = '0'
+			AND sm.DEL_FLAG = '0'
+	</select>
+
+	<select id="isDefRole" resultType="java.lang.String">
+		SELECT
+			ID
+		FROM
+			SYS_ROLE
+		WHERE IS_DEFULE = '0' AND IS_FLAG = '0' AND DEL_FLAG = '0'
+	</select>
+	
+</mapper>

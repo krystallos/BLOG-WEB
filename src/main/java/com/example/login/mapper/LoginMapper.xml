@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.login.mapper.LoginMapper">
+
+	<resultMap id="loginmapper" type="com.example.login.enity.Login">
+		<!--<id property="userId" column="id" />
+		<result property="userName" column="USER_NAME" />-->
+		<result property="areaId" column="AREA_ID" />
+		<result property="orgSessionId" column="ORG_SESSION_ID" />
+		<!--<result property="userPassword" column="USER_PASSWORD" />-->
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="createId" column="CREATE_ID" />
+		<result property="updateDate" column="UPDATE_DATE" />
+		<!--<result property="userState" column="USER_STATE" />
+		<result property="delFlag" column="DEL_FLAG" />-->
+	</resultMap>
+
+	<sql id="selectAll">
+		ID AS ids,USER_NAME AS userName,AREA_ID AS areaId,ORG_SESSION_ID AS orgSessionId,
+		USER_PASSWORD AS userPassWord,CREATE_DATE AS createDate,CREATE_ID AS createId,
+		UPDATE_DATE AS updateDate,USER_STATE AS state,DEL_FLAG AS delFlag,
+		EMAIL AS email,PHONE AS phone
+	</sql>
+	
+	<select id="selectuser" resultMap="loginmapper">
+		select
+		<include refid="selectAll"/>
+		from SYS_USER where user_State = '1'
+		AND EMAIL = #{uname} OR PHONE = #{uname}
+	</select>
+
+	<select id="selectuserOrEmil" resultMap="loginmapper">
+		select 
+		<include refid="selectAll"/>
+		from SYS_USER
+		where
+		user_State = '1'
+		<if test="emil != null and emil != ''">
+			and email = #{emil}
+		</if>
+	</select>
+
+	<select id="get" resultMap="loginmapper">
+		SELECT
+		<include refid="selectAll"/>
+		FROM
+		SYS_USER
+		WHERE
+		USER_STATE = '1'
+		AND ID = #{id}
+	</select>
+	
+</mapper>

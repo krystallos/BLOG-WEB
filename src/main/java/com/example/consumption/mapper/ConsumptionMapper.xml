@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.consumption.mapper.ConsumptionMapper">
+
+	<resultMap id="consumptionMapper" type="com.example.consumption.enity.ConsumptionVo">
+		<result property="ids" column="ID" />
+		<result property="transactionNum" column="TRANSACTION_NUM" />
+		<result property="order" column="ORDER_NUM" />
+		<result property="payTime" column="PAY_TIME" />
+		<result property="payFrom" column="PAY_FROM" />
+		<result property="payType" column="PAY_TYPE" />
+		<result property="payPerson" column="PAY_PERSON" />
+		<result property="commodity" column="COMMODITY" />
+		<result property="amount" column="AMOUNT" />
+		<result property="incomeOrExpenditure" column="INCOME_OR_EXPENDITURE" />
+		<result property="progress" column="PROGRESS" />
+		<result property="service" column="SERVICE" />
+		<result property="refundAmount" column="REFUND_AMOUNT" />
+		<result property="fundStatus" column="FUND_STATUS" />
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="createId" column="CREATE_ID" />
+		<result property="updateDate" column="UPDATE_DATE" />
+		<result property="delFlag" column="DEL_FLAG" />
+	</resultMap>
+
+	<select id="get" resultMap="consumptionMapper">
+		select *
+		from ALIBA_ALIPAY
+		where 1=1
+		and del_flag = '0' and id = #{fileUtil.ids}
+	</select>
+
+	<select id="selectConsumptionTab" resultMap="consumptionMapper">
+		select
+		    *
+		from
+		     ALIBA_ALIPAY
+		where
+		      del_flag = '0'
+		<if test="consumptionVo.createId != '' and consumptionVo.createId != null">
+			and CREATE_ID = #{consumptionVo.createId}
+		</if>
+		<if test="consumptionVo.payPerson != '' and consumptionVo.payPerson != null">
+			and PAY_PERSON LIKE '%' || #{consumptionVo.payPerson} || '%'
+		</if>
+		<if test="consumptionVo.order != '' and consumptionVo.order != null">
+			and ORDER_NUM LIKE '%' || #{consumptionVo.order} || '%'
+		</if>
+		<if test="consumptionVo.moneyOrder != '' and consumptionVo.moneyOrder != null">
+			<choose>
+				<when test="consumptionVo.orderType != null and consumptionVo.orderType == '1'.toString()">
+					and TO_NUMBER(AMOUNT) &lt; #{consumptionVo.moneyOrder}
+				</when>
+				<when test="consumptionVo.orderType != null and consumptionVo.orderType == '2'.toString()">
+					and TO_NUMBER(AMOUNT) &gt; #{consumptionVo.moneyOrder}
+				</when>
+				<otherwise>
+					and TO_NUMBER(AMOUNT) = #{consumptionVo.moneyOrder}
+				</otherwise>
+			</choose>
+		</if>
+		<if test="consumptionVo.payTime != null and consumptionVo.payTime != ''">
+			AND TO_CHAR( TO_DATE( PAY_TIME, 'YYYY-MM-DD hh24:mi' ), 'YYYY' ) = #{consumptionVo.payTime}
+		</if>
+		ORDER BY TO_DATE(PAY_TIME,'yyyy-mm-dd hh24:mi') DESC
+	</select>
+
+	<select id="selectConsumptionNotDeitlTab" resultMap="consumptionMapper">
+		select
+			ID,
+			COMMODITY
+		from
+		ALIBA_ALIPAY
+		where
+		del_flag = '0'
+		<if test="consumptionVo.createId != '' and consumptionVo.createId != null">
+			and CREATE_ID = #{consumptionVo.createId}
+		</if>
+		<if test="consumptionVo.payPerson != '' and consumptionVo.payPerson != null">
+			and PAY_PERSON LIKE '%' || #{consumptionVo.payPerson} || '%'
+		</if>
+		<if test="consumptionVo.order != '' and consumptionVo.order != null">
+			and ORDER_NUM LIKE '%' || #{consumptionVo.order} || '%'
+		</if>
+		<if test="consumptionVo.moneyOrder != '' and consumptionVo.moneyOrder != null">
+			<choose>
+				<when test="consumptionVo.orderType != null and consumptionVo.orderType == '1'.toString()">
+					and TO_NUMBER(AMOUNT) &lt; #{consumptionVo.moneyOrder}
+				</when>
+				<when test="consumptionVo.orderType != null and consumptionVo.orderType == '2'.toString()">
+					and TO_NUMBER(AMOUNT) &gt; #{consumptionVo.moneyOrder}
+				</when>
+				<otherwise>
+					and TO_NUMBER(AMOUNT) = #{consumptionVo.moneyOrder}
+				</otherwise>
+			</choose>
+		</if>
+		ORDER BY TO_DATE(PAY_TIME,'yyyy-mm-dd hh24:mi') DESC
+	</select>
+
+	<select id="countSelectConsumptionTab" resultType="java.lang.Integer">
+		select
+		count (id)
+		from
+		ALIBA_ALIPAY
+		where
+		del_flag = '0'
+		<if test="consumptionVo.createId != '' and consumptionVo.createId != null">
+			and CREATE_ID = #{consumptionVo.createId}
+		</if>
+		<if test="consumptionVo.payPerson != '' and consumptionVo.payPerson != null">
+			and PAY_PERSON LIKE '%' || #{consumptionVo.payPerson} || '%'
+		</if>
+		<if test="consumptionVo.order != '' and consumptionVo.order != null">
+			and ORDER_NUM LIKE '%' || #{consumptionVo.order} || '%'
+		</if>
+		<if test="consumptionVo.moneyOrder != '' and consumptionVo.moneyOrder != null">
+			<choose>
+				<when test="consumptionVo.orderType != null and consumptionVo.orderType == '1'.toString()">
+					and TO_NUMBER(AMOUNT) &lt; #{consumptionVo.moneyOrder}
+				</when>
+				<when test="consumptionVo.orderType != null and consumptionVo.orderType == '2'.toString()">
+					and TO_NUMBER(AMOUNT) &gt; #{consumptionVo.moneyOrder}
+				</when>
+				<otherwise>
+					and TO_NUMBER(AMOUNT) = #{consumptionVo.moneyOrder}
+				</otherwise>
+			</choose>
+		</if>
+	</select>
+
+	<select id="getConsumptionDeitl" resultMap="consumptionMapper">
+		select
+			*
+		from
+			ALIBA_ALIPAY
+		where
+			del_flag = '0'
+			and ID = #{ids}
+	</select>
+
+	<select id="selectDate" resultType="com.example.consumption.enity.EchartForConsumption">
+		SELECT
+			SUBSTR(tab.x, 0 , 2) as month,
+			SUBSTR(tab.x, 4 , 4) as day,
+			<if test="echartForConsumption.orderType != null and echartForConsumption.orderType == 'false'.toString()">
+				CASE WHEN tab.y &lt;= #{echartForConsumption.moneyOrder} THEN tab.y ELSE 0 END AS y
+			</if>
+			<if test="echartForConsumption.orderType != null and echartForConsumption.orderType == 'true'.toString()">
+				CASE WHEN tab.y &gt;= #{echartForConsumption.moneyOrder} THEN tab.y ELSE 0 END AS y
+			</if>
+		FROM(
+			SELECT
+				nvl( a.AMOUNT,0 ) AS y,
+				TO_CHAR( TO_DATE( every.calendar_day, 'YYYY-MM-DD hh24:mi' ), 'MM-DD' ) AS x
+			FROM(
+				SELECT
+				TO_CHAR(to_date( #{echartForConsumption.beginTime} || '0101', 'yyyymmdd' ) + LEVEL - 2, 'YYYY-MM-DD')  AS calendar_day
+				FROM
+				dual CONNECT BY LEVEL &lt;= to_char( to_date( ( SELECT to_char( SYSDATE + 1, 'yyyy' ) FROM dual ) || '1231', 'yyyymmdd' ), 'ddd' )
+			) every
+			LEFT JOIN(
+				SELECT
+					nvl( sum( AMOUNT ), 0 ) AMOUNT,
+					TO_CHAR( TO_DATE( PAY_TIME, 'YYYY-MM-DD hh24:mi' ), 'YYYY-MM-DD' ) PAY_TIME
+				FROM
+					ALIBA_ALIPAY
+				WHERE
+					DEL_FLAG = 0
+					AND CREATE_ID = #{echartForConsumption.createId}
+					AND TO_CHAR( TO_DATE( PAY_TIME, 'YYYY-MM-DD hh24:mi' ), 'YYYY' ) = #{echartForConsumption.beginTime}
+				GROUP BY
+					TO_CHAR( TO_DATE( PAY_TIME, 'YYYY-MM-DD hh24:mi' ), 'YYYY-MM-DD' )
+			) a ON every.calendar_day = a.PAY_TIME
+		)tab
+		ORDER BY tab.x
+	</select>
+
+	<select id="selectBin" resultType="com.example.util.dic.DicVo">
+		SELECT
+			SUM(AMOUNT) as value,
+			PAY_PERSON as name
+		FROM
+			ALIBA_ALIPAY
+		WHERE
+			DEL_FLAG = 0
+			AND CREATE_ID = #{echartForConsumption.createId}
+			AND INCOME_OR_EXPENDITURE = '支出'
+			<if test="echartForConsumption.timeType != null and echartForConsumption.timeType != ''">
+				<if test="echartForConsumption.timeType == '1'.toString()">
+					AND TO_CHAR(TO_DATE(PAY_TIME, 'YYYY-MM-DD hh24:mi'),'YYYY-MM') = TO_CHAR(TO_DATE(#{echartForConsumption.beginTime}, 'YYYY-MM'),'YYYY-MM')
+				</if>
+				<if test="echartForConsumption.timeType == '2'.toString()">
+					AND TO_CHAR(TO_DATE(PAY_TIME, 'YYYY-MM-DD hh24:mi'),'YYYY') = TO_CHAR(TO_DATE(#{echartForConsumption.beginTime}, 'YYYY'),'YYYY')
+				</if>
+			</if>
+		GROUP BY PAY_PERSON
+	</select>
+
+	<insert id="insertFileAllExcl">
+		INSERT ALL INTO ALIBA_ALIPAY(ID,TRANSACTION_NUM,ORDER_NUM,PAY_TIME,PAY_FROM,PAY_TYPE,PAY_PERSON,COMMODITY,AMOUNT,
+									INCOME_OR_EXPENDITURE,PROGRESS,SERVICE,REFUND_AMOUNT,FUND_STATUS,
+									CREATE_DATE,CREATE_ID,UPDATE_DATE,DEL_FLAG)(
+		<foreach collection="consumptionVos" index="" item="list" separator="union all">
+			SELECT #{list.ids},#{list.transactionNum},#{list.order},#{list.payTime},#{list.payFrom},#{list.payType},#{list.payPerson},#{list.commodity},
+			#{list.amount},#{list.incomeOrExpenditure},#{list.progress},#{list.service},#{list.refundAmount},#{list.fundStatus},
+			TO_CHAR(sysdate,'yyyy-mm-dd HH24:MI:SS') AS "createDate",#{list.createId},TO_CHAR(sysdate,'yyyy-mm-dd HH24:MI:SS') AS "updateDate",'0' FROM DUAL
+		</foreach>
+		)
+	</insert>
+
+</mapper>

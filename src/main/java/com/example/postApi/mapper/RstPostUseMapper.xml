@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.postApi.mapper.RstPostUseMapper">
+
+	<resultMap id="rstPostMapper" type="com.example.postApi.enity.RstPostProject">
+		<result property="ids" column="ID" />
+		<result property="projectName" column="PROJECT_NAME" />
+		<result property="projectPid" column="PROJECT_PID" />
+		<result property="isFile" column="IS_FILE" />
+		<result property="createId" column="CREATE_ID" />
+		<result property="createName" column="CREATE_NAME" />
+		<result property="updateDate" column="UPDATE_DATE" />
+<!--		<collection property="children" ofType="com.example.postApi.enity.RstPostProject">-->
+<!--			<id property="ids" column="IDS"/>-->
+<!--			<result property="projectName" column="PROJECT_NAMES" />-->
+<!--			<result property="projectPid" column="PROJECT_PIDS" />-->
+<!--			<result property="isFile" column="IS_FILES" />-->
+<!--			<result property="createName" column="CREATE_NAMES" />-->
+<!--			<result property="updateDate" column="UPDATE_DATES" />-->
+<!--		</collection>-->
+	</resultMap>
+
+	<select id="rstPostList" resultMap="rstPostMapper">
+		SELECT
+			a.ID,
+			a.PROJECT_NAME,
+			a.PROJECT_PID,
+			a.IS_FILE,
+			a.CREATE_ID,
+			c.PSN_NAME as CREATE_NAME,
+			a.UPDATE_DATE as UPDATE_DATE
+		FROM
+			RST_POST_HTTP a
+			LEFT JOIN SYS_PERSON c ON c.ID = a.CREATE_ID
+		<where>
+			a.IS_FILE = 0
+			AND a.DEL_FLAG = 0
+			<if test="rstPostProject.projectName != null and rstPostProject.projectName != ''">
+				AND a.PROJECT_NAME LIKE '%'|| #{rstPostProject.projectName} ||'%'
+			</if>
+		</where>
+		ORDER BY a.UPDATE_DATE DESC
+	</select>
+
+	<select id="rstPostChildList" resultMap="rstPostMapper">
+		SELECT
+		a.ID,
+		a.PROJECT_NAME,
+		a.PROJECT_PID,
+		a.IS_FILE,
+		a.CREATE_ID,
+		c.PSN_NAME as CREATE_NAME,
+		a.UPDATE_DATE as UPDATE_DATE
+		FROM
+		RST_POST_HTTP a
+		LEFT JOIN SYS_PERSON c ON c.ID = a.CREATE_ID
+		<where>
+			a.IS_FILE = 1
+			AND a.DEL_FLAG = 0
+			AND a.PROJECT_PID = #{ids}
+		</where>
+		ORDER BY a.UPDATE_DATE DESC
+	</select>
+
+	<select id="rstOpenPostList" resultMap="rstPostMapper">
+		SELECT
+			a.ID,
+			a.PROJECT_NAME,
+			a.PROJECT_PID,
+			a.IS_FILE,
+			a.CREATE_ID,
+			c.PSN_NAME as CREATE_NAME,
+			a.UPDATE_DATE as UPDATE_DATE,
+			ROWNUM r
+		FROM
+			RST_POST_HTTP a
+			LEFT JOIN SYS_PERSON c ON c.ID = a.CREATE_ID
+		<where>
+			a.IS_FILE = 0
+			AND a.DEL_FLAG = 0
+			<if test="rstPostProject.projectName != null and rstPostProject.projectName != ''">
+				AND a.PROJECT_NAME LIKE '%'|| #{rstPostProject.projectName} ||'%'
+			</if>
+			<if test="rstPostProject.ids != null and rstPostProject.ids != ''">
+				AND a.ID = #{rstPostProject.ids}
+			</if>
+		</where>
+	</select>
+
+	<select id="rstOpenPostListCount" resultType="java.lang.Integer">
+		SELECT
+			COUNT(ID)
+		FROM
+		RST_POST_HTTP
+		<where>
+			IS_FILE = 0
+			<if test="rstPostProject.projectName != null and rstPostProject.projectName != ''">
+				AND PROJECT_NAME LIKE '%'|| #{rstPostProject.projectName} ||'%'
+			</if>
+			<if test="rstPostProject.ids != null and rstPostProject.ids != ''">
+				AND ID = #{rstPostProject.ids}
+			</if>
+		</where>
+	</select>
+
+	<select id="rstPostListCount" resultType="java.lang.Integer">
+		SELECT
+			COUNT(ID)
+		FROM
+		RST_POST_HTTP
+		<where>
+			IS_FILE = 0
+			<if test="rstPostProject.projectName != null and rstPostProject.projectName != ''">
+				AND PROJECT_NAME LIKE '%'|| #{rstPostProject.projectName} ||'%'
+			</if>
+		</where>
+	</select>
+
+	<select id="rstPostListDouble" resultType="java.lang.Integer">
+		SELECT
+		COUNT(ID)
+		FROM
+		RST_POST_HTTP
+		<where>
+			IS_FILE = 0
+			<if test="rstPostProject.projectName != null and rstPostProject.projectName != ''">
+				AND PROJECT_NAME = #{rstPostProject.projectName}
+			</if>
+		</where>
+	</select>
+
+	<resultMap id="getRstPostMapper" type="com.example.postApi.enity.RstChildPostApi">
+		<result property="ids" column="ids" />
+		<result property="projectName" column="projectName" />
+		<result property="fileName" column="fileName" />
+		<result property="fileCreateDate" column="fileCreateDate" />
+	</resultMap>
+
+	<select id="getRstPost" resultMap="getRstPostMapper">
+		SELECT
+			a.ID AS ids,
+			a.PROJECT_NAME AS projectName,
+			b.PROJECT_NAME AS fileName,
+			a.UPDATE_DATE AS fileCreateDate
+		FROM
+			RST_POST_HTTP a
+			LEFT JOIN RST_POST_HTTP b ON a.ID = b.PROJECT_PID
+		WHERE
+			a.DEL_FLAG = 0
+			AND b.DEL_FLAG = 0
+			AND b.ID = #{rstPostApiVo.ids}
+	</select>
+
+	<update id="editRstPost">
+		UPDATE RST_POST_HTTP SET PROJECT_NAME = #{rstPostProject.projectName} WHERE ID = #{rstPostProject.ids}
+	</update>
+
+	<resultMap id="getRstPostListMapper" type="com.example.postApi.enity.RstPostApiVo">
+		<id property="ids" column="ids"/>
+		<result property="postName" column="postName" />
+		<result property="postType" column="postType" />
+		<result property="postUrl" column="postUrl" />
+		<result property="createName" column="createName" />
+		<result property="createDate" column="createDate" />
+	</resultMap>
+	<select id="getRstPostList" resultMap="getRstPostListMapper">
+		SELECT
+			c.POST_NAME AS postName,
+			c.POST_TYPE AS postType,
+			c.POST_URL AS postUrl,
+			c.CREATE_DATE AS createDate,
+			d.PSN_NAME AS createName,
+			c.ID AS ids
+		FROM
+			RST_POST_HTTP a
+			LEFT JOIN RST_POST_HTTP b ON a.ID = b.PROJECT_PID
+			LEFT JOIN RST_POST_HTTP_API c ON c.RST_ID = b.ID
+			LEFT JOIN SYS_PERSON d ON d.ID = c.CREATE_ID
+		WHERE
+			a.DEL_FLAG = 0
+			AND b.DEL_FLAG = 0
+			AND c.DEL_FLAG = 0
+			<if test="rstPostApiVo.postName != null and rstPostApiVo.postName != ''">
+				AND c.POST_NAME LIKE '%' || #{rstPostApiVo.postName} || '%'
+			</if>
+			AND b.ID = #{rstPostApiVo.ids}
+		ORDER BY c.UPDATE_DATE DESC
+	</select>
+
+	<select id="getRstPostChiList" resultType="com.example.postApi.enity.RstPostProject">
+		SELECT
+			PROJECT_NAME as projectName,
+			ID as ids
+		FROM
+			RST_POST_HTTP
+		WHERE
+			PROJECT_PID = '0'
+			AND DEL_FLAG = 0
+	</select>
+
+	<insert id="insertRstPostApi">
+		INSERT INTO RST_POST_HTTP (ID, PROJECT_NAME, PROJECT_PID, IS_FILE, DEL_FLAG, CREATE_ID, UPDATE_DATE, UPDATE_ID)
+		VALUES (#{rstPostProject.ids}, #{rstPostProject.projectName}, #{rstPostProject.projectPid}, #{rstPostProject.isFile}, '0', #{rstPostProject.createId}, #{rstPostProject.updateDate}, #{rstPostProject.createId})
+	</insert>
+
+	<update id="rstDelete">
+		UPDATE RST_POST_HTTP_API SET DEL_FLAG = '1' WHERE ID = #{ids}
+	</update>
+
+	<update id="rstPostDelete">
+		UPDATE RST_POST_HTTP SET DEL_FLAG = '1' WHERE ID = #{ids} OR PROJECT_PID = #{ids}
+	</update>
+
+	<update id="rstPostApiDelete">
+		UPDATE RST_POST_HTTP_API SET DEL_FLAG = '1' WHERE RST_ID = #{ids}
+	</update>
+
+	<insert id="insertRstApiDetial">
+		INSERT INTO RST_POST_HTTP_API (ID, RST_ID, POST_NAME, POST_TYPE, POST_URL, INP_BODY, OUT_BODY, PARMAS, CREATE_ID, CREATE_DATE, UPDATE_DATE, DATA_TYPE, DEL_FLAG)
+		VALUES (#{rstPostApiVo.ids}, #{rstPostApiVo.projectId}, #{rstPostApiVo.postName}, #{rstPostApiVo.postType}, #{rstPostApiVo.postUrl},
+		        #{rstPostApiVo.inpBody}, #{rstPostApiVo.outBody}, #{rstPostApiVo.params}, #{rstPostApiVo.createId}, #{rstPostApiVo.createDate}, #{rstPostApiVo.updateDate}, #{rstPostApiVo.dataType}, '0')
+	</insert>
+
+	<update id="saveRstApiDetial">
+		UPDATE RST_POST_HTTP_API
+		SET POST_NAME = #{rstPostApiVo.postName}, POST_TYPE = #{rstPostApiVo.postType}, POST_URL = #{rstPostApiVo.postUrl}, INP_BODY = #{rstPostApiVo.inpBody},
+			OUT_BODY = #{rstPostApiVo.outBody}, PARMAS = #{rstPostApiVo.params}, UPDATE_DATE = #{rstPostApiVo.updateDate}, DATA_TYPE = #{rstPostApiVo.dataType}
+		WHERE ID = #{rstPostApiVo.ids}
+	</update>
+
+	<resultMap id="getRstPostDetialMapper" type="com.example.postApi.enity.RstPostApiVo">
+		<result property="ids" column="ID"/>
+		<result property="postName" column="POST_NAME" />
+		<result property="postType" column="POST_TYPE" />
+		<result property="postUrl" column="POST_URL" />
+		<result property="inpBody" column="INP_BODY" />
+		<result property="outBody" column="OUT_BODY" />
+		<result property="params" column="PARMAS" />
+		<result property="createId" column="CREATE_ID" />
+		<result property="createName" column="CREATE_NAME" />
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="updateDate" column="UPDATE_DATE" />
+		<result property="dataType" column="DATA_TYPE" />
+	</resultMap>
+	<select id="getRstApiDetial" resultMap="getRstPostDetialMapper">
+		SELECT
+			a.*,
+		    b.PSN_NAME AS CREATE_NAME
+		FROM
+			RST_POST_HTTP_API a
+			LEFT JOIN SYS_PERSON b ON b.ID = a.CREATE_ID
+		WHERE
+			a.DEL_FLAG = 0
+			AND a.ID = #{rstPostApiVo.ids}
+	</select>
+
+</mapper>

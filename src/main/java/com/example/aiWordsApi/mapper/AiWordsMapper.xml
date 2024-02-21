@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.aiWordsApi.mapper.AiWordsMapper">
+
+	<resultMap id="fatherMapper" type="com.example.api.aiWords.enity.AiWordsFather">
+		<result property="ids" column="ID" />
+		<result property="dicFatherName" column="DIC_FATHER_NAME" />
+		<result property="chiName" column="CHI_NAME" />
+		<result property="dicType" column="DIC_TYPE" />
+		<result property="tabType" column="TAB_TYPE" />
+		<result property="tabSort" column="TAB_SORT" />
+		<result property="chiSort" column="CHI_SORT" />
+	</resultMap>
+
+	<resultMap id="childMapper" type="com.example.api.aiWords.enity.AiWordsChild">
+		<result property="ids" column="ID" />
+		<result property="dicCheName" column="DIC_CHE_NAME" />
+		<result property="chiName" column="CHI_NAME" />
+		<result property="fatherId" column="FATHER_ID" />
+	</resultMap>
+
+	<resultMap id="pageMapper" type="com.example.api.aiWords.enity.AiWordsPage">
+		<result property="ids" column="ID" />
+		<result property="dicCheName" column="DIC_CHE_NAME" />
+		<result property="chiName" column="CHI_NAME" />
+		<result property="fatherId" column="FA_ID" />
+		<result property="fatherCheName" column="DIC_FATHER_NAME" />
+		<result property="fatherName" column="FA_CHI_NAME" />
+		<result property="tabType" column="TAB_TYPE" />
+		<result property="dicType" column="DIC_TYPE" />
+		<result property="tabSort" column="TAB_SORT" />
+		<result property="chiSort" column="CHI_SORT" />
+	</resultMap>
+
+	<select id="get" resultMap="pageMapper">
+		SELECT
+			adc.ID,
+			adc.DIC_CHE_NAME,
+			adc.CHI_NAME,
+			adf.ID as FA_ID,
+			adf.DIC_FATHER_NAME,
+			adf.CHI_NAME as FA_CHI_NAME,
+			adf.TAB_TYPE,
+		    adf.DIC_TYPE
+		FROM
+			AI_DIC_CHILD adc
+			LEFT JOIN AI_DIC_FATHER adf ON adf.ID = adc.FATHER_ID
+		WHERE
+			adc.ID = #{ids}
+	</select>
+
+	<select id="getFa" resultMap="fatherMapper">
+		SELECT
+			ID,
+			DIC_FATHER_NAME,
+			CHI_NAME,
+			TAB_TYPE,
+			DIC_TYPE
+		FROM
+			AI_DIC_FATHER
+		WHERE
+			ID = #{ids}
+	</select>
+
+	<select id="getCh" resultMap="childMapper">
+		SELECT
+			ID,
+			DIC_CHE_NAME,
+			CHI_NAME,
+			FATHER_ID
+		FROM
+			AI_DIC_CHILD
+		WHERE
+			ID = #{ids}
+	</select>
+
+	<select id="selectPageFaAndChWords" resultMap="pageMapper">
+		SELECT
+			adc.ID,
+			adc.DIC_CHE_NAME,
+			adc.CHI_NAME,
+			adf.ID as FA_ID,
+			adf.DIC_FATHER_NAME,
+			adf.CHI_NAME as FA_CHI_NAME,
+			adf.TAB_TYPE,
+			adf.DIC_TYPE
+		FROM
+			AI_DIC_CHILD adc
+			LEFT JOIN AI_DIC_FATHER adf ON adf.ID = adc.FATHER_ID
+		<where>
+			<if test="dicCheName != null and dicCheName != ''">
+				adc.DIC_CHE_NAME LIKE '%' || #{dicCheName} || '%'
+			</if>
+			<if test="chiName != null and chiName != ''">
+				AND adc.CHI_NAME LIKE '%' || #{chiName} || '%'
+			</if>
+			<if test="fatherCheName != null and fatherCheName != ''">
+				AND adf.DIC_FATHER_NAME LIKE '%' || #{fatherCheName} || '%'
+			</if>
+			<if test="fatherName != null and fatherName != ''">
+				AND adf.CHI_NAME LIKE '%' || #{fatherName} || '%'
+			</if>
+			<if test="tabType != null and tabType != ''">
+				AND adf.TAB_TYPE LIKE '%' || #{tabType} || '%'
+			</if>
+		</where>
+	</select>
+
+	<select id="selectPageFaWords" resultMap="fatherMapper">
+		SELECT
+			*
+		FROM
+			AI_DIC_FATHER
+			<where>
+				<if test="chiName!= null and chiName != ''">
+					AND CHI_NAME LIKE '%' || #{chiName} || '%'
+				</if>
+				<if test="tabType != null and tabType != ''">
+					AND TAB_TYPE LIKE '%' || #{tabType} || '%'
+				</if>
+			</where>
+		ORDER BY
+			DIC_TYPE,TAB_SORT,CHI_SORT
+	</select>
+
+	<select id="selectNoPageFaWords" resultMap="fatherMapper">
+		SELECT
+			*
+		FROM
+			AI_DIC_FATHER
+		<where>
+			<if test="dicType!= null and dicType != ''">
+				AND DIC_TYPE = #{dicType}
+			</if>
+			<if test="tabType != null and tabType != ''">
+				AND TAB_TYPE = #{tabType}
+			</if>
+		</where>
+		ORDER BY
+			CHI_SORT
+	</select>
+
+	<select id="selectNoPageChWords" resultMap="childMapper">
+		SELECT
+			*
+		FROM
+			AI_DIC_CHILD
+		<where>
+			<if test="fatherId!= null and fatherId != ''">
+				AND FATHER_ID = #{fatherId}
+			</if>
+			<if test="dicCheName != null and dicCheName != ''">
+				AND DIC_CHE_NAME = #{dicCheName}
+			</if>
+			<if test="chiName != null and chiName != ''">
+				AND CHI_NAME = #{chiName}
+			</if>
+		</where>
+	</select>
+
+	<select id="selectPageChWords" resultMap="childMapper">
+		SELECT
+			a.*,
+			b.CHI_NAME as fatherName
+		FROM
+		AI_DIC_CHILD a
+		LEFT JOIN AI_DIC_FATHER b ON b.ID = a.FATHER_ID
+		<where>
+			<if test="fatherId!= null and fatherId != ''">
+				AND a.FATHER_ID = #{fatherId}
+			</if>
+			<if test="dicCheName != null and dicCheName != ''">
+				AND a.DIC_CHE_NAME LIKE '%' || #{dicCheName} || '%'
+			</if>
+			<if test="chiName != null and chiName != ''">
+				AND a.CHI_NAME LIKE '%' || #{chiName} || '%'
+			</if>
+			<if test="fatherName != null and fatherName != ''">
+				AND b.CHI_NAME LIKE '%' || #{fatherName} || '%'
+			</if>
+		</where>
+	</select>
+
+	<select id="selectFaTabIdList" resultMap="fatherMapper">
+		SELECT
+			ID,
+			CHI_NAME
+		FROM
+			AI_DIC_FATHER
+		ORDER BY
+			DIC_TYPE ASC
+	</select>
+
+	<select id="selectTabType" resultMap="pageMapper">
+		SELECT
+			TAB_TYPE
+		FROM
+			AI_DIC_FATHER
+		<where>
+			<if test="dicType!= null and dicType != ''">
+				DIC_TYPE = #{dicType}
+			</if>
+		</where>
+		GROUP BY
+			TAB_TYPE,TAB_SORT
+		ORDER BY
+			TAB_SORT ASC
+	</select>
+
+	<select id="findSelectTab" resultMap="pageMapper">
+		SELECT
+			ID,
+			TAB_TYPE,
+			TAB_SORT
+		FROM
+		AI_DIC_FATHER
+		<where>
+			<if test="dicType!= null and dicType != ''">
+				DIC_TYPE = #{dicType}
+			</if>
+			<if test="tabType != null and tabType != ''">
+				TAB_TYPE LIKE '%' || #{tabType} || '%'
+			</if>
+		</where>
+		GROUP BY
+			TAB_TYPE
+	</select>
+
+	<update id="updateAiWordsFa">
+		UPDATE AI_DIC_FATHER SET DIC_FATHER_NAME = #{fatherCheName}, CHI_NAME = #{fatherName}, DIC_TYPE = #{dicType}, TAB_TYPE = #{tabType} WHERE ID = #{fatherId}
+	</update>
+
+	<update id="updateAiWordsCh">
+		UPDATE AI_DIC_CHILD SET DIC_CHE_NAME = #{dicCheName}, CHI_NAME = #{chiName}, FATHER_ID = #{fatherId} WHERE ID = #{ids}
+	</update>
+
+	<insert id="insertAiWordsFa">
+		INSERT INTO AI_DIC_FATHER (ID,DIC_FATHER_NAME,CHI_NAME,DIC_TYPE,TAB_TYPE,TAB_SORT,CHI_SORT)
+		VALUES (#{fatherId}, #{fatherCheName}, #{fatherName},#{dicType}, #{tabType}, #{tabSort}, #{chiSort})
+	</insert>
+
+	<insert id="insertAiWordsCh">
+		INSERT INTO AI_DIC_CHILD (ID, DIC_CHE_NAME, FATHER_ID, CHI_NAME) VALUES (#{ids}, #{dicCheName}, #{fatherId}, #{chiName})
+	</insert>
+
+	<select id="selectTabTypeIsNull" resultType="java.lang.Integer">
+		SELECT
+			CASE WHEN sort IS NULL THEN 0 ELSE sort END
+		FROM(
+			SELECT
+				MAX(TAB_SORT) AS sort
+			FROM
+				AI_DIC_FATHER
+			WHERE
+				DIC_TYPE = #{dicType}
+			  	AND TAB_TYPE = #{tabType}
+		)
+	</select>
+
+	<select id="selectTabChiSort" resultType="hashmap">
+		SELECT
+		<choose>
+			<when test="type == 0">
+				1 as tabSort,
+			</when >
+			<otherwise>
+				#{type} as tabSort,
+			</otherwise>
+		</choose>
+		CASE WHEN MAX(CHI_SORT) IS NULL THEN 1 ELSE MAX(CHI_SORT)+1 END as chiSort
+		FROM
+			AI_DIC_FATHER
+		WHERE
+			DIC_TYPE = #{dicType}
+			AND TAB_TYPE = #{tabType}
+	</select>
+
+	<delete id="delWordsAiFa">
+		DELETE FROM AI_DIC_FATHER WHERE
+		ID IN
+		<foreach collection="ids" index="index" item="value" open="(" close=")" separator=",">
+			#{value}
+		</foreach>
+	</delete>
+
+	<delete id="delWordsAiCh">
+		DELETE FROM AI_DIC_CHILD WHERE
+		ID IN
+		<foreach collection="ids" index="index" item="value" open="(" close=")" separator=",">
+			#{value}
+		</foreach>
+	</delete>
+
+	<select id="selectDoubleChWords" resultMap="childMapper">
+		SELECT
+			*
+		FROM
+		AI_DIC_CHILD
+		<where>
+			<if test="dicCheName != null and chiName != null">
+				AND (DIC_CHE_NAME = #{dicCheName} OR CHI_NAME = #{chiName})
+			</if>
+			<if test="ids != null and ids != ''">
+				AND ID != #{ids}
+			</if>
+		</where>
+	</select>
+
+	<select id="selectDoubleFaWords" resultMap="fatherMapper">
+		SELECT
+		*
+		FROM
+		AI_DIC_FATHER
+		<where>
+			<if test="fatherCheName != null and fatherName != null">
+				AND (DIC_FATHER_NAME = #{fatherCheName} OR CHI_NAME = #{fatherName})
+			</if>
+			<if test="fatherId != null and fatherId != ''">
+				AND ID != #{fatherId}
+			</if>
+		</where>
+	</select>
+
+</mapper>

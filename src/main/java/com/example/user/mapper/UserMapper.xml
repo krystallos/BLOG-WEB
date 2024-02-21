@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.user.mapper.UserMapper">
+
+	<resultMap id="usermapper" type="com.example.user.enity.User">
+		<result property="ids" column="ID" />
+		<result property="userName" column="USER_NAME" />
+		<result property="userPassWord" column="USER_PASSWORD" />
+		<result property="areaId" column="AREA_ID" />
+		<result property="orgSessionId" column="ORG_SESSION_ID" />
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="createId" column="CREATE_ID" />
+		<result property="updateDate" column="UPDATE_DATE" />
+		<result property="delFlag" column="DEL_FLAG" />
+		<result property="email" column="EMAIL" />
+		<result property="phone" column="PHONE" />
+		<result property="state" column="USER_STATE" />
+	</resultMap>
+
+	<select id="selectUserList" resultMap="usermapper">
+		select
+			ID,
+		    USER_NAME,
+		    AREA_ID,
+		    EMAIL,
+		    PHONE,
+			ORG_SESSION_ID,
+		    CASE WHEN USER_STATE = 1 THEN '启用' ELSE '禁用' END as USER_STATE,
+		    DEL_FLAG,
+		    CREATE_DATE,
+			UPDATE_DATE
+		from
+		     sys_user
+		where
+		      del_flag = '0'
+		order by UPDATE_DATE DESC
+	</select>
+
+	<select id="getUser" resultMap="usermapper">
+		select *
+		from sys_user
+		where
+		id = #{uuid}
+		and del_flag = '0'
+		and user_state = '1'
+	</select>
+
+	<update id="updateUser" parameterType="integer">
+		update sys_user set update_date = #{user.updateDate}
+		<if test="user.userName != null and user.userName != ''">
+			, user_name = #{user.userName}
+		</if>
+		<if test="user.userPassWord != null and user.userPassWord != ''">
+			, user_PassWord = #{user.userPassWord}
+		</if>
+		<if test="user.email != null and user.email != ''">
+			, email = #{user.email}
+		</if>
+		<if test="user.phone != null and user.phone != ''">
+			, phone = #{user.phone}
+		</if>
+		<if test="user.delFlag != null and user.delFlag != ''">
+			, del_Flag = #{user.delFlag}
+		</if>
+		<if test="user.areaId != null and user.areaId != ''">
+			, area_id = #{user.areaId}
+		</if>
+		<if test="user.orgSessionId != null and user.orgSessionId != ''">
+			, org_session_id = #{user.orgSessionId}
+		</if>
+		<if test="user.state != null and user.state != ''">
+			, user_state = #{user.state}
+		</if>
+		where
+		id = #{user.ids}
+	</update>
+
+</mapper>

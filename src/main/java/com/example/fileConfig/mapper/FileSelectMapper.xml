@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.fileConfig.mapper.FileSelectMapper">
+
+	<resultMap id="fileLookMapper" type="com.example.fileConfig.enity.FilePixiv">
+		<result property="ids" column="ID" />
+		<result property="imgUrl" column="IMGURL" />
+		<result property="author" column="AUTHOR" />
+		<result property="authorUrl" column="AUTHORURL" />
+		<result property="picUrl" column="PICURL" />
+		<result property="pic" column="PIC" />
+		<result property="orderTime" column="ORDERTIME" />
+		<result property="likeImg" column="LIKE_IMG" />
+		<result property="blosPic" column="BLOS_PIC" />
+		<result property="blosPicUrl" column="BLOS_PIC_URL" />
+	</resultMap>
+
+	<select id="get" resultMap="fileLookMapper">
+		select *
+		from SYS_SELECT_IMG
+		where
+		id = #{filePixiv.ids}
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="ids">
+		INSERT INTO SYS_SELECT_IMG(ID,IMGURL
+			<if test="filePixiv.author != null and filePixiv.author != ''">
+			   ,AUTHOR
+			</if>
+			<if test="filePixiv.authorUrl != null and filePixiv.authorUrl != ''">
+				,AUTHORURL
+			</if>
+			<if test="filePixiv.picUrl != null and filePixiv.picUrl != ''">
+				,PICURL
+			</if>
+			<if test="filePixiv.pic != null and filePixiv.pic != ''">
+				,PIC
+			</if>
+			<if test="filePixiv.orderTime != null and filePixiv.orderTime != ''">
+				,ORDERTIME
+			</if>
+		                           ,LIKE_IMG
+			<if test="filePixiv.blosPic != null and filePixiv.blosPic != ''">
+				,BLOS_PIC
+			</if>
+			<if test="filePixiv.blosPicUrl != null and filePixiv.blosPicUrl != ''">
+				,BLOS_PIC_URL
+			</if>
+			,CREATE_DATE)
+		VALUES(#{filePixiv.ids},#{filePixiv.imgUrl}
+			<if test="filePixiv.author != null and filePixiv.author != ''">
+				,#{filePixiv.author}
+			</if>
+			<if test="filePixiv.authorUrl != null and filePixiv.authorUrl != ''">
+				,#{filePixiv.authorUrl}
+			</if>
+			<if test="filePixiv.picUrl != null and filePixiv.picUrl != ''">
+				,#{filePixiv.picUrl}
+			</if>
+			<if test="filePixiv.pic != null and filePixiv.pic != ''">
+				,#{filePixiv.pic}
+			</if>
+			<if test="filePixiv.orderTime != null and filePixiv.orderTime != ''">
+				,#{filePixiv.orderTime}
+			</if>
+			<if test="filePixiv.likeImg != null and filePixiv.likeImg != ''">
+				,#{filePixiv.likeImg}
+			</if>
+			<if test="filePixiv.blosPic != null and filePixiv.blosPic != ''">
+			   ,#{filePixiv.blosPic}
+			</if>
+			<if test="filePixiv.blosPicUrl != null and filePixiv.blosPicUrl != ''">
+			   ,#{filePixiv.blosPicUrl}
+			</if>
+		       ,#{filePixiv.createDate})
+	</insert>
+
+	<select id="findGetPixiv" resultType="com.example.fileConfig.enity.FilePixiv">
+		select
+			FILE_NAME as blosPic,
+			THUMBNAIL as blosImgUrl,
+			PATH as blosPicUrl
+		from
+		     SYS_FILE
+		where
+			PATH LIKE '%' || #{sauceData.data.member_id} || '%'
+			AND FILE_NAME LIKE '%' || #{sauceData.data.pixiv_id} || '%'
+	</select>
+
+</mapper>
