@@ -42,6 +42,17 @@ public class MineBlosService {
         return item;
     }
 
+    /**
+     * 查询博客文章列表
+     * @param mineBlos
+     * @return
+     */
+    public List<MineBlos> mineBlosArticle(MineBlos mineBlos){
+        PageHelper.offsetPage(mineBlos.getStartTab(), mineBlos.getHasTab());
+        List<MineBlos> item = mineBlosMapper.selectNvBook(mineBlos);
+        return item;
+    }
+
     public int countMineBlosSysLook(MineBlos mineBlos){
         return mineBlosMapper.countMineBlosSysLook(mineBlos);
     }
@@ -55,6 +66,14 @@ public class MineBlosService {
         return mineBlosMapper.insertMineBlos(mineBlos);
     }
 
+    /**
+     * 更新博客插入
+     * @param mineBlos
+     * @return
+     */
+    public int updateMineBlos(MineBlos mineBlos){
+        return mineBlosMapper.updateMineBlos(mineBlos);
+    }
 
     /**
      * 查询博客详细信息
@@ -129,6 +148,26 @@ public class MineBlosService {
      */
     public List<MineBlos> hisBlosType(String type, String ids){
         return mineBlosMapper.hisBlosType(type,ids);
+    }
+
+    /**
+     * 删除博客
+     * @param ids
+     * @return
+     */
+    public int delMineBlosArticle(String ids){
+        mineBlosMapper.delMineBlosActivity(ids);
+        mineBlosMapper.delMineBlosArticle(ids);
+        return 1;
+    }
+
+    /**
+     * 获取博客详情
+     * @param mineBlos
+     * @return
+     */
+    public MineBlos selectBlosDetial(MineBlos mineBlos){
+        return mineBlosMapper.selectBlosDetial(mineBlos);
     }
 
 }

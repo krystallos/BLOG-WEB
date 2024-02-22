@@ -58,6 +58,22 @@ public class MineBlosTopConteroller {
         }
     }
 
+    /**
+     * 获取个人博客详情
+     */
+    @Log(title = "获取个人博客详情", type = LogEnum.DETIAL)
+    @PostMapping(value = "api/getWriteMineBlos.act")
+    public ResultBody getWriteMineBlos(HttpSession session,@RequestBody MineBlos mineBlos){
+        try {
+            Person person = (Person)redisUtils.get(session.getId());
+            mineBlos.setPsnId(person.getIds());
+            mineBlos = mineBlosService.selectBlosDetial(mineBlos);
+            return new ResultBody(ApiResultEnum.SUCCESS, mineBlos);
+        }catch (Exception e){
+            log.error(e);
+            return new ResultBody(ApiResultEnum.ERR, e.getMessage());
+        }
+    }
 
     /**
      * 写博客
@@ -102,6 +118,34 @@ public class MineBlosTopConteroller {
             log.error(e);
             return new ResultBody(ApiResultEnum.ERR, e.getMessage());
         }
+    }
+
+    /**
+     * 修改博客
+     * @param session
+     * @param mineBlosTop
+     */
+    @Log(title = "修改博客", type = LogEnum.EDIT)
+    @PostMapping("api/updateWriteMineBlos.act")
+    public ResultBody updateWriteMineBlos(HttpSession session,@RequestBody MineBlosTop mineBlosTop){
+        Person person = (Person) redisUtils.get(session.getId());
+        if(person == null || person.getIds() == null){
+            return new ResultBody(ApiResultEnum.TOKEN_INVALID, "缺失用户信息，请重新登入");
+        }
+        mineBlosTop.getNowDate(null);//时间
+        int a = mineBlosTopService.updateMineBlos(mineBlosTop);
+        if(a > 0){
+            MineBlos mineBlos = new MineBlos();
+            mineBlos.setActId(mineBlosTop.getIds());
+            mineBlos.setContent(mineBlosTop.getContent());
+            mineBlos.setLiteCont(mineBlosTop.getLiteCont());
+            mineBlos.setClobTitle(mineBlosTop.getActTitle());
+            mineBlos.getNowDate(null);
+            mineBlosService.updateMineBlos(mineBlos);
+        }else{
+            return new ResultBody(ApiResultEnum.SUCCESS, "头文件修改失败");
+        }
+        return new ResultBody(ApiResultEnum.SUCCESS, "修改成功");
     }
 
 }

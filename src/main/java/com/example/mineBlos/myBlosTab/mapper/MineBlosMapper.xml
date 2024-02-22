@@ -23,7 +23,7 @@
 
 	<select id="selectNvBook" resultMap="mineBlosTabs">
 		SELECT
-			A.ID,
+			C.ID,
 			A.ACT_ID,
 			A.CLOB_TITLE,
 			A.CREATE_ID,
@@ -214,6 +214,15 @@
 		end;
 	</insert>
 
+	<update id="updateMineBlos">
+		declare
+		v_clob clob := #{mineBlos.content};
+		begin
+		UPDATE SYS_MINE_ACTIVITY SET CONTENT = v_clob, SIML_CONTENT = #{mineBlos.liteCont}, CLOB_TITLE = #{mineBlos.clobTitle}, UPDATE_DATE = #{mineBlos.updateDate}
+		WHERE ACT_ID = #{mineBlos.actId};
+		end;
+	</update>
+
 	<select id="selectMineBlosSemmIn" resultMap="mineBlosTabs">
 		SELECT
 			A.ID,
@@ -396,6 +405,26 @@
 		</if>
 		ORDER BY CREATE_DATE DESC)
 		WHERE rownum &lt; 5
+	</select>
+
+	<update id="delMineBlosArticle">
+		update SYS_ACTIVITY set DEL_FLAG = 1 where ID = #{ids}
+	</update>
+
+	<update id="delMineBlosActivity">
+		update SYS_MINE_ACTIVITY set DEL_FLAG = 1 where ACT_ID = #{ids}
+	</update>
+
+	<select id="selectBlosDetial" resultMap="mineBlosTabs">
+		SELECT
+			ma.*,
+			sa.ACT_TYPE
+		FROM
+			SYS_MINE_ACTIVITY ma
+			LEFT JOIN SYS_ACTIVITY sa ON sa.ID = ma.ACT_ID
+		WHERE
+			ma.ACT_ID = #{mineBlos.actId}
+			AND sa.CREATE_ID = #{mineBlos.psnId}
 	</select>
 
 </mapper>

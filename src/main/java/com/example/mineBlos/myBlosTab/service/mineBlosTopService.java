@@ -13,12 +13,21 @@ public class mineBlosTopService {
     private mineBlosTopMapper mineBlosTopMapper;
 
     /**
-     * 查询最近的操作
+     * 写博客
      * @param
      * @return
      */
     public int writeMineBlos(MineBlosTop mineBlosTop){
         return mineBlosTopMapper.writeMineBlos(mineBlosTop);
+    }
+
+    /**
+     * 更新博客
+     * @param
+     * @return
+     */
+    public int updateMineBlos(MineBlosTop mineBlosTop){
+        return mineBlosTopMapper.updateMineBlos(mineBlosTop);
     }
 
 }

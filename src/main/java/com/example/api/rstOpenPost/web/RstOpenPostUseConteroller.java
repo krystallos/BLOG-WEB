@@ -88,6 +88,7 @@ public class RstOpenPostUseConteroller {
     @PostMapping("open/getRstPostList.act")
     public ResultBody getRstPostList(@RequestBody RstPostApiVo rstPostApiVo){
         try{
+            rstPostApiVo.pubImplPage(rstPostApiVo.getNowTab(), rstPostApiVo.getHasTab());
             List<RstPostApiVo> list = rstPostUseService.getRstPostList(rstPostApiVo);
             return new ResultBody(ApiResultEnum.SUCCESS, list, (int) new PageInfo<>(list).getTotal());
         }catch (Exception e){

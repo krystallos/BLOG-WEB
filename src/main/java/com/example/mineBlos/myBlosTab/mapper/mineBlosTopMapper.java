@@ -20,4 +20,11 @@ public interface mineBlosTopMapper {
 	 */
 	int writeMineBlos(@Param("mineBlosTop") MineBlosTop mineBlosTop);
 
+	/**
+	 * 更新博客主标题
+	 * @param mineBlosTop
+	 * @return
+	 */
+	int updateMineBlos(@Param("mineBlosTop") MineBlosTop mineBlosTop);
+
 }

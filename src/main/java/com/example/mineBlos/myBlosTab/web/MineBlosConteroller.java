@@ -51,4 +51,40 @@ public class MineBlosConteroller {
         }
     }
 
+    /**
+     * 个人博客数据列表
+     * @param session
+     * @param mineBlos
+     */
+    @Log(title = "获取个人博客列表", type = LogEnum.SELECT)
+    @PostMapping("api/mineBlosArticle.act")
+    public ResultBody mineBlosArticle(HttpSession session, @RequestBody MineBlos mineBlos){
+        try{
+            Person person = (Person)redisUtils.get(session.getId());
+            mineBlos.setPsnId(person.getIds());
+            mineBlos.pubImplPage(mineBlos.getNowTab(),mineBlos.getHasTab());
+            List<MineBlos> listTab = mineBlosService.mineBlosArticle(mineBlos);
+            return new ResultBody(ApiResultEnum.SUCCESS, listTab, (int) new PageInfo<>(listTab).getTotal());
+        }catch (Exception e){
+            log.error(e);
+            return new ResultBody(ApiResultEnum.ERR, e.getMessage());
+        }
+    }
+
+    /**
+     * 删除博客
+     * @param mineBlos
+     */
+    @Log(title = "删除博客", type = LogEnum.DELETE)
+    @PostMapping("api/delMineBlosArticle.act")
+    public ResultBody delMineBlosArticle(@RequestBody MineBlos mineBlos){
+        try{
+            mineBlosService.delMineBlosArticle(mineBlos.getIds());
+            return new ResultBody(ApiResultEnum.SUCCESS, "删除完成");
+        }catch (Exception e){
+            log.error(e);
+            return new ResultBody(ApiResultEnum.ERR, e.getMessage());
+        }
+    }
+
 }

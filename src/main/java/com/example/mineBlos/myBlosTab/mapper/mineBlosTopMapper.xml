@@ -23,4 +23,9 @@
 		,#{mineBlosTop.updateDate},#{mineBlosTop.state},#{mineBlosTop.delFlag})
 	</insert>
 
+	<update id="updateMineBlos">
+		UPDATE SYS_ACTIVITY SET ACT_TITLE = #{mineBlosTop.actTitle}, ACT_TYPE = #{mineBlosTop.actType}, UPDATE_DATE = #{mineBlosTop.updateDate}
+		WHERE ID = #{mineBlosTop.ids}
+	</update>
+
 </mapper>

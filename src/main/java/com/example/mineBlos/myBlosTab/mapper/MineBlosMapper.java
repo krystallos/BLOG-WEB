@@ -54,6 +54,13 @@ public interface MineBlosMapper {
 	int insertMineBlos(@Param("mineBlos")MineBlos mineBlos);
 
 	/**
+	 * 新增博客数据
+	 * @param mineBlos
+	 * @return
+	 */
+	int updateMineBlos(@Param("mineBlos")MineBlos mineBlos);
+
+	/**
 	 * 查看详细博客类型
 	 * @param mineBlos
 	 * @return
@@ -107,5 +114,20 @@ public interface MineBlosMapper {
 	 * @return
 	 */
 	List<MineBlos> hisBlosType(@Param("type") String type, @Param("ids") String ids);
+
+	/**
+	 * 删除博客
+	 * @param ids
+	 * @return
+	 */
+	int delMineBlosArticle(@Param("ids")String ids);
+	int delMineBlosActivity(@Param("ids")String ids);
+
+	/**
+	 * 获取博客详情
+	 * @param mineBlos
+	 * @return
+	 */
+	MineBlos selectBlosDetial(@Param("mineBlos")MineBlos mineBlos);
 
 }
