@@ -79,6 +79,20 @@ public class HisBlosMainConteroller {
         }
     }
 
+    /*查询随笔文章*/
+    @Log(title = "随笔文章列表（公开）", type = LogEnum.SELECT)
+    @PostMapping("open/hisNoteMineType.act")
+    public ResultBody hisNoteMineType(@RequestBody MineBlos mineBlos){
+        try {
+            mineBlos.pubImplPage(mineBlos.getNowTab(),mineBlos.getHasTab());
+            List<MineBlos> item = mineBlosService.mineBlosApiDivLook(mineBlos);
+            return new ResultBody(ApiResultEnum.SUCCESS, item, (int) new PageInfo<>(item).getTotal());
+        }catch (Exception e){
+            log.error(e);
+            return new ResultBody(ApiResultEnum.ERR, e.getMessage());
+        }
+    }
+
     /*获取博客时间轴*/
     @Log(title = "获取博客时间轴（公开）", type = LogEnum.SELECT)
     @PostMapping("open/getTimeGroupBy.act")

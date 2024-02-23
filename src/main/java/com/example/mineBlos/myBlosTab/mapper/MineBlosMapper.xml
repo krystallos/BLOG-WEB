@@ -70,6 +70,7 @@
 		WHERE
 			A.DEL_FLAG = '0'
 			AND A.PSN_ID = #{mineBlos.psnId}
+			AND B.STATE = 1
 		GROUP BY
 			A.BLOS_TYPE_NAME,A.ID
 		ORDER BY
@@ -120,8 +121,8 @@
 			B.PSN_NAME AS "psnName"
 		FROM
 			SYS_ACTIVITY_LIKE A
-				LEFT JOIN SYS_PERSON B ON B.ID = A.PSN_ID
-				LEFT JOIN SYS_MINE_ACTIVITY C ON C.ID = A.MINE_ACTIVITY_ID
+			LEFT JOIN SYS_PERSON B ON B.ID = A.PSN_ID
+			LEFT JOIN SYS_MINE_ACTIVITY C ON C.ID = A.MINE_ACTIVITY_ID
 		WHERE A.DEL_FLAG = '0'
 		<if test="mineBlos.ids != null and mineBlos.ids != ''">
 			AND A.ID = #{mineBlos.ids}
@@ -140,9 +141,11 @@
 
 	<select id="countMineBlosSysLook" resultType="java.lang.Integer">
 		SELECT
-		COUNT(A.ID)
-		FROM SYS_MINE_ACTIVITY A
-		WHERE A.DEL_FLAG = '0'
+			COUNT(A.ID)
+		FROM
+			SYS_MINE_ACTIVITY A
+		WHERE
+			A.DEL_FLAG = '0'
 		<if test="mineBlos.ids != null and mineBlos.ids != ''">
 			AND A.ID = #{mineBlos.ids}
 		</if>
@@ -248,6 +251,9 @@
 		WHERE
 		A.DEL_FLAG = '0'
 		AND B.DEL_FLAG = '0'
+		<if test="mineBlos.onState != null and mineBlos.onState != ''">
+			AND B.STATE = #{mineBlos.onState}
+		</if>
 		<if test="mineBlos.ids != null and mineBlos.ids != ''">
 			AND A.ID = #{mineBlos.ids}
 		</if>
@@ -292,59 +298,66 @@
 
 	<select id="mineBlosApiDivLook" resultMap="mineBlosTabs">
 		SELECT
-		A.ID,
-		A.ACT_ID,
-		A.SIML_CONTENT,
-		A.CLOB_TITLE,
-		A.CREATE_ID,
-		A.CREATE_DATE,
-		A.UPDATE_DATE,
-		B.ID AS "psnId",
-		B.PSN_NAME AS "psnName",
-		D.BLOS_TYPE_NAME AS "ACT_TYPE",
-		'blosBoot' || A.CENT_IMG as "CENT_IMG"
-		FROM SYS_MINE_ACTIVITY A
-		LEFT JOIN SYS_PERSON B ON B.ID = A.PSN_ID
-		LEFT JOIN SYS_ACTIVITY C ON C.ID = A.ACT_ID
-		LEFT JOIN SYS_BLOS_TYPE D ON D.ID = C.ACT_TYPE
-		WHERE A.DEL_FLAG = '0'
-		<if test="mineBlos.ids != null and mineBlos.ids != ''">
-			AND A.ID = #{mineBlos.ids}
-		</if>
-		<if test="mineBlos.clobTitle != null and mineBlos.clobTitle != ''">
-			AND A.CLOB_TITLE LIKE '%'|| #{mineBlos.clobTitle} || '%'
-		</if>
-		<if test="mineBlos.psnId != null and mineBlos.psnId != ''">
-			AND A.PSN_ID = #{mineBlos.psnId}
-		</if>
-		<if test="mineBlos.actType != null and mineBlos.actType != ''">
-			AND C.ACT_TYPE = #{mineBlos.actType}
-		</if>
-		<if test="mineBlos.createDate != null and mineBlos.createDate != 'All'">
-			AND C.CREATE_DATE LIKE #{mineBlos.createDate} || '%'
-		</if>
+			A.ID,
+			A.ACT_ID,
+			A.SIML_CONTENT,
+			A.CLOB_TITLE,
+			A.CREATE_ID,
+			A.CREATE_DATE,
+			A.UPDATE_DATE,
+			B.ID AS "psnId",
+			B.PSN_NAME AS "psnName",
+			D.BLOS_TYPE_NAME AS "ACT_TYPE",
+			'blosBoot' || A.CENT_IMG as "CENT_IMG"
+		FROM
+		    SYS_MINE_ACTIVITY A
+			LEFT JOIN SYS_PERSON B ON B.ID = A.PSN_ID
+			LEFT JOIN SYS_ACTIVITY C ON C.ID = A.ACT_ID
+			LEFT JOIN SYS_BLOS_TYPE D ON D.ID = C.ACT_TYPE
+		WHERE
+			A.DEL_FLAG = '0'
+			<if test="mineBlos.onState != null and mineBlos.onState != ''">
+		  		AND C.STATE = #{mineBlos.onState}
+			</if>
+			<if test="mineBlos.ids != null and mineBlos.ids != ''">
+				AND A.ID = #{mineBlos.ids}
+			</if>
+			<if test="mineBlos.clobTitle != null and mineBlos.clobTitle != ''">
+				AND A.CLOB_TITLE LIKE '%'|| #{mineBlos.clobTitle} || '%'
+			</if>
+			<if test="mineBlos.psnId != null and mineBlos.psnId != ''">
+				AND A.PSN_ID = #{mineBlos.psnId}
+			</if>
+			<if test="mineBlos.actType != null and mineBlos.actType != ''">
+				AND C.ACT_TYPE = #{mineBlos.actType}
+			</if>
+			<if test="mineBlos.createDate != null and mineBlos.createDate != 'All'">
+				AND C.CREATE_DATE LIKE #{mineBlos.createDate} || '%'
+			</if>
 		ORDER BY
-		CREATE_DATE DESC
+			CREATE_DATE DESC
 	</select>
 	
 	<select id="allBlosRightDivTab" resultType="int">
 		SELECT
-		COUNT(A.ID)
-		FROM SYS_MINE_ACTIVITY A
-		LEFT JOIN SYS_ACTIVITY C ON C.ID = A.ACT_ID
-		WHERE A.DEL_FLAG = '0'
-		<if test="mineBlos.ids != null and mineBlos.ids != ''">
-			AND A.ID = #{mineBlos.ids}
-		</if>
-		<if test="mineBlos.clobTitle != null and mineBlos.clobTitle != ''">
-			AND A.CLOB_TITLE LIKE '%'|| #{mineBlos.clobTitle} || '%'
-		</if>
-		<if test="mineBlos.psnId != null and mineBlos.psnId != ''">
-			AND A.PSN_ID = #{mineBlos.psnId}
-		</if>
-		<if test="mineBlos.actType != null and mineBlos.actType != ''">
-			AND C.ACT_TYPE = #{mineBlos.actType}
-		</if>
+			COUNT(A.ID)
+		FROM
+		    SYS_MINE_ACTIVITY A
+			LEFT JOIN SYS_ACTIVITY C ON C.ID = A.ACT_ID
+		WHERE
+		    A.DEL_FLAG = '0'
+			<if test="mineBlos.ids != null and mineBlos.ids != ''">
+				AND A.ID = #{mineBlos.ids}
+			</if>
+			<if test="mineBlos.clobTitle != null and mineBlos.clobTitle != ''">
+				AND A.CLOB_TITLE LIKE '%'|| #{mineBlos.clobTitle} || '%'
+			</if>
+			<if test="mineBlos.psnId != null and mineBlos.psnId != ''">
+				AND A.PSN_ID = #{mineBlos.psnId}
+			</if>
+			<if test="mineBlos.actType != null and mineBlos.actType != ''">
+				AND C.ACT_TYPE = #{mineBlos.actType}
+			</if>
 	</select>
 
 	<select id="mineBlosCount" resultType="java.lang.String">
