@@ -58,12 +58,15 @@ public class WebLogAspect {
             // 打印 Http method
             logger.info("HTTP Method    : {}", request.getMethod());
             // 打印调用 controller 的全路径以及执行方法
-            logger.info("Class Method   : {}.{}", joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName());
+            logger.info("Class Method   : [{}][{}]", joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName());
+            // 获取实际的ip
+            logger.info("Heal HeaderIp   : [{}][{}]", request.getHeader("X-Real-IP"), request.getHeader("X-Forwarded-For"));
             Log log = getAnnotationLog(joinPoint);
             if (log != null){
                 LogResultBody res = new LogResultBody(result.getCode(), result.getReslutMsg(), result.getTotal());
                 LogAspect logAspect = new LogAspect(joinPoint.getSignature().getName() ,request.getRequestURL().toString(), request.getMethod(),
-                        joinPoint.getSignature().getDeclaringTypeName(), request.getRemoteAddr(), res,
+                        joinPoint.getSignature().getDeclaringTypeName(),
+                        request.getHeader("X-Real-IP") == null ? request.getHeader("X-Forwarded-For") : request.getHeader("X-Real-IP"), res,
                         log.type().getCode().toString(), log.title());
                 logAspectService.insertLog(logAspect);
             }

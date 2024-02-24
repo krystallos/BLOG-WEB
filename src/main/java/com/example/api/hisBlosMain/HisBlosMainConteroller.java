@@ -52,9 +52,7 @@ public class HisBlosMainConteroller {
             person = personService.get(person.getIds());
             MineBlos mineBlos = new MineBlos();
             mineBlos.setPsnId(person.getIds());
-            //List<DicListVo> item = mineBlosService.mineBlosGroupDate(person.getIds());
             List<MineBlos> tag = mineBlosService.selectRightBlos(mineBlos);
-            //hasMap.put("groupTime", item);
             hasMap.put("groupTag", tag);
             hasMap.put("person",person);
             hasMap.put("sysVersionsList",sysVersionsList);

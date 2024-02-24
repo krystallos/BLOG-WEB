@@ -70,7 +70,6 @@
 		WHERE
 			A.DEL_FLAG = '0'
 			AND A.PSN_ID = #{mineBlos.psnId}
-			AND B.STATE = 1
 		GROUP BY
 			A.BLOS_TYPE_NAME,A.ID
 		ORDER BY
@@ -262,40 +261,6 @@
 		</if>
 	</select>
 
-	<select id="mineBlosRightDivLook" resultMap="mineBlosTabs">
-		SELECT
-		A.ID,
-		A.ACT_ID,
-		A.SIML_CONTENT,
-		A.CLOB_TITLE,
-		A.CREATE_ID,
-		A.CREATE_DATE,
-		A.UPDATE_DATE,
-		A.DEL_FLAG,
-		A.ON_STATE,
-		B.ID AS "psnId",
-		B.PSN_NAME AS "psnName",
-		D.BLOS_TYPE_NAME AS "ACT_TYPE",
-		A.CENT_IMG
-		FROM SYS_MINE_ACTIVITY A
-		LEFT JOIN SYS_PERSON B ON B.ID = A.PSN_ID
-		LEFT JOIN SYS_ACTIVITY C ON C.ID = A.ACT_ID
-		LEFT JOIN SYS_BLOS_TYPE D ON D.ID = C.ACT_TYPE
-		WHERE A.DEL_FLAG = '0'
-		<if test="mineBlos.ids != null and mineBlos.ids != ''">
-			AND A.ID = #{mineBlos.ids}
-		</if>
-		<if test="mineBlos.clobTitle != null and mineBlos.clobTitle != ''">
-			AND A.CLOB_TITLE LIKE '%'|| #{mineBlos.clobTitle} || '%'
-		</if>
-		<if test="mineBlos.psnId != null and mineBlos.psnId != ''">
-			AND A.PSN_ID = #{mineBlos.psnId}
-		</if>
-		<if test="mineBlos.actType != null and mineBlos.actType != ''">
-			AND C.ACT_TYPE = #{mineBlos.actType}
-		</if>
-	</select>
-
 	<select id="mineBlosApiDivLook" resultMap="mineBlosTabs">
 		SELECT
 			A.ID,
@@ -336,55 +301,6 @@
 			</if>
 		ORDER BY
 			CREATE_DATE DESC
-	</select>
-	
-	<select id="allBlosRightDivTab" resultType="int">
-		SELECT
-			COUNT(A.ID)
-		FROM
-		    SYS_MINE_ACTIVITY A
-			LEFT JOIN SYS_ACTIVITY C ON C.ID = A.ACT_ID
-		WHERE
-		    A.DEL_FLAG = '0'
-			<if test="mineBlos.ids != null and mineBlos.ids != ''">
-				AND A.ID = #{mineBlos.ids}
-			</if>
-			<if test="mineBlos.clobTitle != null and mineBlos.clobTitle != ''">
-				AND A.CLOB_TITLE LIKE '%'|| #{mineBlos.clobTitle} || '%'
-			</if>
-			<if test="mineBlos.psnId != null and mineBlos.psnId != ''">
-				AND A.PSN_ID = #{mineBlos.psnId}
-			</if>
-			<if test="mineBlos.actType != null and mineBlos.actType != ''">
-				AND C.ACT_TYPE = #{mineBlos.actType}
-			</if>
-	</select>
-
-	<select id="mineBlosCount" resultType="java.lang.String">
-		SELECT
-			SUM(D.cou) || '篇文章' || ';' || COUNT(D.gro) || '篇分组'
-		FROM(
-			SELECT
-			COUNT(A.ID) as cou,
-			COUNT(B.ID) as gro
-			FROM SYS_MINE_ACTIVITY A
-			LEFT JOIN SYS_ACTIVITY C ON C.ID = A.ACT_ID
-			LEFT JOIN SYS_BLOS_TYPE B ON B.ID = C.ACT_TYPE
-			WHERE A.DEL_FLAG = '0'
-			<if test="mineBlos.ids != null and mineBlos.ids != ''">
-				AND A.ID = #{mineBlos.ids}
-			</if>
-			<if test="mineBlos.clobTitle != null and mineBlos.clobTitle != ''">
-				AND A.CLOB_TITLE LIKE '%'|| #{mineBlos.clobTitle} || '%'
-			</if>
-			<if test="mineBlos.psnId != null and mineBlos.psnId != ''">
-				AND A.PSN_ID = #{mineBlos.psnId}
-			</if>
-			<if test="mineBlos.actType != null and mineBlos.actType != ''">
-				AND C.ACT_TYPE = #{mineBlos.actType}
-			</if>
-			GROUP BY B.ID
-		) D
 	</select>
 
 	<select id="mineBlosGroupDate" resultType="com.example.util.dic.DicListVo">

@@ -94,17 +94,6 @@ public class MineBlosService {
     }
 
     /**
-     * 查询指定博客的类型内数据
-     * @param mineBlos
-     * @return
-     */
-    public List<MineBlos> mineBlosRightDivLook(MineBlos mineBlos) {
-        PageHelper.offsetPage(mineBlos.getStartTab(), mineBlos.getHasTab(),true);
-        List<MineBlos> item = mineBlosMapper.mineBlosRightDivLook(mineBlos);
-        return item;
-    }
-
-    /**
      * 个人空间查询博客
      * @param mineBlos
      * @return
@@ -113,24 +102,6 @@ public class MineBlosService {
         PageHelper.offsetPage(mineBlos.getStartTab(), mineBlos.getHasTab(),true);
         List<MineBlos> item = mineBlosMapper.mineBlosApiDivLook(mineBlos);
         return item;
-    }
-
-    /**
-     * 查询分页数量
-     * @param mineBlos
-     * @return
-     */
-    public int allBlosRightDivTab(MineBlos mineBlos){
-        return mineBlosMapper.allBlosRightDivTab(mineBlos);
-    }
-
-    /**
-     * 查询个人博客的日志+分类统计
-     * @param mineBlos
-     * @return
-     */
-    public String mineBlosCount(MineBlos mineBlos){
-        return mineBlosMapper.mineBlosCount(mineBlos);
     }
 
     /**
