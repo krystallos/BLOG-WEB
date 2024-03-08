@@ -87,6 +87,9 @@ public class FileContentRecognitionConteroller {
      */
     private String insertPixivAuthor(String hasUrl, String notUrl, String itemPath, String isHas) throws IOException{
         String itemAuthG = fileConfigService.selectGroupAuthUid(hasUrl, notUrl, isHas, itemPath);
+        if(itemAuthG == null){
+            return "";
+        }
         Pattern pattern = Pattern.compile("[0-9]*");
         if(pattern.matcher(itemAuthG).matches()){
             String itext = "";

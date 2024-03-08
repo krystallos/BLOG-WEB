@@ -49,7 +49,7 @@
 			AND A.CLOB_TITLE LIKE '%'|| #{mineBlos.clobTitle} || '%'
 		</if>
 		<if test="mineBlos.createId != null and mineBlos.createId != ''">
-			AND A.CREAYE_ID = #{mineBlos.createId}
+			AND A.CREATE_ID = #{mineBlos.createId}
 		</if>
 		<if test="mineBlos.psnId != null and mineBlos.psnId != ''">
 			AND A.PSN_ID = #{mineBlos.psnId}
@@ -98,7 +98,7 @@
 			AND A.FILE_NAME LIKE '%'|| #{mineBlos.clobTitle} || '%'
 		</if>
 		<if test="mineBlos.createId != null and mineBlos.createId != ''">
-			AND A.CREAYE_ID = #{mineBlos.createId}
+			AND A.CREATE_ID = #{mineBlos.createId}
 		</if>
 		<if test="mineBlos.psnId != null and mineBlos.psnId != ''">
 			AND A.PSN_ID = #{mineBlos.psnId}
@@ -130,7 +130,7 @@
 			AND C.CLOB_TITLE LIKE '%'|| #{mineBlos.clobTitle} || '%'
 		</if>
 		<if test="mineBlos.createId != null and mineBlos.createId != ''">
-			AND A.CREAYE_ID = #{mineBlos.createId}
+			AND A.CREATE_ID = #{mineBlos.createId}
 		</if>
 		<if test="mineBlos.psnId != null and mineBlos.psnId != ''">
 			AND A.PSN_ID = #{mineBlos.psnId}
@@ -155,7 +155,7 @@
 			AND A.CLOB_TITLE LIKE '%'|| #{mineBlos.clobTitle} || '%'
 		</if>
 		<if test="mineBlos.createId != null and mineBlos.createId != ''">
-			AND A.CREAYE_ID = #{mineBlos.createId}
+			AND A.CREATE_ID = #{mineBlos.createId}
 		</if>
 		<if test="mineBlos.psnId != null and mineBlos.psnId != ''">
 			AND A.PSN_ID = #{mineBlos.psnId}

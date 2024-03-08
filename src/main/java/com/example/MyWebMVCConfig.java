@@ -31,6 +31,8 @@ public class MyWebMVCConfig implements WebMvcConfigurer {
     private String fictionImg;
     @Value("${fictionFile}")
     private String fictionFile;
+    @Value("${dramaImage}")
+    private String dramaImage;
 
     @Bean
     public MyInterceptor getMyInterceptor(){
@@ -49,6 +51,7 @@ public class MyWebMVCConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/tempFile/**").addResourceLocations("file:///" + tempFile);
         registry.addResourceHandler("/fictionImg/**").addResourceLocations("file:///" + fictionImg);
         registry.addResourceHandler("/fictionFile/**").addResourceLocations("file:///" + fictionFile);
+        registry.addResourceHandler("/dramaImage/**").addResourceLocations("file:///" + dramaImage);
     }
 
     @Override
@@ -63,6 +66,7 @@ public class MyWebMVCConfig implements WebMvcConfigurer {
             .excludePathPatterns("/assFileCode/**")
             .excludePathPatterns("/tempFile/**")
             .excludePathPatterns("/fictionImg/**")
+            .excludePathPatterns("/dramaImage/**")
             .excludePathPatterns("/fictionFile/**");
         log.info("系统拦截器初始化完成");
 

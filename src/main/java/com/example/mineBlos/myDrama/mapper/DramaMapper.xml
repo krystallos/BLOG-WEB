@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mineBlos.myDrama.mapper.DramaMapper">
+
+	<resultMap id="dramaListTabs" type="com.example.mineBlos.myDrama.enity.DramaList">
+		<result property="ids" column="ID" />
+		<result property="dramaName" column="DRAMA_NAME" />
+		<result property="dramaPath" column="DRAMA_PATH" />
+		<result property="dramaImage" column="DRAMA_IMAGE" />
+		<result property="productionYear" column="PRODUCTION_YEAR" />
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="createId" column="CREATE_ID" />
+		<result property="delFlag" column="DEL_FLAG" />
+		<result property="unPlay" column="UN_PLAY" />
+		<result property="rss" column="RSS" />
+	</resultMap>
+
+	<select id="dramaList" resultMap="dramaListTabs">
+		SELECT
+			ID,
+			DRAMA_NAME,
+			'\dramaImage\' || DRAMA_PATH as DRAMA_PATH,
+			DRAMA_IMAGE,
+			PRODUCTION_YEAR,
+			CREATE_DATE,
+			CREATE_ID,
+			DEL_FLAG,
+			UN_PLAY,
+			RSS
+		FROM
+			SYS_DRAMA
+		WHERE
+		    DEL_FLAG = '0'
+		<if test="dramaList.ids != null and dramaList.ids != ''">
+			AND ID = #{dramaList.ids}
+		</if>
+		<if test="dramaList.dramaName != null and dramaList.dramaName != ''">
+			AND DRAMA_NAME LIKE '%'|| #{dramaList.dramaName} || '%'
+		</if>
+		<if test="dramaList.productionYear != null and dramaList.productionYear != ''">
+			AND PRODUCTION_YEAR = #{dramaList.productionYear}
+		</if>
+		<if test="dramaList.createId != null and dramaList.createId != ''">
+			AND CREATE_ID = #{dramaList.createId}
+		</if>
+		ORDER BY TO_NUMBER(ID) DESC
+	</select>
+
+</mapper>
