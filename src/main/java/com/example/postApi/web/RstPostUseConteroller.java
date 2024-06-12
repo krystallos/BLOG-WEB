@@ -229,6 +229,9 @@ public class RstPostUseConteroller {
             if(rstPostApiVo.getPostUrl() == null || "".equals(rstPostApiVo.getPostUrl())){
                 return new ResultBody(ApiResultEnum.FAIL, "请填写接口地址");
             }
+            if(rstPostApiVo.getPicUrl() == null){
+                rstPostApiVo.setPicUrl("");
+            }
             if(rstPostApiVo.getIds() == null) {
                 Person person = (Person) redisUtils.get(session.getId());
                 rstPostApiVo.getNowDate(null);

@@ -315,9 +315,36 @@
 			LEFT JOIN SYS_MINE_ACTIVITY c ON c.ACT_ID = a.ID
 		WHERE
 			a.CREATE_ID = '1'
-		  AND a.DEL_FLAG = '0'
+		  	AND a.DEL_FLAG = '0'
+			<if test="time != null and time != ''">
+				AND SUBSTR(a.CREATE_DATE, 1, 7) = #{time}
+			</if>
 		ORDER BY
 			a.CREATE_DATE DESC
+	</select>
+
+	<select id="mineBlosGroupOrder" resultType="com.example.util.dic.DicListVo">
+		SELECT
+			tab.name || ' [' || tab.hasAct || '篇文章]' as dicName,
+			tab.dicName as dicValue
+		FROM
+			(
+				SELECT
+					SUBSTR(a.CREATE_DATE, 1, 7) AS dicName,
+					REPLACE(SUBSTR(a.CREATE_DATE, 1, 7), '-', '年') || '月' AS name,
+					count(a.id) AS hasAct
+				FROM
+					SYS_ACTIVITY a
+						LEFT JOIN SYS_BLOS_TYPE b ON b.ID = a.ACT_TYPE
+						LEFT JOIN SYS_MINE_ACTIVITY c ON c.ACT_ID = a.ID
+				WHERE
+					a.CREATE_ID = '1'
+				  AND a.DEL_FLAG = '0'
+				GROUP BY
+					SUBSTR(a.CREATE_DATE, 1, 7)
+			) tab
+		ORDER BY
+			tab.dicName DESC
 	</select>
 	
 	<select id="hisBlosType" resultMap="mineBlosTabs">

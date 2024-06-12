@@ -14,6 +14,15 @@ public class RstPostApiVo extends userEnity {
     private String params;
     private String createName;
     private String dataType;
+    private String picUrl;
+
+    public String getPicUrl() {
+        return picUrl;
+    }
+
+    public void setPicUrl(String picUrl) {
+        this.picUrl = picUrl;
+    }
 
     public String getDataType() {
         return dataType;

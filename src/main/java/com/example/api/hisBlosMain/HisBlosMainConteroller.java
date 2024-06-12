@@ -91,6 +91,22 @@ public class HisBlosMainConteroller {
         }
     }
 
+    /*获取博客时间分组*/
+    @Log(title = "获取博客时间分组（公开）", type = LogEnum.SELECT)
+    @PostMapping("open/getTimeGroupOrder.act")
+    public ResultBody getTimeGroupOrder(@RequestBody MineBlos mineBlos){
+        try {
+            if(mineBlos.getPsnId()==null){
+                return new ResultBody(ApiResultEnum.NOT_FIND_THREE, "地址非法，请输入正确地址");
+            }
+            List<DicListVo> item = mineBlosService.mineBlosGroupOrder(mineBlos.getPsnId());
+            return new ResultBody(ApiResultEnum.SUCCESS, item);
+        }catch (Exception e){
+            log.error(e);
+            return new ResultBody(ApiResultEnum.ERR, e.getMessage());
+        }
+    }
+
     /*获取博客时间轴*/
     @Log(title = "获取博客时间轴（公开）", type = LogEnum.SELECT)
     @PostMapping("open/getTimeGroupBy.act")
@@ -99,7 +115,7 @@ public class HisBlosMainConteroller {
             if(mineBlos.getPsnId()==null){
                 return new ResultBody(ApiResultEnum.NOT_FIND_THREE, "地址非法，请输入正确地址");
             }
-            List<DicListVo> item = mineBlosService.mineBlosGroupDate(mineBlos.getPsnId());
+            List<DicListVo> item = mineBlosService.mineBlosGroupDate(mineBlos.getPsnId(), mineBlos.getCreateDate());
             return new ResultBody(ApiResultEnum.SUCCESS, item);
         }catch (Exception e){
             log.error(e);

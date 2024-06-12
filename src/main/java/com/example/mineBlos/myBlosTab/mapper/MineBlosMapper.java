@@ -85,7 +85,14 @@ public interface MineBlosMapper {
 	 * 查询个人博客的时间分组
 	 * @return
 	 */
-	List<DicListVo> mineBlosGroupDate(@Param("personId")String personId);
+	List<DicListVo> mineBlosGroupDate(@Param("personId")String personId, @Param("time")String time);
+
+	/**
+	 * 获取个人博客的时间分组集合
+	 * @param personId
+	 * @return
+	 */
+	List<DicListVo> mineBlosGroupOrder(@Param("personId")String personId);
 
 	/**
 	 * 查询博客名称+ID

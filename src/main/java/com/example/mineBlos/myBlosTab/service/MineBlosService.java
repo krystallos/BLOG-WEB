@@ -108,8 +108,16 @@ public class MineBlosService {
      * 查询个人博客的时间分组
      * @return
      */
-    public List<DicListVo> mineBlosGroupDate(String personId){
-        return mineBlosMapper.mineBlosGroupDate(personId);
+    public List<DicListVo> mineBlosGroupDate(String personId, String time){
+        return mineBlosMapper.mineBlosGroupDate(personId, time);
+    }
+
+    /**
+     * 查询个人博客的时间集合
+     * @return
+     */
+    public List<DicListVo> mineBlosGroupOrder(String personId){
+        return mineBlosMapper.mineBlosGroupOrder(personId);
     }
 
     /**

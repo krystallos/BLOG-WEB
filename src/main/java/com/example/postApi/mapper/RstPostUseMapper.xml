@@ -218,15 +218,15 @@
 	</update>
 
 	<insert id="insertRstApiDetial">
-		INSERT INTO RST_POST_HTTP_API (ID, RST_ID, POST_NAME, POST_TYPE, POST_URL, INP_BODY, OUT_BODY, PARMAS, CREATE_ID, CREATE_DATE, UPDATE_DATE, DATA_TYPE, DEL_FLAG)
+		INSERT INTO RST_POST_HTTP_API (ID, RST_ID, POST_NAME, POST_TYPE, POST_URL, INP_BODY, OUT_BODY, PARMAS, PIC_URL,CREATE_ID, CREATE_DATE, UPDATE_DATE, DATA_TYPE, DEL_FLAG)
 		VALUES (#{rstPostApiVo.ids}, #{rstPostApiVo.projectId}, #{rstPostApiVo.postName}, #{rstPostApiVo.postType}, #{rstPostApiVo.postUrl},
-		        #{rstPostApiVo.inpBody}, #{rstPostApiVo.outBody}, #{rstPostApiVo.params}, #{rstPostApiVo.createId}, #{rstPostApiVo.createDate}, #{rstPostApiVo.updateDate}, #{rstPostApiVo.dataType}, '0')
+		        #{rstPostApiVo.inpBody}, #{rstPostApiVo.outBody}, #{rstPostApiVo.params}, #{rstPostApiVo.picUrl},#{rstPostApiVo.createId}, #{rstPostApiVo.createDate}, #{rstPostApiVo.updateDate}, #{rstPostApiVo.dataType}, '0')
 	</insert>
 
 	<update id="saveRstApiDetial">
 		UPDATE RST_POST_HTTP_API
 		SET POST_NAME = #{rstPostApiVo.postName}, POST_TYPE = #{rstPostApiVo.postType}, POST_URL = #{rstPostApiVo.postUrl}, INP_BODY = #{rstPostApiVo.inpBody},
-			OUT_BODY = #{rstPostApiVo.outBody}, PARMAS = #{rstPostApiVo.params}, UPDATE_DATE = #{rstPostApiVo.updateDate}, DATA_TYPE = #{rstPostApiVo.dataType}
+			OUT_BODY = #{rstPostApiVo.outBody}, PARMAS = #{rstPostApiVo.params}, PIC_URL = #{rstPostApiVo.picUrl}, UPDATE_DATE = #{rstPostApiVo.updateDate}, DATA_TYPE = #{rstPostApiVo.dataType}
 		WHERE ID = #{rstPostApiVo.ids}
 	</update>
 
@@ -238,6 +238,7 @@
 		<result property="inpBody" column="INP_BODY" />
 		<result property="outBody" column="OUT_BODY" />
 		<result property="params" column="PARMAS" />
+		<result property="picUrl" column="PIC_URL" />
 		<result property="createId" column="CREATE_ID" />
 		<result property="createName" column="CREATE_NAME" />
 		<result property="createDate" column="CREATE_DATE" />
