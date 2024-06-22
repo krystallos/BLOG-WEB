@@ -95,6 +95,24 @@ public class SysVersionsConteroller {
     }
 
     /**
+     * 使用SESSION获取首条通知
+     */
+    @Log(title = "首条更新通知", type = LogEnum.SELECT)
+    @PostMapping("open/selectSessionSysVersions.act")
+    public ResultBody selectSessionSysVersions(){
+        try {
+            SysVersions tab = sysVersionsService.selectOneAndOneSysVersions(0);
+            if(tab == null || tab.getIds() == null){
+                return new ResultBody(ApiResultEnum.SUCCESS, null);
+            }
+            return new ResultBody(ApiResultEnum.SUCCESS, tab);
+        }catch (Exception e){
+            log.error(e);
+            return new ResultBody(ApiResultEnum.ERR, e.getMessage());
+        }
+    }
+
+    /**
      * 系统更新提交
      * @param sysVersions
      */

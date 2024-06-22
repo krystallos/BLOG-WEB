@@ -185,6 +185,9 @@
 			<if test="rstPostApiVo.postName != null and rstPostApiVo.postName != ''">
 				AND c.POST_NAME LIKE '%' || #{rstPostApiVo.postName} || '%'
 			</if>
+			<if test="rstPostApiVo.postUrl != null and rstPostApiVo.postUrl != ''">
+				AND c.POST_URL LIKE '%' || #{rstPostApiVo.postUrl} || '%'
+			</if>
 			AND b.ID = #{rstPostApiVo.ids}
 		ORDER BY c.UPDATE_DATE DESC
 	</select>
