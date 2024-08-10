@@ -1,10 +1,7 @@
 package com.example.postApi.web;
 
 import com.example.person.enity.Person;
-import com.example.postApi.enity.PostApiEnity;
-import com.example.postApi.enity.RstChildPostApi;
-import com.example.postApi.enity.RstPostApiVo;
-import com.example.postApi.enity.RstPostProject;
+import com.example.postApi.enity.*;
 import com.example.postApi.service.ApiPostListService;
 import com.example.postApi.service.RstPostUseService;
 import com.example.util.ApiResultEnum;
@@ -15,12 +12,14 @@ import com.example.util.config.RedisUtils;
 import com.example.util.rsaKey;
 import com.github.pagehelper.PageInfo;
 import org.apache.log4j.Logger;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -243,6 +242,63 @@ public class RstPostUseConteroller {
                 rstPostUseService.saveRstApiDetial(rstPostApiVo);
             }
             return new ResultBody(ApiResultEnum.SUCCESS, "保存成功");
+        }catch (Exception e){
+            log.error(e);
+            return new ResultBody(ApiResultEnum.ERR, e.getMessage());
+        }
+    }
+
+    /**
+     * 生成Key
+     * @param rstKeyVo
+     */
+    @Log(title = "生成API文档Key", type = LogEnum.INSERT)
+    @PostMapping("api/insertRstKey.act")
+    public ResultBody insertRstKey(@RequestBody RstKeyVo rstKeyVo, HttpSession session){
+        try {
+            if(rstPostUseService.selectDoubleRstKey(rstKeyVo) > 0){
+                return new ResultBody(ApiResultEnum.DUPLICATION_OF_DATA, "该前缀已被使用");
+            }
+            String getNewKey = rstKeyVo.getRstKey() + "-" + DigestUtils.md5DigestAsHex(rstKeyVo.getRstIds().getBytes(StandardCharsets.UTF_8));
+            rstKeyVo.setRstKey(getNewKey);
+            Person person = (Person) redisUtils.get(session.getId());
+            rstKeyVo.getNowDate(null);
+            rstKeyVo.setCreateId(person.getIds());
+            rstKeyVo.setIds(rsaKey.uuid(""));
+            rstPostUseService.insertRstKey(rstKeyVo);
+            return new ResultBody(ApiResultEnum.SUCCESS, rstKeyVo);
+        }catch (Exception e){
+            log.error(e);
+            return new ResultBody(ApiResultEnum.ERR, e.getMessage());
+        }
+    }
+
+    /**
+     * APIKey详情列表
+     * @param rstKeyVo
+     */
+    @Log(title = "获取API文档接口列表", type = LogEnum.SELECT)
+    @PostMapping("api/getRstPostKeyList.act")
+    public ResultBody getRstPostKeyList(@RequestBody RstKeyVo rstKeyVo){
+        try{
+            rstKeyVo.pubImplPage(rstKeyVo.getNowTab(),rstKeyVo.getHasTab());
+            List<RstKeyVo> list = rstPostUseService.getRstPostKeyList(rstKeyVo);
+            return new ResultBody(ApiResultEnum.SUCCESS, list, (int) new PageInfo<>(list).getTotal());
+        }catch (Exception e){
+            log.error(e);
+            return new ResultBody(ApiResultEnum.ERR, e.getMessage());
+        }
+    }
+
+    /**
+     * 删除APIKey
+     * @param rstKeyVo
+     */
+    @Log(title = "删除APIKey", type = LogEnum.DETIAL)
+    @PostMapping("api/delRstApiKey.act")
+    public ResultBody delRstApiKey(@RequestBody RstKeyVo rstKeyVo){
+        try {
+            return new ResultBody(ApiResultEnum.SUCCESS, rstPostUseService.delRstApiKey(rstKeyVo));
         }catch (Exception e){
             log.error(e);
             return new ResultBody(ApiResultEnum.ERR, e.getMessage());

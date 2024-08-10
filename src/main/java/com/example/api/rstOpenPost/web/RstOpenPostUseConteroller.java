@@ -2,6 +2,7 @@ package com.example.api.rstOpenPost.web;
 
 import com.example.person.enity.Person;
 import com.example.postApi.enity.RstChildPostApi;
+import com.example.postApi.enity.RstKeyVo;
 import com.example.postApi.enity.RstPostApiVo;
 import com.example.postApi.enity.RstPostProject;
 import com.example.postApi.service.RstPostUseService;
@@ -106,6 +107,24 @@ public class RstOpenPostUseConteroller {
     public ResultBody getRstApiDetial(@RequestBody RstPostApiVo rstPostApiVo){
         try {
             return new ResultBody(ApiResultEnum.SUCCESS, rstPostUseService.getRstApiDetial(rstPostApiVo));
+        }catch (Exception e){
+            log.error(e);
+            return new ResultBody(ApiResultEnum.ERR, e.getMessage());
+        }
+    }
+
+    /**
+     * 校验API邀请码
+     * @param rstKeyVo
+     */
+    @Log(title = "校验API邀请码（公开）", type = LogEnum.SELECT)
+    @PostMapping("open/getOpenRstApiKey.act")
+    public ResultBody getOpenRstApiKey(@RequestBody RstKeyVo rstKeyVo){
+        try {
+            String rstKey = rstPostUseService.getOpenRstApiKey(rstKeyVo);
+            RstKeyVo vo = new RstKeyVo();
+            vo.setRstKey(rstKey);
+            return new ResultBody(ApiResultEnum.SUCCESS, vo);
         }catch (Exception e){
             log.error(e);
             return new ResultBody(ApiResultEnum.ERR, e.getMessage());

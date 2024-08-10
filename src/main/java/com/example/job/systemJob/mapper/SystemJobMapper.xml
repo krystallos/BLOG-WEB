@@ -4,9 +4,175 @@
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.job.systemJob.mapper.SystemJobMapper">
 
+	<insert id="insertSystem">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SEQ_SYSTEM.nextval AS id FROM dual
+		</selectKey>
+		INSERT INTO SYS_SYSTEM(ID,SYSTEM_ID,CPU_CORE,CPU_SYSTEM_USE,CPU_USER_USE,CPU_LEISURE,CPU_UTILIZATION,MEMORY_ALL,MEMORY_UTILIZATION,MEMORY_USE,JVM_ALL,JVM_UTILIZATION,JVM_USE,CREATE_DATE
+		)VALUES (
+			#{id},
+		   	#{systemEntry.systemId},
+			#{systemEntry.cpuCode},
+			#{systemEntry.cpuSystemUse},
+			#{systemEntry.cpuUserUse},
+			#{systemEntry.cpuLeisure},
+			#{systemEntry.cpuUtilization},
+			#{systemEntry.allMemory},
+			#{systemEntry.utilizationMemory},
+			#{systemEntry.useMemory},
+			#{systemEntry.memoryMax},
+			#{systemEntry.memoryUtilization},
+			#{systemEntry.memoryUse},
+			#{systemEntry.createDate}
+		)
+	</insert>
+
+	<select id="selectDoubleDicCode" resultType="java.lang.String">
+		SELECT
+			ID
+		FROM
+			SYS_SYSTEMDIC
+		WHERE
+			UUID = #{sysFile.uuid}
+	</select>
+
+	<insert id="insertSystemDic">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="sysFile.id">
+			SELECT SEQ_SYSTEMDIC.nextval AS id FROM dual
+		</selectKey>
+		INSERT INTO SYS_SYSTEMDIC (ID ,SYSTEM_ID, DESCRIPTION, FS_TYPE, FREE_SPACE, USE_SPACE, TOTAL_SPACE, UUID, DIC_NAME)
+		VALUES (#{sysFile.id}, #{sysFile.systemId}, #{sysFile.description}, #{sysFile.fsType}, #{sysFile.free}, #{sysFile.used}, #{sysFile.total}, #{sysFile.uuid}, #{sysFile.dirName})
+	</insert>
+
+	<update id="updateSystemDic">
+		UPDATE sys_systemdic SET
+			  DESCRIPTION = #{sysFile.description},
+			  FS_TYPE = #{sysFile.fsType},
+			  FREE_SPACE = #{sysFile.free},
+			  USE_SPACE = #{sysFile.used},
+			  TOTAL_SPACE = #{sysFile.total},
+			  DIC_NAME = #{sysFile.dirName}
+		WHERE ID = #{sysFile.id}
+	</update>
+
+	<select id="selectDoubleCpuCode" resultType="java.lang.String">
+		SELECT
+			ID
+		FROM
+			sys_systemconfig
+		WHERE
+			CPU_CODE = #{cpuCode}
+	</select>
+
+	<insert id="insertSystemConfig">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="enerty.id">
+			SELECT SEQ_SYSTEMCONFIG.nextval AS id FROM dual
+		</selectKey>
+		INSERT INTO sys_systemconfig(
+			ID,
+			SYSTEM_NAME,
+			CPU_NAME,
+			IP,
+			LAST_START_TIME,
+			RUN_TIME,
+			CPU_CODE,
+			SYSTEM_TYPE
+		)VALUES (
+			#{enerty.id},
+			#{enerty.systemName},
+			#{enerty.cpuName},
+			#{enerty.ip},
+			#{enerty.startTime},
+			#{enerty.runtime},
+			#{enerty.cpuCode},
+			#{enerty.systemType}
+		)
+	</insert>
+
+	<update id="updateSystemConfig">
+		UPDATE sys_systemconfig SET
+			 SYSTEM_NAME = #{enerty.systemName},
+			 CPU_NAME = #{enerty.cpuName},
+			 IP = #{enerty.ip},
+			 LAST_START_TIME = #{enerty.startTime},
+			 RUN_TIME = #{enerty.runtime},
+			 CPU_CODE = #{enerty.cpuCode},
+			 SYSTEM_TYPE = #{enerty.systemType}
+		WHERE ID = #{enerty.id}
+	</update>
+
+	<insert id="insertSystemNetWork">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="id">
+			SELECT SEQ_SYSTEMNETWORK.nextval AS id FROM dual
+		</selectKey>
+		INSERT INTO sys_systemnetwork (ID,SYSTEM_ID, TX_PERCENT, RX_PERCENT, CREATE_DATE, DATE_TIME)
+		VALUES (#{id},#{netWork.systemId}, #{netWork.txPercent}, #{netWork.rxPercent}, #{netWork.createDate}, #{netWork.createDate})
+	</insert>
+
+	<select id="getSystemConfig" resultType="com.example.job.systemJob.entry.SystemConfigEnerty">
+		SELECT
+			ID as id,
+			SYSTEM_NAME as systemName,
+			CPU_NAME as cpuName,
+			IP as ip,
+			LAST_START_TIME as startTime,
+			RUN_TIME as runtime,
+			CPU_CODE as cpuCode,
+			SYSTEM_TYPE as systemType
+		FROM
+			sys_systemconfig
+		WHERE
+			IP = #{systemConfigEnerty.ip}
+	</select>
+
+	<select id="selectSystem" resultType="com.example.job.systemJob.entry.SystemEntry">
+		SELECT
+			*
+		FROM(
+			SELECT
+				ID,
+				SYSTEM_ID as systemId,
+				CPU_CORE as cpuCode,CPU_SYSTEM_USE as cpuSystemUse,
+				CPU_USER_USE as cpuUserUse,
+				CPU_LEISURE as cpuLeisure,
+				CPU_UTILIZATION as cpuUtilization,
+				MEMORY_ALL as allMemory,
+				MEMORY_UTILIZATION as utilizationMemory,
+				MEMORY_USE as useMemory,
+				JVM_ALL as memoryMax,
+				JVM_UTILIZATION as memoryUtilization,
+				JVM_USE as memoryUse,
+				ROUND(MEMORY_USE / MEMORY_ALL, 2) as memoryP,
+				ROUND(JVM_USE / JVM_ALL, 2) as jvmP
+			FROM
+				sys_system
+			WHERE
+				SYSTEM_ID = #{systemEntry.systemId}
+			ORDER BY ID DESC
+		    )
+		WHERE
+		ROWNUM = 1
+	</select>
+
+	<select id="selectDic" resultType="com.example.job.systemJob.entry.DirSystemEntry">
+		SELECT
+			SYSTEM_ID as systemId,
+			DESCRIPTION as description,
+			FS_TYPE as fsType,
+			FREE_SPACE as free,
+			USE_SPACE as used,
+			TOTAL_SPACE as total,
+			UUID as uuid,
+			DIC_NAME as dirName,
+			ROUND(USE_SPACE / TOTAL_SPACE,2) as userP
+		FROM
+			sys_systemdic
+		WHERE
+			SYSTEM_ID = #{dirSystemEntry.systemId}
+		ORDER BY ID DESC
+	</select>
+
 	<resultMap id="systemJobMapper" type="com.example.job.systemJob.entry.SystemEntry">
-		<result property="timeMillis" column="TIME_MILLIS" />
-		<result property="systemNum" column="SYSTEM_NUM" />
 		<result property="cpuCode" column="CPU_CODE" />
 		<result property="cpuSystemUse" column="CPU_SYSTEM_USE" />
 		<result property="cpuUserUse" column="CPU_USER_USE" />
@@ -18,45 +184,50 @@
 		<result property="createDate" column="CREATE_DATE" />
 	</resultMap>
 
-	<select id="selectFindList" resultMap="systemJobMapper">
-		SELECT
-			*
-		FROM
-			SYS_SYSTEM_INFO
-		WHERE
-			TO_CHAR( TO_DATE( CREATE_DATE, 'YYYY-MM-DD hh24:mi:ss' ), 'YYYY-MM-DD' ) = #{systemEntry.createDate}
-		ORDER BY
-			CREATE_DATE DESC
-	</select>
-
 	<select id="selectGroupList" resultMap="systemJobMapper">
 		SELECT
 			tab.*
 		FROM(
 			SELECT
-				ROUND( AVG( CPU_SYSTEM_USE ), 2 ) as CPU_SYSTEM_USE,
-				ROUND( AVG( CPU_USER_USE ), 2 ) as CPU_USER_USE,
-				ROUND( AVG( CPU_LEISURE ), 2 ) as CPU_LEISURE,
-				ROUND( AVG( CPU_UTILIZATION ), 2 ) as CPU_UTILIZATION,
-				ROUND( AVG( UTILIZATION_MEMORY ), 2 ) as UTILIZATION_MEMORY,
-				ROUND( AVG( USE_MEMORY ), 2 ) as USE_MEMORY,
+				ROUND( AVG( REPLACE(MEMORY_UTILIZATION, 'GB', '') ), 2 ) as UTILIZATION_MEMORY,
+				ROUND( AVG( REPLACE(MEMORY_USE, 'GB', '') ), 2 ) as USE_MEMORY,
 				TO_CHAR( TO_DATE( CREATE_DATE, 'YYYY-MM-DD hh24:mi:ss' ), 'YYYY-MM-DD hh24' ) as CREATE_DATE
 			FROM
-				SYS_SYSTEM_INFO
+				SYS_SYSTEM
 			WHERE
 				TO_CHAR( TO_DATE( CREATE_DATE, 'YYYY-MM-DD hh24:mi:ss' ), 'YYYY-MM-DD hh24' ) &gt;= #{beginTime}
 				AND TO_CHAR( TO_DATE( CREATE_DATE, 'YYYY-MM-DD hh24:mi:ss' ), 'YYYY-MM-DD hh24' ) &lt;= #{endTime}
+				AND SYSTEM_ID = #{systemId}
 			GROUP BY
 				TO_CHAR( TO_DATE( CREATE_DATE, 'YYYY-MM-DD hh24:mi:ss' ), 'YYYY-MM-DD hh24' )
 		) tab
 		ORDER BY tab.CREATE_DATE ASC
 	</select>
 
-	<insert id="insertSystemJob">
-		INSERT INTO SYS_SYSTEM_INFO (TIME_MILLIS, SYSTEM_NUM, CPU_CODE, CPU_SYSTEM_USE, CPU_USER_USE, CPU_LEISURE, CPU_UTILIZATION, ALL_MEMORY, UTILIZATION_MEMORY, USE_MEMORY, CREATE_DATE)
-		VALUES (#{systemEntry.timeMillis}, #{systemEntry.systemNum}, #{systemEntry.cpuCode}, #{systemEntry.cpuSystemUse},
-		        #{systemEntry.cpuUserUse}, #{systemEntry.cpuLeisure}, #{systemEntry.cpuUtilization}, #{systemEntry.allMemory},
-		        #{systemEntry.utilizationMemory}, #{systemEntry.useMemory}, #{systemEntry.createDate})
-	</insert>
+	<resultMap id="systemNetworkMapper" type="com.example.job.systemJob.entry.SystemNetWork">
+		<result property="txPercent" column="TX_PERCENT" />
+		<result property="rxPercent" column="RX_PERCENT" />
+		<result property="createDate" column="CREATE_DATE" />
+	</resultMap>
+
+	<select id="selectGroupNetWork" resultMap="systemNetworkMapper">
+		SELECT
+			tab.*
+		FROM(
+			SELECT
+				ROUND( AVG( TX_PERCENT ), 2 ) as TX_PERCENT,
+				ROUND( AVG( RX_PERCENT ), 2 ) as RX_PERCENT,
+				TO_CHAR( TO_DATE( CREATE_DATE, 'YYYY-MM-DD hh24:mi:ss' ), 'YYYY-MM-DD hh24' ) as CREATE_DATE
+			FROM
+				SYS_SYSTEMNETWORK
+			WHERE
+				TO_CHAR( TO_DATE( CREATE_DATE, 'YYYY-MM-DD hh24:mi:ss' ), 'YYYY-MM-DD hh24' ) &gt;= #{beginTime}
+			  	AND TO_CHAR( TO_DATE( CREATE_DATE, 'YYYY-MM-DD hh24:mi:ss' ), 'YYYY-MM-DD hh24' ) &lt;= #{endTime}
+			  	AND SYSTEM_ID = #{systemId}
+			GROUP BY
+				TO_CHAR( TO_DATE( CREATE_DATE, 'YYYY-MM-DD hh24:mi:ss' ), 'YYYY-MM-DD hh24' )
+		) tab
+		ORDER BY tab.CREATE_DATE ASC
+	</select>
 
 </mapper>

@@ -74,7 +74,7 @@ public class SysVersionsConteroller {
     /**
      * 用户确认更新通知
      */
-    @Log(title = "用户确认更新通知", type = LogEnum.EDIT)
+    @Log(title = "用户确认更新通知", type = LogEnum.INSERT)
     @PostMapping("api/sysVersionsWebIss.act")
     public ResultBody sysVersionsWebIss(HttpSession session ,@RequestBody SysVersions sysVersions){
         try {
@@ -99,13 +99,35 @@ public class SysVersionsConteroller {
      */
     @Log(title = "首条更新通知", type = LogEnum.SELECT)
     @PostMapping("open/selectSessionSysVersions.act")
-    public ResultBody selectSessionSysVersions(){
+    public ResultBody selectSessionSysVersions(@RequestBody SysVersions sysVersions){
         try {
             SysVersions tab = sysVersionsService.selectOneAndOneSysVersions(0);
             if(tab == null || tab.getIds() == null){
                 return new ResultBody(ApiResultEnum.SUCCESS, null);
             }
-            return new ResultBody(ApiResultEnum.SUCCESS, tab);
+            sysVersions.setIds(tab.getIds());
+            sysVersions.setCreateId(sysVersions.getSession());
+            int a = sysVersionsService.selectSysVersionsWebIss(sysVersions);
+            return new ResultBody(ApiResultEnum.SUCCESS, a == 0? tab : null);
+        }catch (Exception e){
+            log.error(e);
+            return new ResultBody(ApiResultEnum.ERR, e.getMessage());
+        }
+    }
+
+    /**
+     * session确认更新通知
+     */
+    @Log(title = "session确认更新通知", type = LogEnum.INSERT)
+    @PostMapping("open/sysVersionsSessionIss.act")
+    public ResultBody sysVersionsSessionIss(@RequestBody SysVersions sysVersions){
+        try {
+            sysVersions.getNowDate("");
+            sysVersions.setVerCreate(sysVersions.getSession());
+            sysVersions.setVerVersion(sysVersions.getIds());
+            sysVersions.setIds(rsaKey.uuid(""));
+            sysVersionsService.insertSysVersionsWebIss(sysVersions);
+            return new ResultBody(ApiResultEnum.SUCCESS, "确认完成");
         }catch (Exception e){
             log.error(e);
             return new ResultBody(ApiResultEnum.ERR, e.getMessage());

@@ -1,9 +1,6 @@
 package com.example.postApi.mapper;
 
-import com.example.postApi.enity.PostApiEnity;
-import com.example.postApi.enity.RstChildPostApi;
-import com.example.postApi.enity.RstPostApiVo;
-import com.example.postApi.enity.RstPostProject;
+import com.example.postApi.enity.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -113,5 +110,40 @@ public interface RstPostUseMapper {
 	 * @return
 	 */
 	RstPostApiVo getRstApiDetial(@Param("rstPostApiVo") RstPostApiVo rstPostApiVo);
+
+	/**
+	 * 查询重复的Key前缀
+	 * @param rstKeyVo
+	 * @return
+	 */
+	int selectDoubleRstKey(@Param("rstKeyVo") RstKeyVo rstKeyVo);
+
+	/**
+	 * 新增Key
+	 * @param rstKeyVo
+	 * @return
+	 */
+	int insertRstKey(@Param("rstKeyVo") RstKeyVo rstKeyVo);
+
+	/**
+	 * 查询文档接口邀请码列表
+	 * @param rstKeyVo
+	 * @return
+	 */
+	List<RstKeyVo> getRstPostKeyList(@Param("rstKeyVo") RstKeyVo rstKeyVo);
+
+	/**
+	 * 删除Key
+	 * @param rstKeyVo
+	 * @return
+	 */
+	int delRstApiKey(@Param("rstKeyVo") RstKeyVo rstKeyVo);
+
+	/**
+	 * 获取指定接口的邀请码
+	 * @param rstKeyVo
+	 * @return
+	 */
+	String getOpenRstApiKey(@Param("rstKeyVo") RstKeyVo rstKeyVo);
 
 }

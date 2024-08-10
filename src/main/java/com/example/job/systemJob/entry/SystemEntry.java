@@ -4,9 +4,8 @@ import com.example.util.enityUtil.userEnity;
 
 public class SystemEntry extends userEnity {
 
-    private Long timeMillis;
-    private String systemNum;
-    private String cpuCode;
+    private String systemId;
+    private Integer cpuCode;
     private String cpuSystemUse;
     private String cpuUserUse;
     private String cpuLeisure;
@@ -14,29 +13,67 @@ public class SystemEntry extends userEnity {
     private String allMemory;
     private String utilizationMemory;
     private String useMemory;
+    private String memoryUse;
+    private String memoryUtilization;
+    private String memoryMax;
+    private String jvmP;
+    private String memoryP;
+
     private String createDate;
 
-    public Long getTimeMillis() {
-        return timeMillis;
+    public String getJvmP() {
+        return jvmP;
     }
 
-    public void setTimeMillis(Long timeMillis) {
-        this.timeMillis = timeMillis;
+    public void setJvmP(String jvmP) {
+        this.jvmP = jvmP;
     }
 
-    public String getSystemNum() {
-        return systemNum;
+    public String getMemoryP() {
+        return memoryP;
     }
 
-    public void setSystemNum(String systemNum) {
-        this.systemNum = systemNum;
+    public void setMemoryP(String memoryP) {
+        this.memoryP = memoryP;
     }
 
-    public String getCpuCode() {
+    public String getMemoryUse() {
+        return memoryUse;
+    }
+
+    public void setMemoryUse(String memoryUse) {
+        this.memoryUse = memoryUse;
+    }
+
+    public String getMemoryUtilization() {
+        return memoryUtilization;
+    }
+
+    public void setMemoryUtilization(String memoryUtilization) {
+        this.memoryUtilization = memoryUtilization;
+    }
+
+    public String getMemoryMax() {
+        return memoryMax;
+    }
+
+    public void setMemoryMax(String memoryMax) {
+        this.memoryMax = memoryMax;
+    }
+
+    public String getSystemId() {
+        return systemId;
+    }
+
+    public void setSystemId(String systemId) {
+        this.systemId = systemId;
+    }
+
+    public Integer getCpuCode() {
         return cpuCode;
     }
 
-    public void setCpuCode(String cpuCode) {
+    public void setCpuCode(Integer cpuCode) {
         this.cpuCode = cpuCode;
     }
 
@@ -96,12 +133,10 @@ public class SystemEntry extends userEnity {
         this.useMemory = useMemory;
     }
 
-    @Override
     public String getCreateDate() {
         return createDate;
     }
 
-    @Override
     public void setCreateDate(String createDate) {
         this.createDate = createDate;
     }

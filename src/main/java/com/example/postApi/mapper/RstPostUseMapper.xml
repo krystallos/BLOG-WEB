@@ -260,4 +260,50 @@
 			AND a.ID = #{rstPostApiVo.ids}
 	</select>
 
+	<select id="selectDoubleRstKey" resultType="java.lang.Integer">
+		SELECT
+			COUNT(ID)
+		FROM
+			RST_POST_HTTP_KEY
+		WHERE
+			DEL_FLAG = 0
+			AND RST_ID = #{rstKeyVo.rstIds}
+			AND SUBSTR(RST_KEY, 1, INSTR(RST_KEY, '-') - 1) = #{rstKeyVo.rstKey}
+	</select>
+
+	<insert id="insertRstKey">
+		INSERT INTO RST_POST_HTTP_KEY (ID, RST_ID, RST_KEY, DEL_FLAG, CREATE_ID, CREATE_DATE)
+		VALUES (#{rstKeyVo.ids}, #{rstKeyVo.rstIds}, #{rstKeyVo.rstKey}, '0', #{rstKeyVo.createId}, #{rstKeyVo.createDate})
+	</insert>
+
+	<select id="getRstPostKeyList" resultType="com.example.postApi.enity.RstKeyVo">
+		SELECT
+			a.ID as ids,
+			a.RST_KEY as rstKey,
+			b.PSN_NAME as userName,
+		    a.CREATE_DATE as createDate
+		FROM
+			RST_POST_HTTP_KEY a
+			LEFT JOIN SYS_PERSON b ON a.CREATE_ID = b.ID
+		WHERE
+			a.RST_ID = #{rstKeyVo.rstIds}
+			AND a.DEL_FLAG = 0
+		ORDER BY a.CREATE_DATE DESC
+	</select>
+
+	<update id="delRstApiKey">
+		UPDATE RST_POST_HTTP_KEY SET DEL_FLAG = '1' WHERE ID = #{rstKeyVo.ids}
+	</update>
+
+	<select id="getOpenRstApiKey" resultType="java.lang.String">
+		SELECT
+			a.RST_KEY as rstKey
+		FROM
+			RST_POST_HTTP_KEY a
+		WHERE
+			a.RST_ID = #{rstKeyVo.rstIds}
+		  	AND a.RST_KEY = #{rstKeyVo.rstKey}
+		  	AND a.DEL_FLAG = 0
+	</select>
+
 </mapper>

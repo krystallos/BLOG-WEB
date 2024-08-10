@@ -1,9 +1,6 @@
 package com.example.postApi.service;
 
-import com.example.postApi.enity.PostApiEnity;
-import com.example.postApi.enity.RstChildPostApi;
-import com.example.postApi.enity.RstPostApiVo;
-import com.example.postApi.enity.RstPostProject;
+import com.example.postApi.enity.*;
 import com.example.postApi.mapper.ApiPostListMapper;
 import com.example.postApi.mapper.RstPostUseMapper;
 import com.example.util.rsaKey;
@@ -175,6 +172,52 @@ public class RstPostUseService {
      */
     public int saveRstApiDetial(RstPostApiVo rstPostApiVo){
         return rstPostUseMapper.saveRstApiDetial(rstPostApiVo);
+    }
+
+    /**
+     * 查询重复的Key前缀
+     * @param rstKeyVo
+     * @return
+     */
+    public int selectDoubleRstKey(RstKeyVo rstKeyVo){
+        return rstPostUseMapper.selectDoubleRstKey(rstKeyVo);
+    }
+
+    /**
+     * 新增Key
+     * @param rstKeyVo
+     * @return
+     */
+    public int insertRstKey(RstKeyVo rstKeyVo){
+        return rstPostUseMapper.insertRstKey(rstKeyVo);
+    }
+
+    /**
+     * 查询文档接口邀请码列表
+     * @param rstKeyVo
+     * @return
+     */
+    public List<RstKeyVo> getRstPostKeyList(RstKeyVo rstKeyVo) {
+        PageHelper.offsetPage(rstKeyVo.getStartTab(), rstKeyVo.getHasTab(),true);
+        List<RstKeyVo> item = rstPostUseMapper.getRstPostKeyList(rstKeyVo);
+        return item;
+    }
+
+    /**
+     * 删除Key
+     * @param rstKeyVo
+     * @return
+     */
+    public int delRstApiKey(RstKeyVo rstKeyVo){
+        return rstPostUseMapper.delRstApiKey(rstKeyVo);
+    }
+
+    /**
+     * 获取指定接口的邀请码
+     * @return
+     */
+    public String getOpenRstApiKey(RstKeyVo rstKeyVo){
+        return rstPostUseMapper.getOpenRstApiKey(rstKeyVo);
     }
 
 }

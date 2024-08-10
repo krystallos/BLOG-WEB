@@ -15,8 +15,17 @@ public class RstPostProject extends userEnity {
     private String createName;
     private Boolean hasChildren;
     private Integer hasCountFile;
+    private String rstKey;
 
     private List<RstPostProject> children;
+
+    public String getRstKey() {
+        return rstKey;
+    }
+
+    public void setRstKey(String rstKey) {
+        this.rstKey = rstKey;
+    }
 
     public Integer getHasCountFile() {
         return hasCountFile;
