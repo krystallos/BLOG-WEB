@@ -122,16 +122,16 @@ public class SystemJobService {
      * 查询柱状图
      * @return
      */
-    public List<SystemEntry> selectGroupList(String beginTime, String endTime, String systemId){
-        return systemJobMapper.selectGroupList(beginTime, endTime, systemId);
+    public List<SystemEntry> selectGroupList(String beginTime, String endTime, String ip){
+        return systemJobMapper.selectGroupList(beginTime, endTime, ip);
     }
 
     /**
      * 查询柱状图
      * @return
      */
-    public List<SystemNetWork> selectGroupNetWork(String beginTime, String endTime, String systemId){
-        return systemJobMapper.selectGroupNetWork(beginTime, endTime, systemId);
+    public List<SystemNetWork> selectGroupNetWork(String beginTime, String endTime, String ip){
+        return systemJobMapper.selectGroupNetWork(beginTime, endTime, ip);
     }
 
 }

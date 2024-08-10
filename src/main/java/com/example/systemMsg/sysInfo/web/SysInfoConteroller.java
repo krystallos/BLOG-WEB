@@ -83,14 +83,15 @@ public class SysInfoConteroller {
      */
     @Log(title = "近一天内存信息", type = LogEnum.SELECT)
     @PostMapping("api/echartFindList.act")
-    public ResultBody echartFindList(@RequestBody SystemEntry systemEntry) {
+    public ResultBody echartFindList(@RequestBody SystemConfigEnerty systemConfigEnerty) {
         try{
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH");
             Calendar cal = Calendar.getInstance();
             String strEnd = formatter.format(cal.getTime()).substring(0, 13);
             cal.add(Calendar.DAY_OF_MONTH, -1);
             String strBegin = formatter.format(cal.getTime()).substring(0, 13);
-            List<SystemEntry> list = systemJobService.selectGroupList(strBegin, strEnd, systemEntry.getSystemId());
+            systemConfigEnerty.setIp(InetAddress.getLocalHost().getHostAddress());
+            List<SystemEntry> list = systemJobService.selectGroupList(strBegin, strEnd, systemConfigEnerty.getIp());
             return new ResultBody(ApiResultEnum.SUCCESS, list);
         }catch (Exception e){
             log.error(e.getMessage());
@@ -103,14 +104,15 @@ public class SysInfoConteroller {
      */
     @Log(title = "近一天网络信息", type = LogEnum.SELECT)
     @PostMapping("api/echartNetWorkList.act")
-    public ResultBody echartNetWorkList(@RequestBody SystemEntry systemEntry) {
+    public ResultBody echartNetWorkList(@RequestBody SystemConfigEnerty systemConfigEnerty) {
         try{
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH");
             Calendar cal = Calendar.getInstance();
             String strEnd = formatter.format(cal.getTime()).substring(0, 13);
             cal.add(Calendar.DAY_OF_MONTH, -1);
             String strBegin = formatter.format(cal.getTime()).substring(0, 13);
-            List<SystemNetWork> list = systemJobService.selectGroupNetWork(strBegin, strEnd, systemEntry.getSystemId());
+            systemConfigEnerty.setIp(InetAddress.getLocalHost().getHostAddress());
+            List<SystemNetWork> list = systemJobService.selectGroupNetWork(strBegin, strEnd, systemConfigEnerty.getIp());
             return new ResultBody(ApiResultEnum.SUCCESS, list);
         }catch (Exception e){
             log.error(e.getMessage());

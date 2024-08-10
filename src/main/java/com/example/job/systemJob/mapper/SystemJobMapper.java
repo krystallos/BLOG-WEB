@@ -97,7 +97,7 @@ public interface SystemJobMapper {
 	 * 查询记录分组，近1天
 	 * @return
 	 */
-	List<SystemEntry> selectGroupList(@Param("beginTime")String beginTime, @Param("endTime")String endTime, @Param("systemId")String systemId);
+	List<SystemEntry> selectGroupList(@Param("beginTime")String beginTime, @Param("endTime")String endTime, @Param("ip")String ip);
 
 	/**
 	 * 查询网络分组，近1天
@@ -106,5 +106,5 @@ public interface SystemJobMapper {
 	 * @param systemId
 	 * @return
 	 */
-	List<SystemNetWork> selectGroupNetWork(@Param("beginTime")String beginTime, @Param("endTime")String endTime, @Param("systemId")String systemId);
+	List<SystemNetWork> selectGroupNetWork(@Param("beginTime")String beginTime, @Param("endTime")String endTime, @Param("ip")String ip);
 }

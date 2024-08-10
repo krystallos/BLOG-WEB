@@ -197,7 +197,14 @@
 			WHERE
 				TO_CHAR( TO_DATE( CREATE_DATE, 'YYYY-MM-DD hh24:mi:ss' ), 'YYYY-MM-DD hh24' ) &gt;= #{beginTime}
 				AND TO_CHAR( TO_DATE( CREATE_DATE, 'YYYY-MM-DD hh24:mi:ss' ), 'YYYY-MM-DD hh24' ) &lt;= #{endTime}
-				AND SYSTEM_ID = #{systemId}
+			  	AND SYSTEM_ID IN (
+					SELECT
+						ID as id
+					FROM
+						sys_systemconfig
+					WHERE
+						IP = #{ip}
+				)
 			GROUP BY
 				TO_CHAR( TO_DATE( CREATE_DATE, 'YYYY-MM-DD hh24:mi:ss' ), 'YYYY-MM-DD hh24' )
 		) tab
@@ -223,7 +230,14 @@
 			WHERE
 				TO_CHAR( TO_DATE( CREATE_DATE, 'YYYY-MM-DD hh24:mi:ss' ), 'YYYY-MM-DD hh24' ) &gt;= #{beginTime}
 			  	AND TO_CHAR( TO_DATE( CREATE_DATE, 'YYYY-MM-DD hh24:mi:ss' ), 'YYYY-MM-DD hh24' ) &lt;= #{endTime}
-			  	AND SYSTEM_ID = #{systemId}
+			  	AND SYSTEM_ID IN (
+					SELECT
+						ID as id
+					FROM
+						sys_systemconfig
+					WHERE
+						IP = #{ip}
+				)
 			GROUP BY
 				TO_CHAR( TO_DATE( CREATE_DATE, 'YYYY-MM-DD hh24:mi:ss' ), 'YYYY-MM-DD hh24' )
 		) tab
