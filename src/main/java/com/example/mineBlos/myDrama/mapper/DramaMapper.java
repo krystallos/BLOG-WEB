@@ -17,4 +17,32 @@ public interface DramaMapper {
 	 */
 	List<DramaList> dramaList(@Param("dramaList")DramaList dramaList);
 
+	/**
+	 * 获取详细番剧
+	 * @param dramaList
+	 * @return
+	 */
+	DramaList getDetialdrama(@Param("dramaList") DramaList dramaList);
+
+	/**
+	 * 删除番剧
+	 * @param dramaList
+	 * @return
+	 */
+	int delDrama(@Param("dramaList") DramaList dramaList);
+
+	/**
+	 * 更新番剧
+	 * @param dramaList
+	 * @return
+	 */
+	int editDrama(@Param("dramaList") DramaList dramaList);
+
+	/**
+	 * 新增番剧
+	 * @param dramaList
+	 * @return
+	 */
+	int insertDrama(@Param("dramaList") DramaList dramaList);
+
 }

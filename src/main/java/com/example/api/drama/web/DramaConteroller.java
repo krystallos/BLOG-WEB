@@ -1,8 +1,5 @@
-package com.example.api.codeEdny.web;
+package com.example.api.drama.web;
 
-import com.example.api.aiWords.enity.AiWordsChild;
-import com.example.api.aiWords.enity.AiWordsFather;
-import com.example.api.aiWords.enity.AiWordsPage;
 import com.example.mineBlos.myDrama.enity.DramaList;
 import com.example.mineBlos.myDrama.service.DramaService;
 import com.example.util.ApiResultEnum;
@@ -36,7 +33,6 @@ public class DramaConteroller {
     @Resource
     private DramaService dramaService;
 
-    /*获取顶级词汇*/
     @Log(title = "分享的番剧列表（公开）", type = LogEnum.SELECT)
     @PostMapping("open/dramaList.act")
     public ResultBody dramaList(HttpServletRequest request, HttpServletResponse response, @RequestBody DramaList dramaList){

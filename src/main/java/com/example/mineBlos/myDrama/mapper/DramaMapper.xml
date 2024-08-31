@@ -48,4 +48,48 @@
 		ORDER BY TO_NUMBER(ID) DESC
 	</select>
 
+	<select id="getDetialdrama" resultMap="dramaListTabs">
+		SELECT
+			ID,
+			DRAMA_NAME,
+			DRAMA_PATH as DRAMA_PATH,
+			DRAMA_IMAGE,
+			PRODUCTION_YEAR,
+			CREATE_DATE,
+			CREATE_ID,
+			DEL_FLAG,
+			UN_PLAY,
+			RSS
+		FROM
+			SYS_DRAMA
+		WHERE
+			DEL_FLAG = '0'
+			<if test="dramaList.ids != null and dramaList.ids != ''">
+				AND ID = #{dramaList.ids}
+			</if>
+	</select>
+
+	<update id="delDrama">
+		UPDATE SYS_DRAMA SET del_flag = 1 WHERE id = #{dramaList.ids}
+	</update>
+
+	<update id="editDrama">
+		UPDATE SYS_DRAMA
+		SET
+			DRAMA_NAME = #{dramaList.dramaName},
+			DRAMA_PATH = #{dramaList.dramaPath},
+			DRAMA_IMAGE = #{dramaList.dramaImage},
+			PRODUCTION_YEAR = #{dramaList.productionYear},
+			UN_PLAY = #{dramaList.unPlay},
+			RSS = #{dramaList.rss}
+		WHERE
+			ID = #{dramaList.ids}
+	</update>
+
+	<insert id="insertDrama">
+		INSERT INTO SYS_DRAMA (DRAMA_NAME, DRAMA_PATH, DRAMA_IMAGE, PRODUCTION_YEAR, CREATE_DATE, CREATE_ID, DEL_FLAG, UN_PLAY, RSS )
+		VALUES
+		(#{dramaList.dramaName}, #{dramaList.dramaPath}, #{dramaList.dramaImage}, #{dramaList.productionYear}, #{dramaList.createDate}, #{dramaList.createId}, '0', #{dramaList.unPlay}, #{dramaList.rss} )
+	</insert>
+
 </mapper>

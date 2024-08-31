@@ -128,7 +128,7 @@ public class RstPostUseConteroller {
             }else{
                 rstPostProject.setIsFile("1");
             }
-                Person person = (Person) redisUtils.get(session.getId());
+            Person person = (Person) redisUtils.get(session.getId());
             rstPostProject.getNowDate(null);
             rstPostProject.setCreateId(person.getIds());
             rstPostProject.setIds(rsaKey.uuid(""));

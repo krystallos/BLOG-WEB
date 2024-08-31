@@ -135,27 +135,8 @@ public class PersonConteroller {
      * @param session
      * @return
      */
-    public List<Person> getPersonListForRedis(HttpSession session){
-        List<Person> list = (List<Person>)redisUtils.get(session.getId());
-        if(list.size()==0 || list == null){
-            List<Person> list1 = new ArrayList<>();
-            return list;
-        }
-        return list;
-    }
-
-    /**
-     * 返回首个人员数据
-     * @param session
-     * @return
-     */
-    public Person getPersonForRedis(HttpSession session){
-        List<Person> list = (List<Person>)redisUtils.get(session.getId());
-        if(StringBlack.isBlackObject(list)){
-            Person person = new Person();
-            return person;
-        }
-        return list.get(0);
+    public Person getPersonListForRedis(HttpSession session){
+        return (Person)redisUtils.get(session.getId());
     }
 
 }
