@@ -142,13 +142,13 @@
 				JVM_ALL as memoryMax,
 				JVM_UTILIZATION as memoryUtilization,
 				JVM_USE as memoryUse,
-				ROUND(MEMORY_USE / MEMORY_ALL, 2) as memoryP,
-				ROUND(JVM_USE / JVM_ALL, 2) as jvmP
+				ROUND(REPLACE(MEMORY_USE, 'GB', '') / REPLACE(MEMORY_ALL, 'GB', ''), 2) as memoryP,
+				ROUND(REPLACE(JVM_USE, 'MB', '') / REPLACE(JVM_ALL, 'MV', ''), 2) as jvmP
 			FROM
 				sys_system
 			WHERE
 				SYSTEM_ID = #{systemEntry.systemId}
-			ORDER BY ID DESC
+			ORDER BY TO_NUMBER(ID) DESC
 		    )
 		WHERE
 		ROWNUM = 1
@@ -222,8 +222,8 @@
 			tab.*
 		FROM(
 			SELECT
-				ROUND( AVG( TX_PERCENT ), 2 ) as TX_PERCENT,
-				ROUND( AVG( RX_PERCENT ), 2 ) as RX_PERCENT,
+				ROUND( CASE WHEN AVG( TX_PERCENT ) = 0.00 THEN 5.00 ELSE AVG( TX_PERCENT ) END, 2 ) as TX_PERCENT,
+				ROUND( CASE WHEN AVG( RX_PERCENT ) = 0.00 THEN 5.00 ELSE AVG( RX_PERCENT ) END, 2 ) as RX_PERCENT,
 				TO_CHAR( TO_DATE( CREATE_DATE, 'YYYY-MM-DD hh24:mi:ss' ), 'YYYY-MM-DD hh24' ) as CREATE_DATE
 			FROM
 				SYS_SYSTEMNETWORK

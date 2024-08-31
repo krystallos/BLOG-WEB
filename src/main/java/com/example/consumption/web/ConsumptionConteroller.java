@@ -1,6 +1,7 @@
 package com.example.consumption.web;
 
 import com.example.consumption.enity.ConsumptionVo;
+import com.example.consumption.enity.CountConsumptionVo;
 import com.example.consumption.enity.EchartForConsumption;
 import com.example.consumption.service.ConsumptionService;
 import com.example.person.enity.Person;
@@ -47,6 +48,44 @@ public class ConsumptionConteroller {
 
     @Value("${tempFile}")
     private String tempFile;
+
+    @Log(title = "消费报表描述视图", type = LogEnum.SELECT)
+    @PostMapping("api/consumptionDescriptions.act")
+    public ResultBody consumptionDescriptions(HttpSession session,@RequestBody CountConsumptionVo consumptionVo){
+        try {
+            Person list = (Person) redisUtils.get(session.getId());
+            CountConsumptionVo newCountConsumptionVo = new CountConsumptionVo();
+            String month = null;
+            String year = consumptionVo.getYear();
+            if(consumptionVo.getMonth() == null || consumptionVo.getMonth().equals("")){
+                Calendar calendar = Calendar.getInstance();
+                int mon = calendar.get(Calendar.MONTH) + 1;
+                month = mon < 10 ? "0" + mon : mon + "";
+            }else{
+                month = consumptionVo.getMonth();
+            }
+            consumptionVo.setMonth(null);
+            consumptionVo.setCreatId(list.getIds());
+            consumptionVo = consumptionService.consumptionDescriptions(consumptionVo);
+            if(consumptionVo == null){
+                return new ResultBody(ApiResultEnum.SUCCESS, newCountConsumptionVo);
+            }
+            consumptionVo.setMonth(month);
+            consumptionVo.setCreatId(list.getIds());
+            consumptionVo.setYear(year);
+            newCountConsumptionVo = consumptionService.consumptionDescriptions(consumptionVo);
+            if(newCountConsumptionVo == null){
+                return new ResultBody(ApiResultEnum.SUCCESS, consumptionVo);
+            }
+            consumptionVo.setMonthIn(newCountConsumptionVo.getMonthIn());
+            consumptionVo.setMonthOut(newCountConsumptionVo.getMonthOut());
+            consumptionVo.setMonthMax(newCountConsumptionVo.getMonthMax());
+            return new ResultBody(ApiResultEnum.SUCCESS, consumptionVo);
+        }catch (Exception e){
+            log.error(e);
+            return new ResultBody(ApiResultEnum.ERR, e.getMessage());
+        }
+    }
 
     @Log(title = "消费记录统计图", type = LogEnum.SELECT)
     @PostMapping("api/echartConsumptionLeft.act")

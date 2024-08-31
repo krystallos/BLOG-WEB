@@ -48,6 +48,12 @@
 		<if test="consumptionVo.order != '' and consumptionVo.order != null">
 			and ORDER_NUM LIKE '%' || #{consumptionVo.order} || '%'
 		</if>
+		<if test="consumptionVo.commodity != '' and consumptionVo.commodity != null">
+			and COMMODITY LIKE '%' || #{consumptionVo.commodity} || '%'
+		</if>
+		<if test="consumptionVo.incomeOrExpenditure != '' and consumptionVo.incomeOrExpenditure != null">
+			and INCOME_OR_EXPENDITURE LIKE '%' || #{consumptionVo.incomeOrExpenditure} || '%'
+		</if>
 		<if test="consumptionVo.moneyOrder != '' and consumptionVo.moneyOrder != null">
 			<choose>
 				<when test="consumptionVo.orderType != null and consumptionVo.orderType == '1'.toString()">
@@ -63,6 +69,9 @@
 		</if>
 		<if test="consumptionVo.payTime != null and consumptionVo.payTime != ''">
 			AND TO_CHAR( TO_DATE( PAY_TIME, 'YYYY-MM-DD hh24:mi' ), 'YYYY' ) = #{consumptionVo.payTime}
+		</if>
+		<if test="consumptionVo.payMonth != null and consumptionVo.payMonth != ''">
+			AND TO_CHAR( TO_DATE( PAY_TIME, 'YYYY-MM-DD hh24:mi' ), 'MM' ) = #{consumptionVo.payMonth}
 		</if>
 		ORDER BY TO_DATE(PAY_TIME,'yyyy-mm-dd hh24:mi') DESC
 	</select>
@@ -170,6 +179,12 @@
 				WHERE
 					DEL_FLAG = 0
 					AND CREATE_ID = #{echartForConsumption.createId}
+					<if test="echartForConsumption.incomeInOut != '' and echartForConsumption.incomeInOut != null">
+						AND INCOME_OR_EXPENDITURE = #{echartForConsumption.incomeInOut}
+					</if>
+					<if test="echartForConsumption.month != '' and echartForConsumption.month != null">
+						AND TO_CHAR( TO_DATE( PAY_TIME, 'YYYY-MM-DD hh24:mi' ), 'MM' ) = #{echartForConsumption.month}
+					</if>
 					AND TO_CHAR( TO_DATE( PAY_TIME, 'YYYY-MM-DD hh24:mi' ), 'YYYY' ) = #{echartForConsumption.beginTime}
 				GROUP BY
 					TO_CHAR( TO_DATE( PAY_TIME, 'YYYY-MM-DD hh24:mi' ), 'YYYY-MM-DD' )
@@ -210,5 +225,30 @@
 		</foreach>
 		)
 	</insert>
+
+	<select id="consumptionDescriptions" resultType="com.example.consumption.enity.CountConsumptionVo">
+		select
+		    <choose>
+				<when test="consumptionVo.month != null and consumptionVo.month != ''">
+					SUM(CASE WHEN INCOME_OR_EXPENDITURE = '支出' THEN AMOUNT ELSE '0' END) as monthOut,
+					SUM(CASE WHEN INCOME_OR_EXPENDITURE = '收入' THEN AMOUNT ELSE '0' END) as monthIn,
+					MAX(TO_NUMBER(AMOUNT)) as monthMax
+				</when>
+				<otherwise>
+					SUM(CASE WHEN INCOME_OR_EXPENDITURE = '支出' THEN AMOUNT ELSE '0' END) as yearOut,
+					SUM(CASE WHEN INCOME_OR_EXPENDITURE = '收入' THEN AMOUNT ELSE '0' END) as yearIn,
+					MAX(TO_NUMBER(AMOUNT)) as yearMax
+				</otherwise>
+			</choose>
+		from
+			ALIBA_ALIPAY
+		where
+			del_flag = '0'
+		  	AND CREATE_ID = #{consumptionVo.creatId}
+		  	AND TO_CHAR( TO_DATE( PAY_TIME, 'YYYY-MM-DD hh24:mi' ), 'YYYY' ) = #{consumptionVo.year}
+			<if test="consumptionVo.month != null and consumptionVo.month != ''">
+				AND TO_CHAR( TO_DATE( PAY_TIME, 'YYYY-MM-DD hh24:mi' ), 'MM' ) = #{consumptionVo.month}
+			</if>
+	</select>
 
 </mapper>

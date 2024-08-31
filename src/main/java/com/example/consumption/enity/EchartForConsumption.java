@@ -18,6 +18,7 @@ public class EchartForConsumption {
 
     private String createId;
     private String apiType;
+    private String incomeInOut;
 
     private Integer month;
     private Integer day;

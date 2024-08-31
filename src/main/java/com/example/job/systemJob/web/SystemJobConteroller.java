@@ -43,6 +43,8 @@ public class SystemJobConteroller {
     @Resource
     private SystemJobService systemJobService;
 
+    private int counter = 0;
+
     /**
      * 自动任务每隔10分钟更新一次系统信息
      */
@@ -201,8 +203,15 @@ public class SystemJobConteroller {
         systemEntry.setMemoryUse((memoryManagerMXBean.getHeapMemoryUsage().getUsed() / 1024 / 1024)+"MB");//MB
         systemEntry.setMemoryMax((memoryManagerMXBean.getHeapMemoryUsage().getMax() / 1024 / 1024)+"MB");//MB
         systemEntry.setMemoryUtilization(((memoryManagerMXBean.getHeapMemoryUsage().getMax() - memoryManagerMXBean.getHeapMemoryUsage().getUsed()) / 1024 / 1024)+"MB");//MB
-        setSysFiles(enerty.getId());
+        if(counter == 0 || counter == 6){
+            setSysFiles(enerty.getId());
+        }
+        counter++;
+        if(counter == 12){
+            counter = 0;
+        }
         setNetWork(enerty.getId());
+        log.info("性能计数器：" + counter);
         return systemEntry;
     }
 

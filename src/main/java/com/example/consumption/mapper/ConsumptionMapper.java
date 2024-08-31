@@ -1,6 +1,7 @@
 package com.example.consumption.mapper;
 
 import com.example.consumption.enity.ConsumptionVo;
+import com.example.consumption.enity.CountConsumptionVo;
 import com.example.consumption.enity.EchartForConsumption;
 import com.example.fileConfig.enity.FileUtil;
 import com.example.util.dic.DateFomart;
@@ -33,6 +34,13 @@ public interface ConsumptionMapper {
 	 * @return
 	 */
 	int countSelectConsumptionTab(@Param("consumptionVo") ConsumptionVo consumptionVo);
+
+	/**
+	 * 统计当年、月报表信息
+	 * @param consumptionVo
+	 * @return
+	 */
+	CountConsumptionVo consumptionDescriptions(@Param("consumptionVo") CountConsumptionVo consumptionVo);
 
 	/**
 	 * 查询详细信息

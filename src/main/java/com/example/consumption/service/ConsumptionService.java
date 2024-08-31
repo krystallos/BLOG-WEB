@@ -1,6 +1,7 @@
 package com.example.consumption.service;
 
 import com.example.consumption.enity.ConsumptionVo;
+import com.example.consumption.enity.CountConsumptionVo;
 import com.example.consumption.enity.EchartForConsumption;
 import com.example.consumption.mapper.ConsumptionMapper;
 import com.example.util.dic.DateFomart;
@@ -34,6 +35,10 @@ public class ConsumptionService {
     /*查询总数据量*/
     public int countSelectConsumptionTab(ConsumptionVo consumptionVo){
         return consumptionMapper.countSelectConsumptionTab(consumptionVo);
+    }
+
+    public CountConsumptionVo consumptionDescriptions(CountConsumptionVo consumptionVo){
+        return consumptionMapper.consumptionDescriptions(consumptionVo);
     }
 
     public ConsumptionVo getConsumptionDeitl(String ids){

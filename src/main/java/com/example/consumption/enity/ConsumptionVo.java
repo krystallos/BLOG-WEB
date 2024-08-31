@@ -12,6 +12,8 @@ public class ConsumptionVo extends userEnity {
     private String order;
     //交易建立时间
     private String payTime;
+    //交易月份
+    private String payMonth;
     //交易来源地
     private String payFrom;
     //交易类型
