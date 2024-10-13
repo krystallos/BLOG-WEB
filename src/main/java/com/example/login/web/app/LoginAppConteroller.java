@@ -2,11 +2,8 @@ package com.example.login.web.app;
 
 import com.example.login.enity.Login;
 import com.example.login.service.LoginService;
-import com.example.nachrichten.web.app.NachrichtenAppConteroller;
 import com.example.person.enity.Person;
 import com.example.person.service.PersonService;
-import com.example.token.service.TokenService;
-import com.example.token.web.TokenSession;
 import com.example.util.*;
 import com.example.util.config.RedisUtils;
 import org.apache.log4j.Logger;
@@ -18,7 +15,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
 import java.util.List;
 
 /**

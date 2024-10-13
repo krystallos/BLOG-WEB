@@ -8,6 +8,7 @@ import com.example.person.enity.Person;
 import com.example.util.*;
 import com.example.util.annotion.Log;
 import com.example.util.config.RedisUtils;
+import com.example.util.dic.ConfigDicEnum;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -33,8 +34,6 @@ public class HisBlosTabConteroller {
     private MineBlosService mineBlosService;
     @Resource
     private ActivityLikeService activityLikeService;
-    @Value("${assessUrlBlos}")
-    private String assessUrlBlos;
 
     /*查询公开/非公开博客*/
     @Log(title = "获取博客文章详情（公开）", type = LogEnum.DETIAL)
@@ -55,7 +54,7 @@ public class HisBlosTabConteroller {
     public ResultBody hisBlosType(@RequestBody MineBlos mineBlos){
         try {
             Map<String, List<MineBlos>> blos = new HashMap<>();
-            List<MineBlos> mineBlosList = mineBlosService.hisBlosType(assessUrlBlos + "hisBlos.act?ids=",mineBlos.getIds());
+            List<MineBlos> mineBlosList = mineBlosService.hisBlosType(redisUtils.getConfig(ConfigDicEnum.assessUrlBlos.message) + "hisBlos.act?ids=",mineBlos.getIds());
             blos.put("left", mineBlosList);
             return new ResultBody(ApiResultEnum.SUCCESS, blos);
         }catch (Exception e){

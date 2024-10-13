@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.job.ddnsJob.mapper.TokenMapper">
+
+	<insert id="insertTokenSession" parameterType="com.example.job.ddnsJob.entry.DDNSToken">
+		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="ddnsToken.id">
+			SELECT SEQ_ALIBATOKEN.nextval AS id FROM dual
+		</selectKey>
+		INSERT INTO ALIBA_TOKEN (ID, REQUEST_ID, STATUS, LINE, LOCKED, TYPE, DOMAIN_NAME, REDORD_ID, UPDATE_TIME, TTL, WEIGHT, ROLE_TYPE, CNAMRE_RR, IP)
+		VALUES (
+			#{ddnsToken.id}, #{ddnsToken.requestId}, #{ddnsToken.status}, #{ddnsToken.line}, #{ddnsToken.locked}, #{ddnsToken.type},
+		  	#{ddnsToken.domainName}, #{ddnsToken.recordId}, #{ddnsToken.updateTimestamp}, #{ddnsToken.TTL}, #{ddnsToken.weight}, #{ddnsToken.roleType}, #{ddnsToken.RR}, #{ddnsToken.value})
+	</insert>
+
+</mapper>

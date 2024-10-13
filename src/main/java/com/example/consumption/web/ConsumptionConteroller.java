@@ -8,6 +8,7 @@ import com.example.person.enity.Person;
 import com.example.util.*;
 import com.example.util.annotion.Log;
 import com.example.util.config.RedisUtils;
+import com.example.util.dic.ConfigDicEnum;
 import com.example.util.dic.DateFomart;
 import com.example.util.dic.DicVo;
 import com.github.pagehelper.PageInfo;
@@ -45,9 +46,6 @@ public class ConsumptionConteroller {
     private RedisUtils redisUtils;
     @Resource
     private requestUTF requestUTF;
-
-    @Value("${tempFile}")
-    private String tempFile;
 
     @Log(title = "消费报表描述视图", type = LogEnum.SELECT)
     @PostMapping("api/consumptionDescriptions.act")
@@ -206,7 +204,7 @@ public class ConsumptionConteroller {
         try {
             Person list = (Person)redisUtils.get(session.getId());
             InputStream inputStream = multipartFile.getInputStream();
-            File fileIn = new File(tempFile + "zfbFile");
+            File fileIn = new File(redisUtils.getConfig(ConfigDicEnum.tempFile.message) + "zfbFile");
             if(!fileIn.exists() && !fileIn.isDirectory()){
                 log.error("找不到" + fileIn + "目录，正在自行建立");
                 fileIn.mkdirs();//支持自主生成全新目录
@@ -221,7 +219,7 @@ public class ConsumptionConteroller {
             //获取输入流
             InputStream input = multipartFile.getInputStream();
             //建立输出流
-            FileOutputStream fileOutputStream = new FileOutputStream(tempFile+"zfbFile"+"/"+ new Date().getTime() + "支付宝账单" +fileName);//创建文件输出流
+            FileOutputStream fileOutputStream = new FileOutputStream(redisUtils.getConfig(ConfigDicEnum.tempFile.message)+"zfbFile"+"/"+ new Date().getTime() + "支付宝账单" +fileName);//创建文件输出流
             byte buffer[] = new byte[2048];//建立文件缓冲，由2048比特构成
             int len = 0;//结束标识符
             while((len=input.read(buffer))>0) {

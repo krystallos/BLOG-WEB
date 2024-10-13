@@ -80,24 +80,29 @@
 			rownum &lt;= 300
 	</select>
 
-	<select id="findListToken" resultType="com.example.token.enity.token">
+	<select id="findListToken" resultType="com.example.job.ddnsJob.entry.DDNSToken">
 		select
 		*
 		from(
 			select
-				TOKEN_ID as tokenId,
-				AREA_ID as areaId,
-				CREATE_DATE as createDate
+				REQUEST_ID as requestId,
+				STATUS as status,
+				DOMAIN_NAME as domainName,
+				LINE as line,
+				TTL as areaId,
+				CNAMRE_RR as RR,
+				TYPE as type,
+				UPDATE_TIME as updateTimestamp,
+				IP as value
 			from
-				SYS_TOKEN
+				ALIBA_TOKEN
 				<where>
-					DEL_FLAG = 0
-					<if test="token.areaId != null and token.areaId != ''">
-						AND AREA_ID LIKE '%' || #{token.areaId} || '%'
+					<if test="token.roleType != null and token.roleType != ''">
+						ROLE_TYPE = #{token.roleType}
 					</if>
 				</where>
 			ORDER BY
-				CREATE_DATE DESC
+			UPDATE_TIME DESC
 		)
 		where
 			rownum &lt;= 300

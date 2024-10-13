@@ -1,9 +1,9 @@
 package com.example.logAspect.mapper;
 
 import com.example.fileConfig.enity.FileSelectPixiv;
+import com.example.job.ddnsJob.entry.DDNSToken;
 import com.example.logAspect.enity.LogAspect;
 import com.example.logAspect.enity.LogAspectList;
-import com.example.token.enity.token;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -18,6 +18,6 @@ public interface LogAspectMapper {
 
     List<FileSelectPixiv> findListImg(@Param("fileSelectPixiv") FileSelectPixiv fileSelectPixiv);
 
-    List<token> findListToken(@Param("token") token token);
+    List<DDNSToken> findListToken(@Param("token") DDNSToken token);
 
 }

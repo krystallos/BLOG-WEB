@@ -277,7 +277,7 @@
 
 	<select id="selectIdListImg" resultType="com.example.fileConfig.enity.FileUtil">
 		SELECT
-		    a.PATH || '\' || a.FILE_NAME AS filePath,
+		    a.PATH || '\' AS filePath,
 		    a.FILE_NAME AS fileName,
 			a.UPDATE_DATE AS updateDate,
 		    b.PIXIV_NAME as authorName

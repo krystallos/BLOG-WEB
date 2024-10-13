@@ -15,6 +15,7 @@ import com.example.systemMsg.sysMsg.service.SysSayErrMsgService;
 import com.example.util.*;
 import com.example.util.annotion.Log;
 import com.example.util.config.RedisUtils;
+import com.example.util.dic.ConfigDicEnum;
 import com.github.pagehelper.PageInfo;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,9 +52,6 @@ public class SysMsgConteroller {
     @Resource
     private SysSayErrMsgService sysSayErrMsgService;
 
-    @Value("${assessUrlBlos}")
-    private String assessUrlBlos;
-
     /**
      * 系统消息通知页
      * @param session
@@ -88,7 +86,7 @@ public class SysMsgConteroller {
             mineEmil.setIntoPersonId(sysMsg.getIds());
             int b = mineEmilService.selectPageNoEmilInt(mineEmil);
             sysMsg.setHasEmail(b+"");
-            sysMsg.setBlosUrl(assessUrlBlos + "#/mineBlos?ids=" + personId.getIds());
+            sysMsg.setBlosUrl(redisUtils.getConfig(ConfigDicEnum.assessUrlBlos.message) + "#/mineBlos?ids=" + personId.getIds());
             return new ResultBody(ApiResultEnum.SUCCESS, sysMsg);
         }catch (Exception e){
             log.error(e);

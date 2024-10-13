@@ -7,6 +7,7 @@ import com.example.person.enity.Person;
 import com.example.util.*;
 import com.example.util.annotion.Log;
 import com.example.util.config.RedisUtils;
+import com.example.util.dic.ConfigDicEnum;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,10 +34,6 @@ public class FileConfigConteroller {
     private FileConfigService fileConfigService;
     @Resource
     private FileUtilService fileUtilService;
-    @Value("${accessFile}")
-    private String accessFile;
-    @Value("${assessImgFile}")
-    private String assessImgFile;
 
     /*查询*/
     @Log(title = "查询图片列表", type = LogEnum.SELECT)
@@ -95,8 +92,8 @@ public class FileConfigConteroller {
             //先做删除操作
             fileConfig.setPsnId(person.getIds());
             fileConfigService.delPsnImg(fileConfig);
-            String locItem = accessFile;
-            String assessItem = assessImgFile;
+            String locItem = redisUtils.getConfig(ConfigDicEnum.accessFile.message);
+            String assessItem = redisUtils.getConfig(ConfigDicEnum.assessImgFile.message);
             int sqlNull = 0;
             for(FileUtil item : files) {//更新文件路径循环
                 fileConfig.setPathName(item.getFilePath());
@@ -180,11 +177,11 @@ public class FileConfigConteroller {
         String item = fileConfig.getLonPathNameType();
         fileConfig.setIds(rsaKey.uuid(null));
         fileConfig.setFileType(fileConfig.getFileName().substring(fileConfig.getFileName().lastIndexOf(".")+1));
-        fileConfig.setPathName(item.replace(accessFile,""));
+        fileConfig.setPathName(item.replace(redisUtils.getConfig(ConfigDicEnum.accessFile.message),""));
         fileConfig.setDelFlag("0");
         fileConfig.getUuidCreateUpdate(fileConfig.getPsnId());
         fileConfig.getNowDate("");
-        fileConfig.setThumbnail(item.replace(accessFile,""));
+        fileConfig.setThumbnail(item.replace(redisUtils.getConfig(ConfigDicEnum.accessFile.message),""));
         unionAllList.add(fileConfig);
         fileConfigService.insertFileAllConfig(unionAllList);
     }
@@ -218,8 +215,8 @@ public class FileConfigConteroller {
             //------------------------处理文件路径----------------------------
             int a = 0;
             for(String forItem : pathItem){
-                File file = new File(accessFile + forItem);
-                File fileThumbnail = new File(assessImgFile + forItem);
+                File file = new File(redisUtils.getConfig(ConfigDicEnum.accessFile.message) + forItem);
+                File fileThumbnail = new File(redisUtils.getConfig(ConfigDicEnum.assessImgFile.message) + forItem);
                 if(file.isDirectory() || fileThumbnail.isDirectory()){
                     continue;
                 }
@@ -285,7 +282,7 @@ public class FileConfigConteroller {
             fileConfig.setFileType(fileEnityUt.getFileType());
             fileConfig.setIsHas(fileEnityUt.getIsHas());
             fileConfig.setPathId(fileEnityUt.getFilePath());
-            fileConfig.setPathName(fileUtil.getFilePath().replace(accessFile,"") + "\\" + fileEnityUt.getPathName());
+            fileConfig.setPathName(fileUtil.getFilePath().replace(redisUtils.getConfig(ConfigDicEnum.accessFile.message),"") + "\\" + fileEnityUt.getPathName());
             fileConfig.setThumbnail(fileConfig.getPathName());
             fileConfig.setFileName(fileEnityUt.getFileName() + "." + fileConfig.getFileType());
             fileConfigService.insertFileConfig(fileConfig);

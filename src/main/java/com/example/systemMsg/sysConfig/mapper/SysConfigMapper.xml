@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.systemMsg.sysConfig.mapper.SysConfigMapper">
+
+	<resultMap id="sysErrMsgMapper" type="com.example.systemMsg.sysConfig.enity.SystemConfigDicEnity">
+		<result property="ids" column="ID" />
+		<result property="dicKey" column="DIC_KEY" />
+		<result property="dicValue" column="DIC_VALUE" />
+		<result property="isStatus" column="IS_STATUS" />
+		<result property="isSystem" column="IS_SYSTEM" />
+		<result property="isTest" column="IS_TEST" />
+		<result property="remark" column="REMARK" />
+	</resultMap>
+
+	<select id="selectConfigDic" resultMap="sysErrMsgMapper">
+		SELECT
+			*
+		FROM
+			SYS_DIC_CONFIG
+		WHERE
+			IS_TEST = #{sysConfig.isTest}
+		  	AND DEL_FLAG = 0
+			<if test="sysConfig.dicKey != null and sysConfig.dicKey != ''">
+				AND DIC_KEY LIKE '%' || #{sysConfig.dicKey} || '%'
+			</if>
+			<if test="sysConfig.dicValue != null and sysConfig.dicValue != ''">
+				AND DIC_VALUE LIKE '%' || #{sysConfig.dicValue} || '%'
+			</if>
+			<if test="sysConfig.isStatus != null and sysConfig.isStatus != ''">
+				AND IS_STATUS = || #{sysConfig.isStatus}
+			</if>
+			<if test="sysConfig.isSystem != null and sysConfig.isSystem != ''">
+				AND IS_SYSTEM = #{sysConfig.isSystem}
+			</if>
+	</select>
+
+	<select id="getSysConfig" resultMap="sysErrMsgMapper">
+		SELECT
+			*
+		FROM
+			SYS_DIC_CONFIG
+		WHERE
+			IS_TEST = #{sysConfig.isTest}
+			AND DEL_FLAG = 0
+			<if test="dicKey != null and dicKey != ''">
+				AND DIC_KEY = #{dicKey}
+			</if>
+	</select>
+
+	<select id="selectConfigDicFind" resultMap="sysErrMsgMapper">
+		SELECT
+			ID,
+			DIC_KEY,
+		    DIC_VALUE,
+		    CASE WHEN IS_STATUS = '1' THEN '启用中' ELSE '未启用' END AS IS_STATUS,
+			IS_SYSTEM,
+			REMARK,
+			IS_TEST
+		FROM
+		SYS_DIC_CONFIG
+		<where>
+			DEL_FLAG = 0
+			<if test="sysConfig.isTest != null and sysConfig.isTest != ''">
+				AND IS_TEST = #{sysConfig.isTest}
+			</if>
+			<if test="sysConfig.dicKey != null and sysConfig.dicKey != ''">
+				AND DIC_KEY LIKE '%' || #{sysConfig.dicKey} || '%'
+			</if>
+			<if test="sysConfig.dicValue != null and sysConfig.dicValue != ''">
+				AND DIC_VALUE LIKE '%' || #{sysConfig.dicValue} || '%'
+			</if>
+			<if test="sysConfig.isStatus != null and sysConfig.isStatus != ''">
+				AND IS_STATUS = || #{sysConfig.isStatus}
+			</if>
+			<if test="sysConfig.isSystem != null and sysConfig.isSystem != ''">
+				AND IS_SYSTEM = #{sysConfig.isSystem}
+			</if>
+		</where>
+		ORDER BY CREATE_DATE DESC
+	</select>
+
+	<select id="getConfigDic" resultMap="sysErrMsgMapper">
+		SELECT
+			ID,
+			DIC_KEY,
+			DIC_VALUE,
+			IS_STATUS,
+			IS_SYSTEM,
+			REMARK,
+			IS_TEST
+		FROM
+			SYS_DIC_CONFIG
+		WHERE
+			ID = #{sysConfig.ids}
+		  	AND DEL_FLAG = 0
+	</select>
+
+	<update id="delSysConfig">
+		UPDATE SYS_DIC_CONFIG SET DEL_FLAG = 1 WHERE ID = #{sysConfig.ids}
+	</update>
+
+	<insert id="insertSysConfig">
+		INSERT INTO SYS_DIC_CONFIG (ID, DIC_KEY, DIC_VALUE, IS_STATUS, IS_SYSTEM, REMARK, IS_TEST, DEL_FLAG, CREATE_DATE )
+		VALUES
+		(#{sysConfig.ids}, #{sysConfig.dicKey}, #{sysConfig.dicValue}, #{sysConfig.isStatus}, #{sysConfig.isSystem}, #{sysConfig.remark}, #{sysConfig.isTest}, '0', #{sysConfig.createDate})
+	</insert>
+
+	<update id="editSysConfig">
+		UPDATE SYS_DIC_CONFIG
+		<set>
+			<if test="sysConfig.dicKey != null">
+				DIC_KEY = #{sysConfig.dicKey},
+			</if>
+			<if test="sysConfig.dicValue != null">
+				DIC_VALUE = #{sysConfig.dicValue},
+			</if>
+			<if test="sysConfig.isStatus != null">
+				IS_STATUS = #{sysConfig.isStatus},
+			</if>
+			<if test="sysConfig.isSystem != null">
+				IS_SYSTEM = #{sysConfig.isSystem},
+			</if>
+			<if test="sysConfig.remark != null">
+				REMARK = #{sysConfig.remark},
+			</if>
+			<if test="sysConfig.isTest != null">
+				IS_TEST = #{sysConfig.isTest}
+			</if>
+		</set>
+		WHERE
+			ID = #{sysConfig.ids}
+	</update>
+
+</mapper>

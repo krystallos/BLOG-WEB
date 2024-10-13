@@ -8,7 +8,9 @@ import com.example.fileConfig.enity.sauce.SauceData;
 import com.example.fileConfig.enity.sauce.SauceNaoMsg;
 import com.example.fileConfig.service.fileSelectService;
 import com.example.util.*;
+import com.example.util.config.RedisUtils;
 import com.example.util.dic.ApiResultImgEnum;
+import com.example.util.dic.ConfigDicEnum;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -52,16 +54,8 @@ public class SelectSetuAppConteroller {
     private requestUTF requestUTF;
     @Resource
     private fileSelectService fileSelectService;
-    @Value("${assessUrlBlos}")
-    private String assessUrlBlos;
-    @Value("${asciiHttps}")
-    private String asciiHttps;
-    @Value("${saucenaoHttps}")
-    private String saucenaoHttps;
-    @Value("${saucenaoKey}")
-    private String saucenaoKey;
-    @Value("${tempFile}")
-    private String tempFile;
+    @Resource
+    private RedisUtils redisUtils;
 
     /*查询saucenao图片*/
     @PostMapping("api/selectSaucenaoImgsApp.act")
@@ -72,7 +66,7 @@ public class SelectSetuAppConteroller {
             if(fileSelect.getFileUrl() == null){
                 return new ResultBody(ApiResultEnum.NOT_FIND_DATA, "查询不到图片url");
             }
-            File fileIo = new File(tempFile + fileSelect.getFileUrl());
+            File fileIo = new File(redisUtils.getConfig(ConfigDicEnum.tempFile.message) + fileSelect.getFileUrl());
             if(!fileIo.exists() && !fileIo.isDirectory()){
                 return new ResultBody(ApiResultEnum.NOT_FIND_DATA, "查询不到图片保存信息");
             }
@@ -81,14 +75,14 @@ public class SelectSetuAppConteroller {
                             ApiResultImgEnum.DANBOORU.getCode() + "&dbs[]=" + ApiResultImgEnum.YANDERE.getCode();
 
             //API请求
-            String api = saucenaoHttps + "?url=" + fileSelect.getUrl() + "tempFile/" + fileSelect.getFileUrl()
-                    + "&db=999&api_key=" + saucenaoKey + "&output_type=2&numres=1&" + dbs;
+            String api = redisUtils.getConfig(ConfigDicEnum.saucenaoHttps.message) + "?url=" + fileSelect.getUrl() + "tempFile/" + fileSelect.getFileUrl()
+                    + "&db=999&api_key=" + redisUtils.getConfig(ConfigDicEnum.saucenaoKey.message) + "&output_type=2&numres=1&" + dbs;
             String saucenao = sendGetImg(api);
 
             FilePixiv filePixiv = returnSaucenaoMessage(saucenao,start);
             filePixiv = fileSelectService.get(filePixiv);
             if(!filePixiv.getBlosPicUrl().equals("未查询到图库地址")){
-                filePixiv.setBlosImgUrl(assessUrlBlos + "img/" + filePixiv.getBlosPicUrl()+"/"+filePixiv.getBlosPic());
+                filePixiv.setBlosImgUrl(redisUtils.getConfig(ConfigDicEnum.assessUrlBlos.message) + "img/" + filePixiv.getBlosPicUrl()+"/"+filePixiv.getBlosPic());
             }
             return new ResultBody(ApiResultEnum.SUCCESS,filePixiv);
         }catch (Exception e){
@@ -106,13 +100,13 @@ public class SelectSetuAppConteroller {
             if(fileSelect.getFileUrl() == null){
                 return new ResultBody(ApiResultEnum.NOT_FIND_DATA, "查询不到图片url");
             }
-            File fileIo = new File(tempFile + fileSelect.getFileUrl());
+            File fileIo = new File(redisUtils.getConfig(ConfigDicEnum.tempFile.message) + fileSelect.getFileUrl());
             if(!fileIo.exists() && !fileIo.isDirectory()){
                 return new ResultBody(ApiResultEnum.NOT_FIND_DATA, "查询不到图片保存信息");
             }
 
             //API请求
-            String api = asciiHttps + "/search/url/" + fileSelect.getUrl() + "tempFile/" + fileSelect.getFileUrl();
+            String api = redisUtils.getConfig(ConfigDicEnum.asciiHttps.message) + "/search/url/" + fileSelect.getUrl() + "tempFile/" + fileSelect.getFileUrl();
             String colorUrl = sendGetUrl(api);
             return new ResultBody(ApiResultEnum.SUCCESS, returnAsciiMessage(sendGetImg(colorUrl),start));
         }catch (Exception e){
@@ -230,7 +224,7 @@ public class SelectSetuAppConteroller {
         }
         long end = System.currentTimeMillis();
         filePixiv.setOrderTime(String.format("本次图片处理用时：%d ms", end - startTime));
-        filePixiv.setLocalHost(assessUrlBlos);
+        filePixiv.setLocalHost(redisUtils.getConfig(ConfigDicEnum.assessUrlBlos.message));
         filePixiv.setCreateDate(filePixiv.getNowDate(""));
         String ids = rsaKey.uuid(null);
         filePixiv.setIds(ids);

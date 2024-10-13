@@ -1,10 +1,10 @@
 package com.example.logAspect.service;
 
 import com.example.fileConfig.enity.FileSelectPixiv;
+import com.example.job.ddnsJob.entry.DDNSToken;
 import com.example.logAspect.enity.LogAspect;
 import com.example.logAspect.enity.LogAspectList;
 import com.example.logAspect.mapper.LogAspectMapper;
-import com.example.token.enity.token;
 import com.github.pagehelper.PageHelper;
 import org.springframework.stereotype.Service;
 
@@ -34,9 +34,9 @@ public class LogAspectService {
         return logAspectsList;
     }
 
-    public List<token> findListToken(token token){
+    public List<DDNSToken> findListToken(DDNSToken token){
         PageHelper.offsetPage(token.getStartTab(), token.getHasTab());
-        List<token> logAspectsList = logAspectMapper.findListToken(token);
+        List<DDNSToken> logAspectsList = logAspectMapper.findListToken(token);
         return logAspectsList;
     }
 

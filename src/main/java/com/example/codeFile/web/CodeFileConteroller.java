@@ -7,6 +7,7 @@ import com.example.person.enity.Person;
 import com.example.util.*;
 import com.example.util.annotion.Log;
 import com.example.util.config.RedisUtils;
+import com.example.util.dic.ConfigDicEnum;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
@@ -40,11 +41,6 @@ public class CodeFileConteroller {
     @Resource
     private CodeFileService codeFileService;
 
-    @Value("${assFileCode}")
-    private String assFileCode;
-    @Value("${assessUrlBlos}")
-    private String assessUrlBlos;
-
     private static final Logger log = Logger.getLogger(CodeFileConteroller.class);
 
     /*生成二维码并返回二维码路径*/
@@ -72,8 +68,8 @@ public class CodeFileConteroller {
                 codeFileEnity.setPassWord("");
             }
             //获取本地化路径
-            String url = assessUrlBlos + "codeFileLook.act";
-            String assFileCode = this.assFileCode;
+            String url = redisUtils.getConfig(ConfigDicEnum.assessUrlBlos.message) + "codeFileLook.act";
+            String assFileCode = redisUtils.getConfig(ConfigDicEnum.assFileCode.message);
             SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");
             //获取当日时间生成文件夹
             String nowDate = sf.format(new Date()).replace("-","") ;

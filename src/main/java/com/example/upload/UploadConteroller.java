@@ -12,6 +12,7 @@ import com.example.upload.enity.FileVo;
 import com.example.util.*;
 import com.example.util.annotion.Log;
 import com.example.util.config.RedisUtils;
+import com.example.util.dic.ConfigDicEnum;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,28 +44,11 @@ public class UploadConteroller {
     @Resource
     private RedisUtils redisUtils;
     @Resource
-    private PersonService personService;
-    @Resource
     private CodeFileService codeFileService;
     @Resource
     private FileConfigConteroller fileConfigConteroller;
     @Resource
     private FictionFileService fictionFileService;
-
-    @Value("${assessBlosImg}")
-    private String assessBlosImg;
-    @Value("${assFileCode}")
-    private String assFileCode;
-    @Value("${tempFile}")
-    private String tempFile;
-    @Value("${accessFile}")
-    private String accessFile;
-    @Value("${assessImgFile}")
-    private String assessImgFile;
-    @Value("${fictionImg}")
-    private String fictionImg;
-    @Value("${fictionFile}")
-    private String fictionFile;
 
     /**
      * blosItem上传接口
@@ -78,12 +62,12 @@ public class UploadConteroller {
             Date date = new Date();
             String ids = (new Random().nextInt(3) + System.currentTimeMillis())+"";
             String dateStr = new SimpleDateFormat("yyyyMMdd").format(date);
-            File fileIn = new File(assessBlosImg+dateStr);
+            File fileIn = new File(redisUtils.getConfig(ConfigDicEnum.assessBlosImg.message) + dateStr);
             addNewFileDirectory(fileIn);
             if (null != file.getOriginalFilename()) {
                 ids += file.getOriginalFilename().lastIndexOf(".") == 1 ? ".notSub" : file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
             }
-            newCreateStream(file, assessBlosImg+dateStr+"/"+ids);
+            newCreateStream(file, redisUtils.getConfig(ConfigDicEnum.assessBlosImg.message) + dateStr+"/"+ids);
             hasMap.put("dateStr",dateStr);
             hasMap.put("ids",ids);
             return new ResultBody(ApiResultEnum.SUCCESS, "/blosBoot/imgBlos/" + hasMap.get("dateStr") +"/"+ hasMap.get("ids"));
@@ -106,9 +90,9 @@ public class UploadConteroller {
             //获取当日时间生成文件夹
             String nowDate = sf.format(new Date()).replace("-","");
             // 文件上传后的路径
-            File fileIn = new File(assFileCode + nowDate);
+            File fileIn = new File(redisUtils.getConfig(ConfigDicEnum.assFileCode.message) + nowDate);
             addNewFileDirectory(fileIn);
-            newCreateStream(file,assFileCode + nowDate + "/"+ millis + file.getOriginalFilename());
+            newCreateStream(file,redisUtils.getConfig(ConfigDicEnum.assFileCode.message) + nowDate + "/"+ millis + file.getOriginalFilename());
 
             return new ResultBody(ApiResultEnum.SUCCESS, nowDate + "/"+ millis + file.getOriginalFilename());
         }catch (Exception e){
@@ -129,7 +113,7 @@ public class UploadConteroller {
             SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");
             String fileNameItem = sf.format(new Date()).replace("-","");
             //文件路径
-            String locItem = tempFile + fileNameItem;
+            String locItem = redisUtils.getConfig(ConfigDicEnum.tempFile.message) + fileNameItem;
             File fileIn = new File(locItem);
             //转比特在转BASE64在转MD5
             byte[] bas = file.getBytes();
@@ -164,7 +148,7 @@ public class UploadConteroller {
                 codeFileEnity.setCreateId("0");
                 codeFileEnity.setPath(fileNameItem + "/" + mills);
                 codeFileService.insertCodeFile(codeFileEnity);
-                return new ResultBody(ApiResultEnum.SUCCESS, locItem.replace(tempFile, ""));
+                return new ResultBody(ApiResultEnum.SUCCESS, locItem.replace(redisUtils.getConfig(ConfigDicEnum.tempFile.message), ""));
             }
         }catch (Exception e){
             log.error(e);
@@ -184,7 +168,7 @@ public class UploadConteroller {
             SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");
             String fileNameItem = sf.format(new Date()).replace("-","");
             //文件路径
-            String locItem = tempFile + fileNameItem;
+            String locItem = redisUtils.getConfig(ConfigDicEnum.tempFile.message) + fileNameItem;
             File fileIn = new File(locItem);
             addNewFileDirectory(fileIn);
             String lastFileName = "";
@@ -226,10 +210,10 @@ public class UploadConteroller {
             input.close();
             fileOutputStream.flush();
             fileOutputStream.close();
-            String itemPath = fileIn.getAbsolutePath().replace(accessFile,"");
-            File fileInItem = new File(assessImgFile + itemPath);
+            String itemPath = fileIn.getAbsolutePath().replace(redisUtils.getConfig(ConfigDicEnum.accessFile.message),"");
+            File fileInItem = new File(redisUtils.getConfig(ConfigDicEnum.assessImgFile.message) + itemPath);
             addNewFileDirectory(fileInItem);
-            fileConfigConteroller.hasImgThumbna(fileIn.getAbsolutePath() + "/" + file.getOriginalFilename(),assessImgFile + itemPath + "/" + file.getOriginalFilename());
+            fileConfigConteroller.hasImgThumbna(fileIn.getAbsolutePath() + "/" + file.getOriginalFilename(),redisUtils.getConfig(ConfigDicEnum.assessImgFile.message) + itemPath + "/" + file.getOriginalFilename());
             Person person = (Person)redisUtils.get(session.getId());
             if(person != null){
                 fileConfig.setPsnId(person.getIds());
@@ -254,14 +238,14 @@ public class UploadConteroller {
             Map<String, String> hasMap = new HashMap<>();
             String ids = (new Random().nextInt(3) + System.currentTimeMillis())+"";
             String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
-            File fileIn = new File(fictionImg + dateStr);
+            File fileIn = new File(redisUtils.getConfig(ConfigDicEnum.fictionImg.message) + dateStr);
             addNewFileDirectory(fileIn);
             if(file.getOriginalFilename() != null){
                 ids += file.getOriginalFilename().lastIndexOf(".")==1?".notSub":file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
             }else{
                 ids += ".notSub";
             }
-            newCreateStream(file, fictionImg + dateStr+"/"+ids);
+            newCreateStream(file, redisUtils.getConfig(ConfigDicEnum.fictionImg.message) + dateStr+"/"+ids);
             hasMap.put("dateStr",dateStr);
             hasMap.put("ids",ids);
             return new ResultBody(ApiResultEnum.SUCCESS, hasMap);
@@ -283,14 +267,14 @@ public class UploadConteroller {
             Person person = (Person)redisUtils.get(session.getId());
             Map<String, String> hasMap = new HashMap<>();
             String ids = (new Random().nextInt(3) + System.currentTimeMillis())+"";
-            File fileIn = new File(fictionFile + fictionBook.getFictionId());
+            File fileIn = new File(redisUtils.getConfig(ConfigDicEnum.fictionFile.message) + fictionBook.getFictionId());
             addNewFileDirectory(fileIn);
             if(file.getOriginalFilename() != null){
                 ids += file.getOriginalFilename().lastIndexOf(".")==1?".notSub":file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
             }else{
                 ids += ".notSub";
             }
-            newCreateStream(file, fictionFile+fictionBook.getFictionId()+"/"+ids);
+            newCreateStream(file, redisUtils.getConfig(ConfigDicEnum.fictionFile.message) + fictionBook.getFictionId()+"/"+ids);
             hasMap.put("fictionId",fictionBook.getFictionId());
             hasMap.put("ids",ids);
 

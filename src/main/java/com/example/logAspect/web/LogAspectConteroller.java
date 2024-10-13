@@ -1,9 +1,9 @@
 package com.example.logAspect.web;
 
 import com.example.fileConfig.enity.FileSelectPixiv;
+import com.example.job.ddnsJob.entry.DDNSToken;
 import com.example.logAspect.enity.LogAspectList;
 import com.example.logAspect.service.LogAspectService;
-import com.example.token.enity.token;
 import com.example.util.*;
 import com.example.util.annotion.Log;
 import com.github.pagehelper.PageInfo;
@@ -65,10 +65,10 @@ public class LogAspectConteroller {
      */
     @Log(title = "访问TOKEN日志列表", type = LogEnum.SELECT)
     @PostMapping("api/aspToken.act")
-    public ResultBody aspToken(@RequestBody token token){
+    public ResultBody aspToken(@RequestBody DDNSToken token){
         try{
             token.pubImplPage(token.getNowTab(),token.getHasTab());
-            List<token> listSize = logAspectService.findListToken(token);
+            List<DDNSToken> listSize = logAspectService.findListToken(token);
             return new ResultBody(ApiResultEnum.SUCCESS, listSize, (int) new PageInfo<>(listSize).getTotal());
         }catch (Exception e){
             log.error(e);

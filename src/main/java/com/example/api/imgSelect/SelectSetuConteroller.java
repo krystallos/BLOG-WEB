@@ -9,7 +9,9 @@ import com.example.fileConfig.enity.sauce.SauceNaoMsg;
 import com.example.fileConfig.service.fileSelectService;
 import com.example.util.*;
 import com.example.util.annotion.Log;
+import com.example.util.config.RedisUtils;
 import com.example.util.dic.ApiResultImgEnum;
+import com.example.util.dic.ConfigDicEnum;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -46,14 +48,8 @@ public class SelectSetuConteroller {
     private CodeFileService codeFileService;
     @Resource
     private fileSelectService fileSelectService;
-    @Value("${assessUrlBlos}")
-    private String assessUrlBlos;
-    @Value("${asciiHttps}")
-    private String asciiHttps;
-    @Value("${saucenaoHttps}")
-    private String saucenaoHttps;
-    @Value("${saucenaoKey}")
-    private String saucenaoKey;
+    @Resource
+    private RedisUtils redisUtils;
 
     /*查询saucenao图片*/
     @Log(title = "查询图片Saucenao（公开）", type = LogEnum.SELECT)
@@ -63,7 +59,7 @@ public class SelectSetuConteroller {
             long start = System.currentTimeMillis();
             String url = "";
             if(null != codeFileEnity.getCodeType() && "1".equals(codeFileEnity.getCodeType())){
-                url += assessUrlBlos + "blosBoot/tempFile/" + codeFileEnity.getPath();
+                url += redisUtils.getConfig(ConfigDicEnum.assessUrlBlos.message) + "blosBoot/tempFile/" + codeFileEnity.getPath();
                 codeFileEnity = codeFileService.getCodeFile(codeFileEnity);
                 if(codeFileEnity==null){
                     return new ResultBody(ApiResultEnum.NOT_FIND_DATA, "找不到文件资源，请重新上传");
@@ -74,7 +70,7 @@ public class SelectSetuConteroller {
             logger.info(url);
             String dbs = "dbs[]=" + ApiResultImgEnum.PIXIV.getCode() + "&dbs[]=" + ApiResultImgEnum.DANBOORU.getCode() + "&dbs[]=" + ApiResultImgEnum.YANDERE.getCode();
             //API请求
-            String api = saucenaoHttps + "?url=" + url + "&db=999&api_key=" + saucenaoKey + "&output_type=2&numres=1&" + dbs;
+            String api = redisUtils.getConfig(ConfigDicEnum.saucenaoHttps.message) + "?url=" + url + "&db=999&api_key=" + redisUtils.getConfig(ConfigDicEnum.saucenaoKey.message) + "&output_type=2&numres=1&" + dbs;
             logger.info(api);
             String saucenao = urlHttpClient(api);
             return new ResultBody(ApiResultEnum.SUCCESS, returnSaucenaoMessage(saucenao,start));
@@ -101,7 +97,7 @@ public class SelectSetuConteroller {
             }
 
             //API请求
-            String api = asciiHttps + "/search/url/http://" + assessUrlBlos + "tempFile/" + codeFileEnity.getPath();
+            String api = redisUtils.getConfig(ConfigDicEnum.asciiHttps.message) + "/search/url/http://" + redisUtils.getConfig(ConfigDicEnum.assessUrlBlos.message) + "tempFile/" + codeFileEnity.getPath();
             String colorUrl = sendGetUrl(api);
             return new ResultBody(ApiResultEnum.SUCCESS, returnAsciiMessage(sendGetImg(colorUrl),start));
         }catch (Exception e){
@@ -221,7 +217,7 @@ public class SelectSetuConteroller {
         }
         long end = System.currentTimeMillis();
         filePixiv.setOrderTime(String.format("本次图片处理用时：%d ms", end - startTime));
-        filePixiv.setLocalHost(assessUrlBlos);
+        filePixiv.setLocalHost(redisUtils.getConfig(ConfigDicEnum.assessUrlBlos.message));
         filePixiv.setCreateDate(filePixiv.getNowDate(""));
         String ids = rsaKey.uuid(null);
         filePixiv.setIds(ids);

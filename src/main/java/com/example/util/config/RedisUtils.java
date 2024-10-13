@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import com.example.systemMsg.sysConfig.mapper.SysConfigMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.ListOperations;
@@ -13,14 +15,19 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 
-@Service
+import javax.annotation.Resource;
+
 /**
  * redis配置功能页
  * @ayth 2021/11/22
  */
+@Service
 public class RedisUtils {
-    @Autowired
+
+    @Resource
     private RedisTemplate redisTemplate;
+    @Resource
+    private SysConfigMapper sysConfigMapper;
 
     /**
      * 写入缓存
@@ -117,6 +124,22 @@ public class RedisUtils {
         Object result = null;
         ValueOperations<Serializable, Object> operations = redisTemplate.opsForValue();
         result = operations.get(key);
+        return result;
+    }
+
+    /**
+     * 系统配置文件读取缓存
+     *
+     * @param key
+     * @return
+     */
+    public String getConfig(final String key) {
+        String result = null;
+        ValueOperations<Serializable, Object> operations = redisTemplate.opsForValue();
+        if(get(key) == null){
+            set(key, sysConfigMapper.getSysConfig(key).getDicValue());
+        }
+        result = (String)operations.get(key);
         return result;
     }
 

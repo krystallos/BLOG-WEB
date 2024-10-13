@@ -1,6 +1,8 @@
 package com.example;
 
 import com.example.util.MyInterceptor;
+import com.example.util.config.RedisUtils;
+import com.example.util.dic.ConfigDicEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -8,6 +10,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import javax.annotation.Resource;
 
 /**
  * 文件回馈
@@ -17,22 +21,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class MyWebMVCConfig implements WebMvcConfigurer {
 
-    @Value("${accessFile}")
-    private String loca;
-    @Value("${assessImgFile}")
-    private String assessImgFile;
-    @Value("${assessBlosImg}")
-    private String assessBlosImg;
-    @Value("${assFileCode}")
-    private String assFileCode;
-    @Value("${tempFile}")
-    private String tempFile;
-    @Value("${fictionImg}")
-    private String fictionImg;
-    @Value("${fictionFile}")
-    private String fictionFile;
-    @Value("${dramaImage}")
-    private String dramaImage;
+    @Resource
+    private RedisUtils redisUtils;
 
     @Bean
     public MyInterceptor getMyInterceptor(){
@@ -44,14 +34,14 @@ public class MyWebMVCConfig implements WebMvcConfigurer {
         /**
          * 将本机地址转换为服务器地址
          */
-        registry.addResourceHandler("/img/**").addResourceLocations("file:///" + loca);
-        registry.addResourceHandler("/imgItem/**").addResourceLocations("file:///" + assessImgFile);
-        registry.addResourceHandler("/imgBlos/**").addResourceLocations("file:///" + assessBlosImg);
-        registry.addResourceHandler("/assFileCode/**").addResourceLocations("file:///" + assFileCode);
-        registry.addResourceHandler("/tempFile/**").addResourceLocations("file:///" + tempFile);
-        registry.addResourceHandler("/fictionImg/**").addResourceLocations("file:///" + fictionImg);
-        registry.addResourceHandler("/fictionFile/**").addResourceLocations("file:///" + fictionFile);
-        registry.addResourceHandler("/dramaImage/**").addResourceLocations("file:///" + dramaImage);
+        registry.addResourceHandler("/img/**").addResourceLocations("file:///" + redisUtils.getConfig(ConfigDicEnum.accessFile.message));
+        registry.addResourceHandler("/imgItem/**").addResourceLocations("file:///" + redisUtils.getConfig(ConfigDicEnum.assessImgFile.message));
+        registry.addResourceHandler("/imgBlos/**").addResourceLocations("file:///" + redisUtils.getConfig(ConfigDicEnum.assessBlosImg.message));
+        registry.addResourceHandler("/assFileCode/**").addResourceLocations("file:///" + redisUtils.getConfig(ConfigDicEnum.assFileCode.message));
+        registry.addResourceHandler("/tempFile/**").addResourceLocations("file:///" + redisUtils.getConfig(ConfigDicEnum.tempFile.message));
+        registry.addResourceHandler("/fictionImg/**").addResourceLocations("file:///" + redisUtils.getConfig(ConfigDicEnum.fictionImg.message));
+        registry.addResourceHandler("/fictionFile/**").addResourceLocations("file:///" + redisUtils.getConfig(ConfigDicEnum.fictionFile.message));
+        registry.addResourceHandler("/dramaImage/**").addResourceLocations("file:///" + redisUtils.getConfig(ConfigDicEnum.dramaImage.message));
     }
 
     @Override
