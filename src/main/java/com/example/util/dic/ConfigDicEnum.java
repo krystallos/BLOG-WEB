@@ -21,7 +21,8 @@ public enum ConfigDicEnum {
     aliyunDNS("config:aliyunDNS"),
     aliyunDomain("config:aliyunDomain"),
     aliyunAccessKeyId("config:aliyunAccessKeyId"),
-    aliyunAccessKeySecret("config:aliyunAccessKeySecret");
+    aliyunAccessKeySecret("config:aliyunAccessKeySecret"),
+    systemConfigEnvir("config:systemConfigEnvir");
 
     public String message;
 

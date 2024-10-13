@@ -90,17 +90,21 @@ public class DDNSJobConteroller {
         return ipv6;
     }
 
-//    @Scheduled( fixedDelay = 60 * 30 * 1000 )
+    @Scheduled( fixedDelay = 60 * 30 * 1000 )
     public void getDomain() {
         try {
-            String ipv6 = getIpv6();
-            if(ipv6 == null){
-                log.info("请求失败，无法获取IPV6信息");
+            String envir = redisUtils.getConfig(ConfigDicEnum.systemConfigEnvir.message);
+            log.info("当前环境为[ " + envir + " ]");
+            if(envir.equals("PROD")){
+                String ipv6 = getIpv6();
+                if(ipv6 == null){
+                    log.info("请求失败，无法获取IPV6信息");
+                }
+                createClient();
+                Client client = this.client;
+                List<DDNSToken> recordId = selectDomain(client, ipv6);
+                editDomain(client, recordId);
             }
-            createClient();
-            Client client = this.client;
-            List<DDNSToken> recordId = selectDomain(client, ipv6);
-            editDomain(client, recordId);
         } catch (Exception error) {
             log.info("请求失败，失败错误码：" + error.getMessage());
         }
