@@ -42,7 +42,7 @@
 		FROM
 			SYS_DIC_CONFIG
 		WHERE
-			IS_TEST = #{sysConfig.isTest}
+			IS_TEST = #{fileConfigType}
 			AND DEL_FLAG = 0
 			<if test="dicKey != null and dicKey != ''">
 				AND DIC_KEY = #{dicKey}

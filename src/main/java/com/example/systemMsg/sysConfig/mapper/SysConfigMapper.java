@@ -21,7 +21,7 @@ public interface SysConfigMapper {
 	 * @param dicKey
 	 * @return
 	 */
-	SystemConfigDicEnity getSysConfig(@Param("dicKey")String dicKey);
+	SystemConfigDicEnity getSysConfig(@Param("dicKey")String dicKey, @Param("fileConfigType")String fileConfigType);
 
 	/**
 	 * 获取项目配置列表

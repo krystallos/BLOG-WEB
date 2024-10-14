@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.example.systemMsg.sysConfig.mapper.SysConfigMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -28,6 +29,8 @@ public class RedisUtils {
     private RedisTemplate redisTemplate;
     @Resource
     private SysConfigMapper sysConfigMapper;
+    @Value("${fileConfig}")
+    private String fileConfigType;
 
     /**
      * 写入缓存
@@ -137,7 +140,7 @@ public class RedisUtils {
         String result = null;
         ValueOperations<Serializable, Object> operations = redisTemplate.opsForValue();
         if(get(key) == null){
-            set(key, sysConfigMapper.getSysConfig(key).getDicValue());
+            set(key, sysConfigMapper.getSysConfig(key, fileConfigType).getDicValue());
         }
         result = (String)operations.get(key);
         return result;

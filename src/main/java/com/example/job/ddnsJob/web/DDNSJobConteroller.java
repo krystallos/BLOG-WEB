@@ -15,7 +15,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.net.Inet6Address;
@@ -42,20 +41,27 @@ public class DDNSJobConteroller {
     private TokenService tokenService;
     private Client client;
 
+    //历史记录IPV6
+    private String localHis = "";
+
     /**
      * 全局初始化
      * @return
      * @throws Exception
      */
-    private void createClient() throws Exception {
-        if(client == null){
-            Config config = new Config()
-                    // 必填，请确保代码运行环境设置了环境变量 ALIBABA_CLOUD_ACCESS_KEY_ID。
-                    .setAccessKeyId(redisUtils.getConfig(redisUtils.getConfig(ConfigDicEnum.aliyunAccessKeyId.message)))
-                    // 必填，请确保代码运行环境设置了环境变量 ALIBABA_CLOUD_ACCESS_KEY_SECRET。
-                    .setAccessKeySecret(redisUtils.getConfig(ConfigDicEnum.aliyunAccessKeySecret.message));
-            config.endpoint = redisUtils.getConfig(ConfigDicEnum.aliyunDNS.message);
-            client = new Client(config);
+    private void createClient() {
+        try {
+            if (client == null) {
+                Config config = new Config()
+                        // 必填，请确保代码运行环境设置了环境变量 ALIBABA_CLOUD_ACCESS_KEY_ID。
+                        .setAccessKeyId(redisUtils.getConfig(ConfigDicEnum.aliyunAccessKeyId.message))
+                        // 必填，请确保代码运行环境设置了环境变量 ALIBABA_CLOUD_ACCESS_KEY_SECRET。
+                        .setAccessKeySecret(redisUtils.getConfig(ConfigDicEnum.aliyunAccessKeySecret.message));
+                config.endpoint = redisUtils.getConfig(ConfigDicEnum.aliyunDNS.message);
+                client = new Client(config);
+            }
+        }catch (Exception error) {
+            log.info("请求失败，失败结果诊断：" + error.getMessage());
         }
     }
 
@@ -92,25 +98,29 @@ public class DDNSJobConteroller {
 
     @Scheduled( fixedDelay = 60 * 30 * 1000 )
     public void getDomain() {
-        try {
-            String envir = redisUtils.getConfig(ConfigDicEnum.systemConfigEnvir.message);
-            log.info("当前环境为[ " + envir + " ]");
-            if(envir.equals("PROD")){
-                String ipv6 = getIpv6();
-                if(ipv6 == null){
-                    log.info("请求失败，无法获取IPV6信息");
-                }
-                createClient();
-                Client client = this.client;
-                List<DDNSToken> recordId = selectDomain(client, ipv6);
-                editDomain(client, recordId);
+        String envir = redisUtils.getConfig(ConfigDicEnum.systemConfigEnvir.message);
+        log.info("当前环境为[ " + envir + " ]");
+        if(envir.equals("PROD")){
+            String ipv6 = getIpv6();
+            if(ipv6 == null){
+                log.info("请求失败，无法获取IPV6信息");
+                return;
             }
-        } catch (Exception error) {
-            log.info("请求失败，失败错误码：" + error.getMessage());
+            if(ipv6.equals(localHis)){
+                log.info("前一次请求IP地址与本次相同，无需更新");
+                return;
+            }else{
+                localHis = ipv6;
+            }
+            createClient();
+            Client client = this.client;
+            List<DDNSToken> recordId = selectDomain(client, ipv6);
+            editDomain(client, recordId);
+            log.info("本次阿里云DDNS请求结束");
         }
     }
 
-    public List<DDNSToken> selectDomain(Client client, String ipv6) throws Exception{
+    public List<DDNSToken> selectDomain(Client client, String ipv6) {
         List<DDNSToken> arr = new ArrayList<>();
         //查询域名解析列表
         DescribeDomainRecordsRequest describeDomainRecordsRequest = new DescribeDomainRecordsRequest()
@@ -144,6 +154,9 @@ public class DDNSJobConteroller {
             }
         }catch (TeaException error) {
             log.info("请求失败，失败结果诊断：" + error.getData().get("Recommend"));
+            return new ArrayList<>();
+        }catch (Exception e) {
+            log.info("请求失败，失败结果诊断：" + e.getMessage());
             return new ArrayList<>();
         }
     }
