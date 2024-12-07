@@ -142,6 +142,9 @@ public class FictionFileConteroller {
     public ResultBody insertFictionUtil(HttpSession session,@RequestBody FictionFile fictionFile){
         try {
             Person person = (Person)redisUtils.get(session.getId());
+            if(person == null){//无token
+                return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+            }
             if(fictionFile.getChineseName() != null) {
                 fictionFile.setChineseNameFt(ChineseHelper.convertToTraditionalChinese(fictionFile.getChineseName()));
             }

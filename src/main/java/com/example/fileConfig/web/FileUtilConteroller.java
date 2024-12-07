@@ -54,6 +54,9 @@ public class FileUtilConteroller {
     public ResultBody fileUtilInsert(HttpSession session, @RequestBody FileUtil fileUtil){
         try {
             Person person = (Person)redisUtils.get(session.getId());
+            if(person == null){//无token
+                return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+            }
             fileUtil.setCreateId(person.getIds());
             fileUtil.setPsnId(person.getIds());
             fileUtil.getNowDate(null);
@@ -75,6 +78,9 @@ public class FileUtilConteroller {
     public ResultBody fileUtilList(HttpSession session, @RequestBody FileUtil fileUtil){
         try{
             Person list = (Person)redisUtils.get(session.getId());
+            if(list == null){//无token
+                return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+            }
             fileUtil.setPsnId(list.getIds());
             fileUtil.pubImplPage(fileUtil.getNowTab(),fileUtil.getHasTab());
             List<FileUtil> listSize = fileUtilService.selectFileUtilTab(fileUtil);

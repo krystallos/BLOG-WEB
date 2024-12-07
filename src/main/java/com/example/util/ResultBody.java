@@ -13,6 +13,11 @@ public class ResultBody implements Serializable {
     private String reslutMsg;
     private Integer total;
 
+    public ResultBody(ApiResultEnum apiResultEnum){
+        this.textMsg = apiResultEnum.getMessage();
+        this.code = apiResultEnum.getCode();
+        this.reslutMsg = apiResultEnum.getMessage();
+    }
     public ResultBody(ApiResultEnum apiResultEnum, Object data){
         this.code = apiResultEnum.getCode();
         this.reslutMsg = apiResultEnum.getMessage();

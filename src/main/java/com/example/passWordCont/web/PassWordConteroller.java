@@ -64,6 +64,9 @@ public class PassWordConteroller {
     public ResultBody remarkPassWord(HttpSession session ,@RequestBody PassWord passWord){
         try {
             Person person = (Person)redisUtils.get(session.getId());
+            if(person == null){//无token
+                return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+            }
             Map<String, String> map = passWordUtil.tokenPassWord(person.getUserId(), person.getIds());
             passWord.setPsnId(person.getIds());
             String passWordS = passWordService.get(passWord).getPassWord();
@@ -106,6 +109,9 @@ public class PassWordConteroller {
     public ResultBody updatePassWordUtil(HttpSession session,@RequestBody PassWord passWord){
         try {
             Person person = (Person)redisUtils.get(session.getId());
+            if(person == null){//无token
+                return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+            }
             passWord.getUuidCreateUpdate(person.getIds());
             passWord.setPsnId(person.getIds());
             passWord.getNowDate("");

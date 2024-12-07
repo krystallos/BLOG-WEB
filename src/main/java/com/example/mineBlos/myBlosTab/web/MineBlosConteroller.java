@@ -41,6 +41,9 @@ public class MineBlosConteroller {
     public ResultBody mineBlosTab(HttpSession session, @RequestBody MineBlos mineBlos){
         try{
             Person person = (Person)redisUtils.get(session.getId());
+            if(person == null){//无token
+                return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+            }
             mineBlos.setPsnId(person.getIds());
             mineBlos.pubImplPage(mineBlos.getNowTab(),mineBlos.getHasTab());
             List<MineBlos> listTab = mineBlosService.mineBlosSysLook(mineBlos);
@@ -61,6 +64,9 @@ public class MineBlosConteroller {
     public ResultBody mineBlosArticle(HttpSession session, @RequestBody MineBlos mineBlos){
         try{
             Person person = (Person)redisUtils.get(session.getId());
+            if(person == null){//无token
+                return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+            }
             mineBlos.setPsnId(person.getIds());
             mineBlos.pubImplPage(mineBlos.getNowTab(),mineBlos.getHasTab());
             List<MineBlos> listTab = mineBlosService.mineBlosArticle(mineBlos);

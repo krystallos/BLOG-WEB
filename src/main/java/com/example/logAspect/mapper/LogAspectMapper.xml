@@ -93,7 +93,8 @@
 				CNAMRE_RR as RR,
 				TYPE as type,
 				UPDATE_TIME as updateTimestamp,
-				IP as value
+				IP as value,
+				CREATE_DATE as createDate
 			from
 				ALIBA_TOKEN
 				<where>
@@ -102,7 +103,7 @@
 					</if>
 				</where>
 			ORDER BY
-			UPDATE_TIME DESC
+			CREATE_DATE DESC
 		)
 		where
 			rownum &lt;= 300

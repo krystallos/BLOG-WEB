@@ -45,6 +45,9 @@ public class MineBlosTopConteroller {
     public ResultBody goNewMineBlosTop(HttpSession session){
         try {
             Person person = (Person)redisUtils.get(session.getId());
+            if(person == null){//无token
+                return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+            }
             MineBlosType mineBlosType = new MineBlosType();
             mineBlosType.setPsnId(person.getIds());
             List<MineBlosType> mineBlosTypeList = mineBlosTypeService.mineBlosTypeNoTab(mineBlosType);
@@ -66,6 +69,9 @@ public class MineBlosTopConteroller {
     public ResultBody getWriteMineBlos(HttpSession session,@RequestBody MineBlos mineBlos){
         try {
             Person person = (Person)redisUtils.get(session.getId());
+            if(person == null){//无token
+                return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+            }
             mineBlos.setPsnId(person.getIds());
             mineBlos = mineBlosService.selectBlosDetial(mineBlos);
             return new ResultBody(ApiResultEnum.SUCCESS, mineBlos);

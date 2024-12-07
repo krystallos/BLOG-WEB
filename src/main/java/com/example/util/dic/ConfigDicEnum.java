@@ -22,7 +22,9 @@ public enum ConfigDicEnum {
     aliyunDomain("config:aliyunDomain"),
     aliyunAccessKeyId("config:aliyunAccessKeyId"),
     aliyunAccessKeySecret("config:aliyunAccessKeySecret"),
-    systemConfigEnvir("config:systemConfigEnvir");
+    systemConfigEnvir("config:systemConfigEnvir"),
+    manualOperation("file:manualOperation"),
+    tokenTimeOut("file:tokenTimeOut");
 
     public String message;
 

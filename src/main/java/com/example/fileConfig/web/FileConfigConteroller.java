@@ -81,7 +81,9 @@ public class FileConfigConteroller {
         try {
 
             Person person = (Person)redisUtils.get(httpSession.getId());
-
+            if(person == null){//无token
+                return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+            }
             FileUtil fileUtil = new FileUtil();
             fileUtil.setPsnId(person.getIds());
             fileUtil.setIsValid("1");
@@ -162,6 +164,9 @@ public class FileConfigConteroller {
     @PostMapping("api/uploadImageItem.act")
     public ResultBody uploadImageItem(HttpSession session,@RequestBody FileEnityUt fileEnityUt){
         Person person = (Person)redisUtils.get(session.getId());
+        if(person == null){//无token
+            return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+        }
         FileUtil fileUtil = new FileUtil();
         fileUtil.setPsnId(person.getIds());
         List<FileUtil> fileUtilList = fileUtilService.selectFileUtilNoTab(fileUtil);
@@ -208,6 +213,9 @@ public class FileConfigConteroller {
     public ResultBody fileDelOk(HttpSession session,@RequestBody DelFileVo delFileVo){
         try {
             Person person = (Person)redisUtils.get(session.getId());
+            if(person == null){//无token
+                return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+            }
             //------------------------处理文件路径----------------------------
             String[] idsItem = delFileVo.getIds().toArray(new String[delFileVo.getIds().size()]);
             List<String> item = fileConfigService.selectListPathImg(idsItem);
@@ -242,9 +250,12 @@ public class FileConfigConteroller {
     @PostMapping(value = "api/getWorkImageTemp.act")
     public ResultBody getWorkImageTemp(HttpSession session, @RequestBody FileEnityUt fileEnityUt){
         try {
-            fileEnityUt = (FileEnityUt)redisUtils.get("handWorkFilePath");
+            fileEnityUt = (FileEnityUt)redisUtils.get(redisUtils.getConfig(ConfigDicEnum.manualOperation.message));
             FileUtil fileUtil = new FileUtil();
             Person person = (Person)redisUtils.get(session.getId());
+            if(person == null){//无token
+                return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+            }
             fileUtil.setPsnId(person.getIds());
             List<FileUtil> listUtil = fileUtilService.selectFileUtilNoTab(fileUtil);
             if(fileEnityUt == null) fileEnityUt = new FileEnityUt();
@@ -265,17 +276,14 @@ public class FileConfigConteroller {
     public ResultBody fileGetHandWorkSaveFile(@RequestBody FileEnityUt fileEnityUt, HttpSession session){
         try {
             Person list = (Person)redisUtils.get(session.getId());
-            FileConfig fileConfig = new FileConfig();
-            if(list == null){
-                fileConfig.setPsnId("1");
-                fileConfig.setPsnName("未知作者");
-                fileConfig.setCreateId("1");
-            }else {
-                fileConfig.setPsnId(list.getIds());
-                fileConfig.setPsnName(list.getPsnName());
-                fileConfig.setCreateId(list.getIds());
+            if(list == null){//无token
+                return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
             }
-            redisUtils.set("handWorkFilePath", fileEnityUt);
+            FileConfig fileConfig = new FileConfig();
+            fileConfig.setPsnId(list.getIds());
+            fileConfig.setPsnName(list.getPsnName());
+            fileConfig.setCreateId(list.getIds());
+            redisUtils.set(redisUtils.getConfig(ConfigDicEnum.manualOperation.message), fileEnityUt);
             FileUtil fileUtil = new FileUtil();
             fileUtil.setIds(fileEnityUt.getFilePath());
             fileUtil = fileUtilService.get(fileUtil);

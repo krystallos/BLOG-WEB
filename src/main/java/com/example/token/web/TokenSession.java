@@ -3,12 +3,14 @@ package com.example.token.web;
 import com.example.person.enity.Person;
 import com.example.util.*;
 import com.example.util.config.RedisUtils;
+import com.example.util.dic.ConfigDicEnum;
 import org.springframework.web.bind.annotation.RestController;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * token信息处理
@@ -17,7 +19,6 @@ import java.io.IOException;
 @RestController
 public class TokenSession {
 
-    private static final Integer times = 600;//延期戳
     private static final String keyItem = "wuhu";//懒得做加密处理了，密参就这么用着
 
     @Resource
@@ -45,9 +46,13 @@ public class TokenSession {
                     if(nowCurr>curr || !tokItem[1].equals(person.getIds())){//时间超时或者不是同一个人
                         return new ResultBody(ApiResultEnum.OVER_TOKEN, "token过期，请重新登入");
                     }else{
-                        if(curr - times < nowCurr){
+                        int timeOut = Integer.parseInt(redisUtils.getConfig(ConfigDicEnum.tokenTimeOut.message));
+                        if(timeOut == 0){
+                            timeOut = 1000;
+                        }
+                        if(curr - timeOut < nowCurr){
                             String token = AseToken(person.getIds());
-                            redisUtils.set(sessionId, person);
+                            redisUtils.set(sessionId, person, (long) timeOut, TimeUnit.SECONDS);
                             return new ResultBody(ApiResultEnum.UPDATA_TOKRN,"更新成功", token);
                         }
                         return new ResultBody(ApiResultEnum.SUCCESS,"成功", tokenItem);

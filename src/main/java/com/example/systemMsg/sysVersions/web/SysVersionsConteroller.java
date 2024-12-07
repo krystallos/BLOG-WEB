@@ -143,6 +143,9 @@ public class SysVersionsConteroller {
     public ResultBody upVersionText(HttpSession session,@RequestBody SysVersions sysVersions){
         try {
             Person person = (Person)redisUtils.get(session.getId());
+            if(person == null){//无token
+                return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+            }
             sysVersions.getUuidCreateUpdate(person.getIds());
             sysVersionsService.insertSysVersions(sysVersions);
             return new ResultBody(ApiResultEnum.SUCCESS, "提交完成");

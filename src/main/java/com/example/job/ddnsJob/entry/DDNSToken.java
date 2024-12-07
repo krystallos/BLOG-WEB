@@ -21,6 +21,15 @@ public class DDNSToken extends pageEnity {
     
     private String requestId;
     private String roleType;
+    private String createDate;
+
+    public String getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(String createDate) {
+        this.createDate = createDate;
+    }
 
     public String getId() {
         return id;

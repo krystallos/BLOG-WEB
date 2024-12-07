@@ -20,7 +20,9 @@ import javax.annotation.Resource;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -140,6 +142,7 @@ public class DDNSJobConteroller {
                         BeanUtils.copyProperties(vo, token);
                         token.setRequestId(bodys.getRequestId());
                         token.setRoleType(DDNSEnum.SELECTDOMAIN.message);
+                        token.setCreateDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime()));
                         tokenService.insertTokenSession(token);
                         if (!token.getType().equals("CNAME")) {
                             token.setValue(ipv6);
@@ -178,6 +181,7 @@ public class DDNSJobConteroller {
                     BeanUtils.copyProperties(editVo, token);
                     token.setRequestId(update.getRequestId());
                     token.setRoleType(DDNSEnum.EDITDOMAIN.message);
+                    token.setCreateDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime()));
                     tokenService.insertTokenSession(token);
                 } else {
                     log.info("请求失败，失败错误码：" + vo.getStatusCode());

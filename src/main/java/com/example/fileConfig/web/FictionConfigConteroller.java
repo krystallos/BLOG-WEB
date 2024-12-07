@@ -126,6 +126,9 @@ public class FictionConfigConteroller {
     public ResultBody insertFictionUtil(HttpSession session ,@RequestBody FictionTag fictionTag){
         try {
             Person person = (Person)redisUtils.get(session.getId());
+            if(person == null){//无token
+                return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+            }
             int count = fictionUtilService.selectCountHaving(fictionTag.getTagName(),null);
             if(count != 0){
                 return new ResultBody(ApiResultEnum.DUPLICATION_OF_DATA, "标签重复");

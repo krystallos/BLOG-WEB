@@ -40,6 +40,9 @@ public class MineEmilConteroller {
     public ResultBody mineEmilTab(HttpSession session, @RequestBody MineEmil mineEmil){
         try {
             Person person = (Person)redisUtils.get(session.getId());
+            if(person == null){//无token
+                return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+            }
             mineEmil.pubImplPage(mineEmil.getNowTab(),mineEmil.getHasTab());
             mineEmil.setFromPersonId(person.getIds());
             mineEmil.setIntoPersonId(person.getIds());
@@ -109,6 +112,9 @@ public class MineEmilConteroller {
         try {
             //--------------------用来查询发件人员的---------------------
             Person fromPersonList = (Person)redisUtils.get(httpSession.getId());
+            if(fromPersonList == null){//无token
+                return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+            }
             //--------------------结束-----------------------------
             //--------------------用来查询收件人员的---------------------
             Person newPerson = new Person();

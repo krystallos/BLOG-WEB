@@ -194,6 +194,10 @@ public class UploadConteroller {
     @PostMapping("upload/accessFileUpload.act")
     public ResultBody accessFileUpload(@RequestParam("file") MultipartFile file, FileConfig fileConfig, HttpSession session){
         try{
+            Person person = (Person)redisUtils.get(session.getId());
+            if(person == null){//无token
+                return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+            }
             // 文件上传后的路径
             File fileIn = new File(fileConfig.getLonPathNameType());
             addNewFileDirectory(fileIn);
@@ -214,7 +218,6 @@ public class UploadConteroller {
             File fileInItem = new File(redisUtils.getConfig(ConfigDicEnum.assessImgFile.message) + itemPath);
             addNewFileDirectory(fileInItem);
             fileConfigConteroller.hasImgThumbna(fileIn.getAbsolutePath() + "/" + file.getOriginalFilename(),redisUtils.getConfig(ConfigDicEnum.assessImgFile.message) + itemPath + "/" + file.getOriginalFilename());
-            Person person = (Person)redisUtils.get(session.getId());
             if(person != null){
                 fileConfig.setPsnId(person.getIds());
                 fileConfig.setFileName(file.getOriginalFilename());
@@ -265,6 +268,9 @@ public class UploadConteroller {
     public ResultBody fictionFileUpload(@RequestParam("file") MultipartFile file,HttpSession session, FictionBook fictionBook){
         try {
             Person person = (Person)redisUtils.get(session.getId());
+            if(person == null){//无token
+                return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+            }
             Map<String, String> hasMap = new HashMap<>();
             String ids = (new Random().nextInt(3) + System.currentTimeMillis())+"";
             File fileIn = new File(redisUtils.getConfig(ConfigDicEnum.fictionFile.message) + fictionBook.getFictionId());

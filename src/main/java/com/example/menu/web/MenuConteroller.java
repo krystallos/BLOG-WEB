@@ -330,6 +330,9 @@ public class MenuConteroller {
     public ResultBody addNewMenu(HttpSession session, @RequestBody menu menu){
         try {
             Person personId = (Person)redisUtils.get(session.getId());
+            if(personId == null){//无token
+                return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+            }
             menu.setCreateId(personId.getIds());
             menuService.insertMenuAdd(menu);
             return new ResultBody(ApiResultEnum.SUCCESS, "添加成功");

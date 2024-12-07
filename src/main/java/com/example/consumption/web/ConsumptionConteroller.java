@@ -90,6 +90,9 @@ public class ConsumptionConteroller {
     public ResultBody echartConsumptionLeft(HttpSession session,@RequestBody EchartForConsumption echartForConsumption){
         try {
             Person list = (Person)redisUtils.get(session.getId());
+            if(list == null){//无token
+                return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+            }
             echartForConsumption.setCreateId(list.getIds());
             //统计支出
             echartForConsumption.setApiType("1");
@@ -169,6 +172,9 @@ public class ConsumptionConteroller {
     public ResultBody consumptionList(HttpSession session, @RequestBody ConsumptionVo consumptionVo){
         try{
             Person person = (Person)redisUtils.get(session.getId());
+            if(person == null){//无token
+                return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+            }
             consumptionVo.setCreateId(person.getIds());
             if(consumptionVo.getMoneyOrder() != null && !consumptionVo.getMoneyOrder().equals("")){
                 if(consumptionVo.getMoneyOrder().indexOf("<") != -1){
@@ -203,6 +209,9 @@ public class ConsumptionConteroller {
     public ResultBody importFile(@RequestParam("file") MultipartFile multipartFile, HttpSession session) {
         try {
             Person list = (Person)redisUtils.get(session.getId());
+            if(list == null){//无token
+                return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+            }
             InputStream inputStream = multipartFile.getInputStream();
             File fileIn = new File(redisUtils.getConfig(ConfigDicEnum.tempFile.message) + "zfbFile");
             if(!fileIn.exists() && !fileIn.isDirectory()){

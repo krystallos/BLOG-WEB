@@ -8,10 +8,18 @@
 		<selectKey resultType="java.lang.String" order="BEFORE" keyProperty="ddnsToken.id">
 			SELECT SEQ_ALIBATOKEN.nextval AS id FROM dual
 		</selectKey>
-		INSERT INTO ALIBA_TOKEN (ID, REQUEST_ID, STATUS, LINE, LOCKED, TYPE, DOMAIN_NAME, REDORD_ID, UPDATE_TIME, TTL, WEIGHT, ROLE_TYPE, CNAMRE_RR, IP)
+		INSERT INTO ALIBA_TOKEN (ID, REQUEST_ID, STATUS, LINE, LOCKED, TYPE, DOMAIN_NAME, REDORD_ID, UPDATE_TIME, TTL,
+			<if test="ddnsToken.weight != null and ddnsToken.weight != ''">
+				WEIGHT,
+			</if>
+		    ROLE_TYPE, CNAMRE_RR, IP, CREATE_DATE)
 		VALUES (
 			#{ddnsToken.id}, #{ddnsToken.requestId}, #{ddnsToken.status}, #{ddnsToken.line}, #{ddnsToken.locked}, #{ddnsToken.type},
-		  	#{ddnsToken.domainName}, #{ddnsToken.recordId}, #{ddnsToken.updateTimestamp}, #{ddnsToken.TTL}, #{ddnsToken.weight}, #{ddnsToken.roleType}, #{ddnsToken.RR}, #{ddnsToken.value})
+		  	#{ddnsToken.domainName}, #{ddnsToken.recordId}, #{ddnsToken.updateTimestamp}, #{ddnsToken.TTL},
+		  	<if test="ddnsToken.weight != null and ddnsToken.weight != ''">
+				#{ddnsToken.weight},
+			</if>
+		  	#{ddnsToken.roleType}, #{ddnsToken.RR}, #{ddnsToken.value}, #{ddnsToken.createDate,jdbcType=VARCHAR})
 	</insert>
 
 </mapper>

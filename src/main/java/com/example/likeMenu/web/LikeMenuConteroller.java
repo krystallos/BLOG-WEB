@@ -56,6 +56,9 @@ public class LikeMenuConteroller {
         try{
             likeMenu.setState("1");
             Person person = (Person)redisUtils.get(session.getId());
+            if(person == null){//无token
+                return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+            }
             likeMenu.setCreateId(person.getIds());
             likeMenuService.insertLikeMenuTab(likeMenu);
             return new ResultBody(ApiResultEnum.SUCCESS, "添加成功！");
@@ -112,6 +115,9 @@ public class LikeMenuConteroller {
     public ResultBody innerJoinLike(HttpSession session,@RequestBody Person person){
         try {
             Person redPeople = (Person)redisUtils.get(session.getId());
+            if(person == null){//无token
+                return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+            }
             person.setIds(redPeople.getIds());
             personService.updatePerson(person);
             return new ResultBody(ApiResultEnum.SUCCESS, "加入新的社区成功！");

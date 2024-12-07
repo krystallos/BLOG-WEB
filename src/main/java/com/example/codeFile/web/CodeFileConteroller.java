@@ -49,6 +49,9 @@ public class CodeFileConteroller {
     public ResultBody codeFile(HttpSession httpSession, @RequestBody CodeFileEnity codeFileEnity){
         try {
             Person person = (Person)redisUtils.get(httpSession.getId());
+            if(person == null){//无token
+                return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+            }
             String passType = codeFileEnity.getPassWord();
             //生成MD5码
             codeFileEnity.setCodeMd5(Md5Config.getMd5(codeFileEnity.getCodeMind()));

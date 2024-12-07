@@ -12,6 +12,7 @@ import com.example.user.service.UserService;
 import com.example.util.*;
 import com.example.util.annotion.Log;
 import com.example.util.config.RedisUtils;
+import com.example.util.dic.ConfigDicEnum;
 import org.apache.log4j.Logger;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 登入页
@@ -68,10 +70,14 @@ public class LoginConteroller {
                             personBin = personList.get(0);
                         }
                         String token = tokenSession.AseToken(personBin.getIds());
-                        if(redisUtils.get(session.getId()) == null){
-                            redisUtils.set(session.getId(),personBin);
+                        int timeOut = Integer.parseInt(redisUtils.getConfig(ConfigDicEnum.tokenTimeOut.message));
+                        if(timeOut == 0){
+                            timeOut = 1000;
                         }
-                        redisUtils.set(personBin.getIds(), token);
+                        if(redisUtils.get(session.getId()) == null){
+                            redisUtils.set(session.getId(),personBin, (long)timeOut, TimeUnit.SECONDS);
+                        }
+                        redisUtils.set(personBin.getIds(), token, (long)timeOut, TimeUnit.SECONDS);
                         personBin.setAssessToken(token);
                         User user = new User();
                         user.setAreaId(login.getAreaId());
@@ -99,6 +105,9 @@ public class LoginConteroller {
     @PostMapping("api/getInfo.act")
     public ResultBody UserInfo(HttpSession session){
         Person person = (Person)redisUtils.get(session.getId());
+        if(person == null){//无token
+            return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+        }
         List<menu> menuType = menuService.selectTypeMenuForRole(person.getIds());
 
         //存储结果
@@ -130,6 +139,9 @@ public class LoginConteroller {
     public ResultBody GoOut(HttpSession session) {
         try {
             Person person = (Person)redisUtils.get(session.getId());
+            if(person == null){//无token
+                return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+            }
             redisUtils.remove(session.getId());
             redisUtils.remove(person.getIds());
             session.invalidate();
