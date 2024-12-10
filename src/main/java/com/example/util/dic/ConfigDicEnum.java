@@ -24,7 +24,8 @@ public enum ConfigDicEnum {
     aliyunAccessKeySecret("config:aliyunAccessKeySecret"),
     systemConfigEnvir("config:systemConfigEnvir"),
     manualOperation("file:manualOperation"),
-    tokenTimeOut("file:tokenTimeOut");
+    tokenTimeOut("file:tokenTimeOut"),
+    accessEhentai("config:accessEhentai");
 
     public String message;
 

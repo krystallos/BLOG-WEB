@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.fileConfig.mapper.EhentaiMapper">
+
+	<resultMap id="ehentaiMapper" type="com.example.fileConfig.enity.ehentai.GetEhentaiVo">
+		<result property="ids" column="ID" />
+		<result property="bookName" column="BOOK_NAME" />
+		<result property="bookAuthor" column="BOOK_AUTHOR" />
+		<result property="bookSaveTime" column="BOOK_SAVE_TIME" />
+		<result property="bookImage" column="BOOK_IMAGE" />
+		<result property="createDate" column="CREATE_DATE" />
+	</resultMap>
+
+	<select id="get" resultMap="ehentaiMapper">
+		select *
+		from OPEN_EHENTAI_BOOK
+		where 1=1
+		and del_flag = '0' and id = #{fileUtil.ids}
+	</select>
+
+	<select id="selectEhentaiName" resultMap="ehentaiMapper">
+		select
+			ID,
+			BOOK_NAME
+		from
+			OPEN_EHENTAI_BOOK
+		where
+		    del_flag = '0'
+	</select>
+
+	<select id="selectEhentaiFile" resultMap="ehentaiMapper">
+		select
+			ID,
+			BOOK_NAME,
+			BOOK_AUTHOR,
+			BOOK_SAVE_TIME,
+			BOOK_IMAGE,
+			CREATE_DATE
+		from
+			OPEN_EHENTAI_BOOK
+		where
+			del_flag = '0'
+			<if test="getEhentaiVo.bookName != null and getEhentaiVo.bookName != ''">
+				AND BOOK_NAME LIKE '%' || #{getEhentaiVo.bookName,jdbcType=NVARCHAR} || '%'
+			</if>
+			<if test="getEhentaiVo.bookAuthor != null and getEhentaiVo.bookAuthor != ''">
+				AND BOOK_AUTHOR LIKE '%' || #{getEhentaiVo.bookAuthor,jdbcType=NVARCHAR} || '%'
+			</if>
+		ORDER BY BOOK_TIMESTAMP DESC
+	</select>
+
+	<insert id="insertEhentai">
+		INSERT INTO OPEN_EHENTAI_BOOK(
+			ID,
+			BOOK_NAME,
+			BOOK_AUTHOR,
+			BOOK_SAVE_TIME,
+			BOOK_IMAGE,
+			CREATE_DATE,
+			DEL_FLAG,
+			BOOK_TIMESTAMP
+		)VALUES(
+		    #{getEhentaiVo.ids},
+			#{getEhentaiVo.bookName,jdbcType=NVARCHAR},
+			#{getEhentaiVo.bookAuthor},
+			#{getEhentaiVo.createDate},
+			#{getEhentaiVo.bookImage},
+			#{getEhentaiVo.createDate},
+		    '0',
+		    #{getEhentaiVo.bookTimeStamp}
+		)
+	</insert>
+
+	<update id="updateEhentai">
+		UPDATE OPEN_EHENTAI_BOOK SET BOOK_AUTHOR = #{getEhentaiVo.bookAuthor} WHERE ID = #{getEhentaiVo.ids}
+	</update>
+
+</mapper>
