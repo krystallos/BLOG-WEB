@@ -25,7 +25,9 @@ public enum ConfigDicEnum {
     systemConfigEnvir("config:systemConfigEnvir"),
     manualOperation("file:manualOperation"),
     tokenTimeOut("file:tokenTimeOut"),
-    accessEhentai("config:accessEhentai");
+    accessEhentai("config:accessEhentai"),
+    imageAlbum("config:imageAlbum"),
+    imageAlbumThumbanil("config:imageAlbumThumbanil");
 
     public String message;
 

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.fileConfig.mapper.ImageAlbumMapper">
+
+	<resultMap id="imageAlbumMapper" type="com.example.fileConfig.enity.imageAlbum.GetImageAlbumVo">
+		<result property="ids" column="ID" />
+		<result property="imageName" column="IMAGE_NAME" />
+		<result property="imagePath" column="IMAGE_PATH" />
+		<result property="fileType" column="FILE_TYPE" />
+		<result property="sessionYear" column="SESSION_YEAR" />
+		<result property="sessionMonth" column="SESSION_MONTH" />
+		<result property="sessionPiovince" column="SESSION_PIOVINCE" />
+		<result property="sessionRegion" column="SESSION_REGION" />
+		<result property="isLike" column="IS_LIKE" />
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="createId" column="CREATE_ID" />
+	</resultMap>
+
+	<select id="get" resultMap="imageAlbumMapper">
+		select
+			a.ID,
+			a.IMAGE_NAME,
+			'/' || a.IMAGE_PATH AS IMAGE_PATH,
+			a.FILE_TYPE,
+			a.SESSION_YEAR,
+			a.SESSION_MONTH,
+			a.SESSION_PIOVINCE,
+			a.SESSION_REGION,
+			a.CREATE_DATE,
+			b.PSN_NAME AS CREATE_ID,
+		    a.IS_LIKE,
+			CASE WHEN a.IS_LIKE = 0 THEN '否' ELSE '已收藏' END AS isLikeName
+		from
+			OPEN_IMAGE_ALBUM a
+			LEFT JOIN SYS_PERSON b ON a.CREATE_ID = b.ID
+		where 1=1
+		and a.del_flag = '0' and a.id = #{getImageAlbumVo.ids}
+	</select>
+
+	<select id="selectImageAlbum" resultMap="imageAlbumMapper">
+		select
+			a.ID,
+			a.IMAGE_NAME,
+			'imageAlbum' || '/' || a.IMAGE_PATH AS IMAGE_PATH,
+			'imageAlbumThumbanil' || '/' || a.IMAGE_PATH AS imageTemp,
+			a.FILE_TYPE,
+			a.SESSION_YEAR,
+		    a.SESSION_MONTH,
+			a.SESSION_PIOVINCE,
+			a.SESSION_REGION,
+			a.CREATE_DATE,
+			b.PSN_NAME AS CREATE_ID,
+		    a.IS_LIKE,
+			CASE WHEN a.IS_LIKE = 0 THEN '否' ELSE '已收藏' END AS isLikeName
+		from
+			OPEN_IMAGE_ALBUM a
+			LEFT JOIN SYS_PERSON b ON a.CREATE_ID = b.ID
+		where
+			a.del_flag = '0'
+		  	AND a.CREATE_ID = #{getImageAlbumVo.createId}
+			<if test="getImageAlbumVo.imageName != null and getImageAlbumVo.imageName != ''">
+				AND a.IMAGE_NAME LIKE '%' || #{getImageAlbumVo.imageName} || '%'
+			</if>
+			<if test="getImageAlbumVo.sessionYear != null and getImageAlbumVo.sessionYear != ''">
+				AND a.SESSION_YEAR = #{getImageAlbumVo.sessionYear}
+			</if>
+			<if test="getImageAlbumVo.sessionMonth != null and getImageAlbumVo.sessionMonth != ''">
+				AND a.SESSION_MONTH = #{getImageAlbumVo.sessionMonth}
+			</if>
+			<if test="getImageAlbumVo.sessionPiovince != null and getImageAlbumVo.sessionPiovince != ''">
+				AND a.SESSION_PIOVINCE LIKE '%' || #{getImageAlbumVo.sessionPiovince} || '%'
+			</if>
+			<if test="getImageAlbumVo.sessionRegion != null and getImageAlbumVo.sessionRegion != ''">
+				AND a.SESSION_REGION LIKE '%' || #{getImageAlbumVo.sessionRegion} || '%'
+			</if>
+			<if test="getImageAlbumVo.isLike != null and getImageAlbumVo.isLike != ''">
+				AND a.IS_LIKE = #{getImageAlbumVo.isLike}
+			</if>
+		ORDER BY TO_NUMBER(a.SESSION_YEAR) DESC, TO_NUMBER(a.SESSION_MONTH) DESC
+	</select>
+
+	<insert id="insertImageAlbum">
+		INSERT INTO OPEN_IMAGE_ALBUM(
+			ID,
+			IMAGE_NAME,
+			IMAGE_PATH,
+			SESSION_YEAR,
+			SESSION_MONTH,
+			SESSION_PIOVINCE,
+			SESSION_REGION,
+			CREATE_DATE,
+			CREATE_ID,
+			FILE_TYPE
+		)VALUES(
+		    #{getImageAlbumVo.ids},
+			#{getImageAlbumVo.imageName,jdbcType=NVARCHAR},
+			#{getImageAlbumVo.imagePath},
+			#{getImageAlbumVo.sessionYear},
+			#{getImageAlbumVo.sessionMonth},
+			#{getImageAlbumVo.sessionPiovince},
+			#{getImageAlbumVo.sessionRegion},
+			#{getImageAlbumVo.createDate},
+			#{getImageAlbumVo.createId},
+		    #{getImageAlbumVo.fileType}
+		)
+	</insert>
+
+	<update id="updateImageAlbum">
+		UPDATE OPEN_IMAGE_ALBUM SET
+			IMAGE_NAME = #{getImageAlbumVo.imageName},
+			SESSION_YEAR = #{getImageAlbumVo.sessionYear},
+			SESSION_MONTH = #{getImageAlbumVo.sessionMonth},
+			SESSION_PIOVINCE = #{getImageAlbumVo.sessionPiovince},
+			SESSION_REGION = #{getImageAlbumVo.sessionRegion}
+		WHERE ID = #{getImageAlbumVo.ids}
+	</update>
+
+	<update id="likeImageAlbum">
+		UPDATE OPEN_IMAGE_ALBUM SET IS_LIKE = #{isLike} WHERE ID = #{ids}
+	</update>
+
+	<update id="delImageAlbum">
+		UPDATE OPEN_IMAGE_ALBUM SET DEL_FLAG = 1 WHERE ID = #{ids}
+	</update>
+
+</mapper>

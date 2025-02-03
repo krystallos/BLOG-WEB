@@ -4,7 +4,9 @@ import com.example.codeFile.enity.CodeFileEnity;
 import com.example.codeFile.service.CodeFileService;
 import com.example.fileConfig.enity.fiction.FictionBook;
 import com.example.fileConfig.enity.FileConfig;
+import com.example.fileConfig.enity.imageAlbum.GetImageAlbumVo;
 import com.example.fileConfig.service.FictionFileService;
+import com.example.fileConfig.service.ImageAlbumService;
 import com.example.fileConfig.web.FileConfigConteroller;
 import com.example.person.enity.Person;
 import com.example.person.service.PersonService;
@@ -31,6 +33,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -49,6 +53,10 @@ public class UploadConteroller {
     private FileConfigConteroller fileConfigConteroller;
     @Resource
     private FictionFileService fictionFileService;
+    @Resource
+    private ImageAlbumService imageAlbumService;
+
+    private static LocalDate currentDate = LocalDate.now();
 
     /**
      * blosItem上传接口
@@ -223,6 +231,63 @@ public class UploadConteroller {
                 fileConfig.setFileName(file.getOriginalFilename());
                 fileConfigConteroller.insertFileTab(fileConfig);
             }
+            return new ResultBody(ApiResultEnum.SUCCESS, "上传成功！");
+        }catch (Exception e){
+            log.error(e);
+            return new ResultBody(ApiResultEnum.ERR, e.getMessage());
+        }
+    }
+
+    /**
+     * 云照片上传
+     * imageAlbum --> imageAlbum
+     */
+    @Log(title = "云照片上传", type = LogEnum.UPLOAD)
+    @PostMapping("upload/imageAlbumUpload.act")
+    public ResultBody imageAlbumUpload(@RequestParam("file") MultipartFile file, GetImageAlbumVo getImageAlbumVo, HttpSession session){
+        try{
+            Person person = (Person)redisUtils.get(session.getId());
+            if(person == null){//无token
+                return new ResultBody(ApiResultEnum.OVER_TOKEN, "用户信息失效，请重新登入");
+            }
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            String time = currentDate.format(formatter);
+            String year = time.split("-")[0];
+            String month = time.split("-")[1];
+            String day = time.split("-")[2];
+            // 文件上传后的路径
+            File fileIn = new File(redisUtils.getConfig(ConfigDicEnum.imageAlbum.message) + year + "/" + month + "/" + day);
+            addNewFileDirectory(fileIn);
+            //获取输入流
+            InputStream input = file.getInputStream();
+            //建立输出流
+            FileOutputStream fileOutputStream = new FileOutputStream(
+                    redisUtils.getConfig(ConfigDicEnum.imageAlbum.message) +
+                    year + "/" + month + "/" + day+ "/" + file.getOriginalFilename()
+            );//创建文件输出流
+            byte[] buffer = new byte[2048];//建立文件缓冲，由2048比特构成
+            int len = 0;//结束标识符
+            while((len=input.read(buffer))>0) {
+                fileOutputStream.write(buffer,0,len);
+            }
+            input.close();
+            fileOutputStream.flush();
+            fileOutputStream.close();
+            //下面三步建立缩略图文件夹
+            String itemPath = fileIn.getAbsolutePath().replace(redisUtils.getConfig(ConfigDicEnum.imageAlbum.message),"");
+            File fileInItem = new File(redisUtils.getConfig(ConfigDicEnum.imageAlbumThumbanil.message) + itemPath);
+            addNewFileDirectory(fileInItem);
+            fileConfigConteroller.hasImgThumbna(fileIn.getAbsolutePath() + "/" + file.getOriginalFilename(),redisUtils.getConfig(ConfigDicEnum.imageAlbumThumbanil.message) + itemPath + "/" + file.getOriginalFilename());
+
+            String fileType = file.getOriginalFilename().split("\\.")[file.getOriginalFilename().split("\\.").length-1];
+            String fileName = file.getOriginalFilename().split("\\.")[0];
+
+            getImageAlbumVo.setCreateId(person.getIds());
+            getImageAlbumVo.setImageName(fileName);
+            getImageAlbumVo.setFileType(fileType);
+            getImageAlbumVo.setImagePath(year + "\\" + month + "\\" + day);
+            imageAlbumService.insertImageAlbum(getImageAlbumVo);
             return new ResultBody(ApiResultEnum.SUCCESS, "上传成功！");
         }catch (Exception e){
             log.error(e);

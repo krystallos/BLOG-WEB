@@ -43,6 +43,8 @@ public class MyWebMVCConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/fictionFile/**").addResourceLocations("file:///" + redisUtils.getConfig(ConfigDicEnum.fictionFile.message));
         registry.addResourceHandler("/dramaImage/**").addResourceLocations("file:///" + redisUtils.getConfig(ConfigDicEnum.dramaImage.message));
         registry.addResourceHandler("/ehentai/**").addResourceLocations("file:///" + redisUtils.getConfig(ConfigDicEnum.accessEhentai.message));
+        registry.addResourceHandler("/imageAlbum/**").addResourceLocations("file:///" + redisUtils.getConfig(ConfigDicEnum.imageAlbum.message));
+        registry.addResourceHandler("/imageAlbumThumbanil/**").addResourceLocations("file:///" + redisUtils.getConfig(ConfigDicEnum.imageAlbumThumbanil.message));
     }
 
     @Override
@@ -59,6 +61,8 @@ public class MyWebMVCConfig implements WebMvcConfigurer {
             .excludePathPatterns("/fictionImg/**")
             .excludePathPatterns("/dramaImage/**")
             .excludePathPatterns("/ehentai/**")
+            .excludePathPatterns("/imageAlbum/**")
+            .excludePathPatterns("/imageAlbumThumbanil/**")
             .excludePathPatterns("/fictionFile/**");
         log.info("系统拦截器初始化完成");
 
