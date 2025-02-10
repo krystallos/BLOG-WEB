@@ -52,4 +52,11 @@ public interface ImageAlbumMapper {
 	 */
 	int delImageAlbum(@Param("ids")String ids);
 
+	/**
+	 * 获取相册时间轴
+	 * @param personId
+	 * @return
+	 */
+	List<GetImageAlbumVo> selectImageAlbumGroupTime(@Param("personId")String personId);
+
 }

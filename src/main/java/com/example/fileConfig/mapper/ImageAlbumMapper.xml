@@ -125,4 +125,24 @@
 		UPDATE OPEN_IMAGE_ALBUM SET DEL_FLAG = 1 WHERE ID = #{ids}
 	</update>
 
+	<select id="selectImageAlbumGroupTime" resultMap="imageAlbumMapper">
+		SELECT
+			*
+		FROM(
+			    SELECT
+					SESSION_YEAR || '年  ' || SESSION_MONTH || '月' AS SESSION_YEAR,
+					SESSION_YEAR || '-' || SESSION_MONTH AS SESSION_MONTH,
+					SESSION_YEAR AS tempYear,
+					SESSION_MONTH AS tempMonth
+				FROM
+					OPEN_IMAGE_ALBUM
+				WHERE
+					CREATE_ID = #{personId}
+					AND DEL_FLAG = '0'
+				GROUP BY
+					SESSION_YEAR,SESSION_MONTH
+		)tab
+		ORDER BY TO_NUMBER(tab.tempYear) DESC, TO_NUMBER(tab.tempMonth) DESC
+	</select>
+
 </mapper>

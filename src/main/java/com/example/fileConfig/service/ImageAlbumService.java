@@ -52,4 +52,9 @@ public class ImageAlbumService {
         return imageAlbumMapper.delImageAlbum(ids);
     }
 
+    /*获取相册时间轴*/
+    public List<GetImageAlbumVo> selectImageAlbumGroupTime(String personId){
+        return imageAlbumMapper.selectImageAlbumGroupTime(personId);
+    }
+
 }
