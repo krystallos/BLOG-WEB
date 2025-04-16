@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.hydrologicalWeather.mapper.HydrologicalWeatherMapper">
+
+	<resultMap id="hyWaterTimeMapper" type="com.example.hydrologicalWeather.enity.GotoSea">
+		<result property="id" column="ID" />
+		<result property="start" column="START_TIME" />
+		<result property="end" column="END_TIME" />
+		<result property="level" column="LEVEL_MSG" />
+	</resultMap>
+
+	<resultMap id="hyWaterLevelMapper" type="com.example.hydrologicalWeather.enity.Tide">
+		<result property="id" column="ID" />
+		<result property="t" column="DATE_TIME" />
+		<result property="y" column="HYDROLOGICAL_HIGHT" />
+	</resultMap>
+
+	<resultMap id="weatherMapper" type="com.example.hydrologicalWeather.enity.CalendarsWeatherTotal">
+		<result property="id" column="ID" />
+		<result property="date" column="DATE_TIME" />
+		<result property="diff" column="DIFF" />
+		<result property="max" column="MAX_DIFF" />
+		<result property="min" column="MIN_DIFF" />
+		<result property="text" column="DIFF_MSG" />
+		<result property="water" column="WATER" />
+		<result property="week" column="WEEK" />
+		<result property="airQuality" column="AIR_QUALITY" />
+		<result property="high" column="TEMPERATURE_HIGH" />
+		<result property="low" column="TEMPERATURE_LOW" />
+		<result property="weather" column="WEATHER" />
+		<result property="wind" column="WIND" />
+		<result property="windLevel" column="WIND_LEVEL" />
+	</resultMap>
+
+	<select id="getHydrologicalTime" resultMap="hyWaterTimeMapper">
+		SELECT
+			*
+		FROM
+			HYDROLOGICAL_TIME
+		WHERE
+			TYPE = #{type}
+		ORDER BY TO_NUMBER(ID) ASC
+	</select>
+
+	<select id="getWeatherList" resultMap="weatherMapper">
+		SELECT
+			*
+		FROM
+			HYDROLOGICAL_WEATHER
+		ORDER BY TO_NUMBER(ID) ASC
+	</select>
+
+	<select id="getHydrologicalList" resultMap="hyWaterLevelMapper">
+		SELECT
+			DATE_TIME,
+			HYDROLOGICAL_HIGHT
+		FROM
+			HYDROLOGICAL_WATER_LEVEL
+		ORDER BY to_NUMBER(ID) ASC
+	</select>
+
+	<insert id="insertWeatherTotal">
+		INSERT INTO HYDROLOGICAL_WEATHER (ID, DATE_TIME, DIFF, MAX_DIFF, MIN_DIFF, DIFF_MSG, WATER, WEEK, AIR_QUALITY, TEMPERATURE_HIGH, TEMPERATURE_LOW, WEATHER, WIND, WIND_LEVEL)
+		VALUES (#{calendarsWeatherTotal.id}, #{calendarsWeatherTotal.date}, #{calendarsWeatherTotal.diff}, #{calendarsWeatherTotal.max}, #{calendarsWeatherTotal.min},
+		        #{calendarsWeatherTotal.text}, #{calendarsWeatherTotal.water}, #{calendarsWeatherTotal.week}, #{calendarsWeatherTotal.airQuality}, #{calendarsWeatherTotal.high}, #{calendarsWeatherTotal.low},
+		        #{calendarsWeatherTotal.weather}, #{calendarsWeatherTotal.wind}, #{calendarsWeatherTotal.windLevel})
+	</insert>
+
+	<insert id="insertWeather">
+		INSERT INTO HYDROLOGICAL_WATER_LEVEL (ID, DATE_TIME, HYDROLOGICAL_HIGHT)
+		VALUES (#{tide.id}, #{tide.t}, #{tide.y})
+	</insert>
+
+	<insert id="insertLevelTypeFish">
+		INSERT INTO HYDROLOGICAL_TIME (ID, START_TIME, END_TIME, LEVEL_MSG, TYPE)
+		VALUES (#{fishingTime.id}, #{fishingTime.start}, #{fishingTime.end}, '开口', '1')
+	</insert>
+
+	<insert id="insertLevelGotoSea">
+		INSERT INTO HYDROLOGICAL_TIME (ID, START_TIME, END_TIME, LEVEL_MSG, TYPE)
+		VALUES (#{gotoSea.id}, #{gotoSea.start}, #{gotoSea.end}, #{gotoSea.level}, '2')
+	</insert>
+
+	<insert id="insertLevelTypePeak">
+		INSERT INTO HYDROLOGICAL_TIME (ID, START_TIME, END_TIME, LEVEL_MSG, TYPE)
+		VALUES (#{peak.id}, #{peak.xEnd}, #{peak.x}, #{peak.y}, '3')
+	</insert>
+
+	<delete id="delWeather">
+		DELETE FROM HYDROLOGICAL_TIME WHERE 1=1
+	</delete>
+	<delete id="delLevel">
+		DELETE FROM HYDROLOGICAL_WATER_LEVEL WHERE 1=1
+	</delete>
+	<delete id="delWeatherTotal">
+		DELETE FROM HYDROLOGICAL_WEATHER WHERE 1=1
+	</delete>
+
+</mapper>
