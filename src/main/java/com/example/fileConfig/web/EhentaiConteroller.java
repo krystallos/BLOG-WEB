@@ -105,16 +105,23 @@ public class EhentaiConteroller {
         executor.shutdown();
     }
 
+    private final static String tempEhentaiUrl = "/tempEhentai";
+
     private void selectDistentEhentai(List<GetEhentaiVo> itemPath){
+        //获取redis中本子的文件存储地址
         String path = redisUtils.getConfig(ConfigDicEnum.accessEhentai.message);
-        File file = new File(path);
+        //根据地址访问地址内的下级缓存地址
+        File file = new File(path + tempEhentaiUrl);
+        //数据库取到的本子名称
         Map<String, String> dbName = itemPath.stream().collect(Collectors.toMap(GetEhentaiVo::getBookName, GetEhentaiVo::getBookName));
         List<String> systemName = new ArrayList<>();
         if(!file.exists()){
             log.info("【" + path + "】目录不存在，停止轮询");
         }
+        //获取缓存中本子的全部名称
         File[] fileList = file.listFiles();
         if(fileList != null){
+            //将本子的全部名称保存到systemName
             for(File vo : fileList){
                 systemName.add(vo.getName());
             }
@@ -137,25 +144,41 @@ public class EhentaiConteroller {
                     GetEhentaiVo newEhentai = new GetEhentaiVo();
                     newEhentai.setBookName(fileName);
                     newEhentai.setBookAuthor(authName);
-                    File imgSize = new File(path + "/" + evo);
-                    for(File img : imgSize.listFiles()){
-                        if(img.getName().contains("jpg") || img.getName().contains("jpeg") || img.getName().contains("png")){
-                            newEhentai.setBookImage("/" + img.getName());
-                            break;
-                        }
-                    }
-                    ehentaiService.insertEhentai(newEhentai);
-                    File newName = new File(path + "/" + fileName);
+                    //获取这个文件夹下的首张图片
+                    File imgSize = new File(path + tempEhentaiUrl + "/" + evo);
+                    File newName = new File(path + tempEhentaiUrl + "/" + fileName);
                     boolean editName = imgSize.renameTo(newName);
                     if(editName){
                         log.info("文件夹【" + evo + "】已修改为【" + fileName + "】");
                     }else{
                         log.info("文件夹【" + evo + "】修改失败，指向文件夹【" + fileName + "】");
                     }
+                    for(File img : newName.listFiles()){
+                        if(img.getName().contains("jpg") || img.getName().contains("jpeg") || img.getName().contains("png")){
+                            newEhentai.setBookImage("/" + img.getName());
+                            break;
+                        }
+                    }
+                    ehentaiService.insertEhentai(newEhentai);
+                    fileCut(newName, new File(path + "/" + fileName));
                 }
             }
             log.info("本次更新完成" + addNum + "本，累计数量" + (itemPath.size() + addNum));
         }
+    }
+
+    public static void fileCut(File fs,File ft) {
+        if(!ft.mkdirs()){boolean createFile = ft.mkdirs();}
+        File []file=fs.listFiles();
+        for(File x:file) {
+            if(x.isDirectory()) {
+                fileCut(x,ft);
+            }else {
+                File f=new File(ft,x.getName());
+                x.renameTo(f);
+            }
+        }
+        fs.delete();
     }
 
 }
