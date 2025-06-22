@@ -1,6 +1,8 @@
 package com.example.fileConfig.web;
 
+import com.alibaba.fastjson.JSON;
 import com.example.codeFile.enity.CodeFileEnity;
+import com.example.fileConfig.enity.ehentai.GetEhentaiFile;
 import com.example.fileConfig.enity.ehentai.GetEhentaiVo;
 import com.example.fileConfig.enity.pixivEnity.PixivHasUrl;
 import com.example.fileConfig.service.EhentaiService;
@@ -20,10 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
@@ -43,6 +42,35 @@ public class EhentaiConteroller {
     private EhentaiService ehentaiService;
     @Resource
     private RedisUtils redisUtils;
+
+    /**
+     * 获取本子文件/文件夹
+     */
+    @Log(title = "获取本子列表", type = LogEnum.SELECT)
+    @PostMapping("api/openEhentaiFile.act")
+    public ResultBody openEhentaiFile(@RequestBody GetEhentaiVo vo){
+        try{
+            GetEhentaiVo getEhentaiVo = ehentaiService.get(vo);
+            String path = redisUtils.getConfig(ConfigDicEnum.accessEhentai.message) + getEhentaiVo.getBookName();
+            File file = new File(path);
+            List<GetEhentaiFile> fileName = new ArrayList<>();
+            for(File temp : Objects.requireNonNull(file.listFiles())){
+                GetEhentaiFile newVo = new GetEhentaiFile(){{
+                    setFileName(temp.getName());
+                    setBookName(getEhentaiVo.getBookName());
+                }};
+                fileName.add(newVo);
+            }
+            if(file.isFile()){
+                return new ResultBody(ApiResultEnum.SUCCESS, fileName, 1);
+            }else{
+                return new ResultBody(ApiResultEnum.SUCCESS, fileName, 0);
+            }
+        }catch (Exception e){
+            log.error(e);
+            return new ResultBody(ApiResultEnum.ERR, e.getMessage());
+        }
+    }
 
     /**
      * 获取本子列表

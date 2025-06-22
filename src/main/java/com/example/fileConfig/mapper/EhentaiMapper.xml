@@ -17,7 +17,7 @@
 		select *
 		from OPEN_EHENTAI_BOOK
 		where 1=1
-		and del_flag = '0' and id = #{fileUtil.ids}
+		and del_flag = '0' and id = #{getEhentaiVo.ids}
 	</select>
 
 	<select id="selectEhentaiName" resultMap="ehentaiMapper">
